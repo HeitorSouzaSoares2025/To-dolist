@@ -1,279 +1,218 @@
-// Elementos do DOM
-const taskForm = document.getElementById('task-form');
-const taskInput = document.getElementById('task-input');
-const taskDeadline = document.getElementById('task-deadline');
-const taskAlert = document.getElementById('task-alert');
-const categorySelect = document.getElementById('category-select');
-const prioritySelect = document.getElementById('priority-select');
-const taskList = document.getElementById('task-list');
-const taskCount = document.getElementById('task-count');
-const filterStatus = document.getElementById('filter-status');
-const filterCategory = document.getElementById('filter-category');
-const alarmSound = document.getElementById('alarm-sound');
-const exportCsvBtn = document.getElementById('export-csv');
-const exportPdfBtn = document.getElementById('export-pdf');
-const importCsvInput = document.getElementById('import-csv');
+const taskInput = document.getElementById("taskInput");
+const categoryInput = document.getElementById("categoryInput");
+const deadlineInput = document.getElementById("deadlineInput");
+const alertMinutesInput = document.getElementById("alertMinutes");
+const addTaskBtn = document.getElementById("addTask");
+const taskList = document.getElementById("taskList");
+const completedList = document.getElementById("completedList");
+const progressBar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+const toggleThemeBtn = document.getElementById("toggleTheme");
+const alertSound = document.getElementById("alertSound");
+const exportBtn = document.getElementById("exportBtn");
+const importFile = document.getElementById("importFile");
+const filterButtons = document.querySelectorAll(".filter-btn");
 
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-
-// Solicitar permissão de notificação
-if ("Notification" in window) {
-    Notification.requestPermission();
+// Dark/Light mode persistente
+if(localStorage.getItem("theme")==="dark"){
+  document.documentElement.classList.add("dark");
+  toggleThemeBtn.textContent="☀️";
 }
 
-// Salvar tarefas no localStorage
-function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+toggleThemeBtn.addEventListener("click", ()=>{
+  document.documentElement.classList.toggle("dark");
+  toggleThemeBtn.textContent=document.documentElement.classList.contains("dark")?"☀️":"🌙";
+  localStorage.setItem("theme",document.documentElement.classList.contains("dark")?"dark":"light");
+});
+
+// Carregar tarefas do localStorage
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function saveTasks(){
+  localStorage.setItem("tasks",JSON.stringify(tasks));
+  updateProgress();
 }
 
-// Atualizar contador
-function updateCount() {
-    taskCount.textContent = `Tarefas pendentes: ${tasks.filter(t => !t.completed).length}`;
+function updateProgress(){
+  const total = tasks.length;
+  const done = tasks.filter(t=>t.done).length;
+  const percent = total? (done/total)*100 :0;
+  progressBar.style.width = percent+"%";
+  progressText.textContent=`${done}/${total} concluídas`;
 }
 
-// Notificação
-function notify(task, msg) {
-    if (Notification.permission === "granted") {
-        new Notification(msg, { body: `[${task.category}] ${task.text} (${task.priority}) - Prazo: ${task.deadline}` });
+// Renderiza tarefas
+function renderTasks(filter="all"){
+  taskList.innerHTML="";
+  completedList.innerHTML="";
+  tasks.forEach((task,index)=>{
+    if(filter!=="all"){
+      if(filter==="pending" && task.done) return;
+      if(filter==="done" && !task.done) return;
+      if(["Pessoal","Trabalho","Estudos"].includes(filter) && task.category!==filter) return;
     }
-    alarmSound.play();
-}
 
-// Checar prazos e alertas
-function checkDeadlines() {
-    const now = new Date();
-    tasks.forEach(task => {
-        if (task.completed) return;
-        const deadline = new Date(task.deadline);
-        const alertTime = new Date(deadline.getTime() - (task.alert * 60000 || 0));
-        if (!task.alerted && task.alert > 0 && now >= alertTime && now < deadline) {
-            notify(task, "Alerta antecipado!");
-            task.alerted = true;
-        }
-        if (!task.notified && now >= deadline) {
-            notify(task, "Tarefa vencida!");
-            task.notified = true;
-        }
+    const li=document.createElement("li");
+    li.className="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg shadow transition";
+    li.setAttribute("draggable",!task.done);
+
+    const left=document.createElement("div");
+    left.className="flex flex-col sm:flex-row sm:items-center gap-2";
+
+    const topRow=document.createElement("div");
+    topRow.className="flex items-center gap-3";
+
+    const checkbox=document.createElement("input");
+    checkbox.type="checkbox";
+    checkbox.checked=task.done;
+    checkbox.className="w-5 h-5";
+    checkbox.addEventListener("change",()=>{
+      task.done=!task.done;
+      saveTasks();
+      renderTasks(filter);
     });
-    saveTasks();
-}
-setInterval(checkDeadlines, 1000); // Atualização a cada 1s
 
-// Criar elemento de tarefa
-function createTaskElement(task, index) {
-    const li = document.createElement('li');
-    if (task.completed) li.classList.add('completed');
-    li.classList.add(`priority-${task.priority}`);
-    li.setAttribute('draggable', true);
+    const text=document.createElement("span");
+    text.textContent=task.text;
+    if(task.done) text.classList.add("line-through","text-gray-500");
 
-    li.innerHTML = `
-        <div class="task-info">[${task.category}] ${task.text} (${task.priority}) - Prazo: ${task.deadline.replace("T"," ")} - Alertar: ${task.alert} min antes</div>
-        <div class="task-actions">
-            <button class="edit">Editar</button>
-            <button class="delete">Excluir</button>
-        </div>
-        <canvas class="task-circle"></canvas>
-    `;
+    const tag=document.createElement("span");
+    tag.textContent=task.category;
+    tag.className="px-2 py-1 rounded-full text-xs text-white";
+    if(task.category==="Pessoal") tag.classList.add("bg-pink-500");
+    if(task.category==="Trabalho") tag.classList.add("bg-green-500");
+    if(task.category==="Estudos") tag.classList.add("bg-purple-500");
 
-    const canvas = li.querySelector('.task-circle');
-    const ctx = canvas.getContext('2d');
+    topRow.appendChild(checkbox);
+    topRow.appendChild(text);
+    topRow.appendChild(tag);
 
-    // Desenhar gráfico circular
-    function drawCircle() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const now = new Date();
-        const deadline = new Date(task.deadline);
-        const created = new Date(task.created || now);
-        const totalMs = deadline - created;
-        const diffMs = deadline - now;
-        const percent = totalMs > 0 ? Math.max(0, Math.min(1, diffMs / totalMs)) : 0;
-        let color = "#28a745";
-        if (task.priority === "Média") color = "#ffc107";
-        else if (task.priority === "Alta") color = "#dc3545";
-
-        // Fundo
-        ctx.beginPath();
-        ctx.arc(25, 25, 22, 0, 2 * Math.PI);
-        ctx.fillStyle = "#eee";
-        ctx.fill();
-
-        // Progresso
-        ctx.beginPath();
-        ctx.moveTo(25, 25);
-        ctx.arc(25, 25, 22, -Math.PI/2, -Math.PI/2 + 2 * Math.PI * percent, false);
-        ctx.fillStyle = color;
-        ctx.fill();
-
-        // Atualizar borda do li conforme prioridade e tempo
-        if (diffMs <= 0) li.style.borderLeftColor = "#dc3545";
-        else if (diffMs <= 24 * 3600000) {
-            const ratio = diffMs / (24 * 3600000);
-            const r = Math.round(255*(1-ratio));
-            const g = Math.round(193*ratio);
-            li.style.borderLeftColor = `rgb(${r},${g},7)`;
-        } else li.style.borderLeftColor = color;
-
-        // Tooltip
-        const hours = Math.floor(diffMs/3600000);
-        const minutes = Math.floor((diffMs % 3600000)/60000);
-        li.title = diffMs <= 0 ? "Vencida!" : `Tempo restante: ${hours}h ${minutes}m`;
+    const bottomRow=document.createElement("div");
+    bottomRow.className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400";
+    if(task.deadline){
+      const date=new Date(task.deadline);
+      bottomRow.textContent="⏰ "+date.toLocaleString("pt-BR")+` (alerta: ${task.alertBefore} min antes)`;
     }
-    drawCircle();
-    setInterval(drawCircle, 1000);
 
-    // Marcar concluída
-    li.querySelector('.task-info').addEventListener('click', () => {
-        task.completed = !task.completed;
-        saveTasks();
-        renderTasks();
+    left.appendChild(topRow);
+    if(task.deadline) left.appendChild(bottomRow);
+
+    const delBtn=document.createElement("button");
+    delBtn.textContent="🗑️";
+    delBtn.className="ml-3 text-red-500 hover:text-red-700";
+    delBtn.addEventListener("click",()=>{
+      tasks.splice(index,1);
+      saveTasks();
+      renderTasks(filter);
     });
 
-    // Editar
-    li.querySelector('.edit').addEventListener('click', () => {
-        const newText = prompt("Editar tarefa:", task.text);
-        const newDeadline = prompt("Editar prazo (AAAA-MM-DDTHH:MM):", task.deadline);
-        const newAlert = prompt("Alertar X minutos antes:", task.alert);
-        if (newText && newDeadline) {
-            task.text = newText;
-            task.deadline = newDeadline;
-            task.alert = parseInt(newAlert) || 0;
-            task.notified = false;
-            task.alerted = false;
-            saveTasks();
-            renderTasks();
+    li.appendChild(left);
+    li.appendChild(delBtn);
+
+    // Alertas visuais e sonoros
+    if(task.deadline && !task.done){
+      const now=new Date();
+      const deadlineDate=new Date(task.deadline);
+      const diff=(deadlineDate-now)/1000/60;
+      if(diff<=task.alertBefore && diff>0){
+        li.classList.add("task-alert");
+        alertSound.play();
+        if("Notification" in window && Notification.permission==="granted"){
+          new Notification("⏰ Tarefa quase vencendo!",{
+            body:`${task.text} (faltam ${Math.round(diff)} min)`,
+            icon:"https://cdn-icons-png.flaticon.com/512/1827/1827415.png"
+          });
         }
-    });
+      }
+    }
 
-    // Excluir
-    li.querySelector('.delete').addEventListener('click', () => {
-        if (confirm("Deseja realmente excluir esta tarefa?")) {
-            tasks.splice(index, 1);
-            saveTasks();
-            renderTasks();
-        }
-    });
+    if(task.done){
+      completedList.appendChild(li);
+    } else {
+      taskList.appendChild(li);
+    }
 
     // Drag & Drop
-    li.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', index); });
-    li.addEventListener('dragover', e => e.preventDefault());
-    li.addEventListener('drop', e => {
-        e.preventDefault();
-        const draggedIndex = e.dataTransfer.getData('text/plain');
-        const temp = tasks[draggedIndex];
-        tasks.splice(draggedIndex, 1);
-        tasks.splice(index, 0, temp);
-        saveTasks();
-        renderTasks();
+    li.addEventListener("dragstart",(e)=>{
+      li.classList.add("dragging");
+      e.dataTransfer.setData("text/plain",index);
     });
-
-    return li;
+    li.addEventListener("dragend",()=>li.classList.remove("dragging"));
+  });
 }
 
-// Renderizar lista de tarefas
-function renderTasks() {
-    taskList.innerHTML = '';
-    let filtered = tasks;
-    if(filterStatus.value !== 'all'){
-        const completed = filterStatus.value === 'completed';
-        filtered = filtered.filter(t => t.completed === completed);
-    }
-    if(filterCategory.value !== 'all'){
-        filtered = filtered.filter(t => t.category === filterCategory.value);
-    }
-    filtered.forEach((task, index) => taskList.appendChild(createTaskElement(task, index)));
-    updateCount();
+// Drag & Drop área
+taskList.addEventListener("dragover",e=>{
+  e.preventDefault();
+  const dragging=document.querySelector(".dragging");
+  const afterElement=getDragAfterElement(taskList,e.clientY);
+  if(afterElement==null){
+    taskList.appendChild(dragging);
+  }else{
+    taskList.insertBefore(dragging,afterElement);
+  }
+});
+
+function getDragAfterElement(container,y){
+  const draggableElements=[...container.querySelectorAll("li:not(.dragging)")];
+  return draggableElements.reduce((closest,child)=>{
+    const box=child.getBoundingClientRect();
+    const offset=y-box.top-box.height/2;
+    if(offset<0 && offset>closest.offset){
+      return {offset:offset,element:child};
+    }else{return closest;}
+  },{offset:Number.NEGATIVE_INFINITY}).element;
 }
 
 // Adicionar tarefa
-taskForm.addEventListener('submit', e => {
-    e.preventDefault();
-    if(!taskInput.value || !taskDeadline.value) return;
-    const now = new Date();
-    const newTask = {
-        text: taskInput.value,
-        deadline: taskDeadline.value,
-        alert: parseInt(taskAlert.value) || 0,
-        category: categorySelect.value,
-        priority: prioritySelect.value,
-        completed: false,
-        notified: false,
-        alerted: false,
-        created: now
-    };
-    tasks.push(newTask);
+addTaskBtn.addEventListener("click",()=>{
+  const text=taskInput.value.trim();
+  const category=categoryInput.value;
+  const deadline=deadlineInput.value;
+  const alertBefore=parseInt(alertMinutesInput.value)||15;
+  if(text){
+    tasks.push({text,category,deadline,alertBefore,done:false});
     saveTasks();
-    taskInput.value = '';
-    taskDeadline.value = '';
-    taskAlert.value = '0';
     renderTasks();
-    if(Notification.permission === "granted"){
-        notify(newTask,"Tarefa adicionada!");
-    }
+    taskInput.value="";
+    deadlineInput.value="";
+    alertMinutesInput.value="15";
+  }
 });
 
 // Filtros
-filterStatus.addEventListener('change', renderTasks);
-filterCategory.addEventListener('change', renderTasks);
+filterButtons.forEach(btn=>btn.addEventListener("click",()=>renderTasks(btn.dataset.filter)));
 
-// Exportar CSV
-exportCsvBtn.addEventListener('click', () => {
-    const csvContent = "data:text/csv;charset=utf-8," + ["Tarefa,Prazo,Alertar,Categoria,Prioridade,Concluída"]
-        .concat(tasks.map(t => `${t.text},${t.deadline},${t.alert},${t.category},${t.priority},${t.completed}`))
-        .join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "tasks.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+// Exportar JSON
+exportBtn.addEventListener("click",()=>{
+  const dataStr="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(tasks));
+  const dlAnchor=document.createElement("a");
+  dlAnchor.setAttribute("href",dataStr);
+  dlAnchor.setAttribute("download","tasks.json");
+  dlAnchor.click();
 });
 
-// Exportar PDF
-exportPdfBtn.addEventListener('click', () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(12);
-    let y = 10;
-    doc.text("To-Do List", 10, y); y += 10;
-    tasks.forEach(t => {
-        let line = `- [${t.category}] ${t.text} (${t.priority}) - Prazo: ${t.deadline} - Alertar: ${t.alert} min antes - Concluída: ${t.completed}`;
-        if(y > 280){ doc.addPage(); y = 10; }
-        doc.text(line, 10, y);
-        y += 8;
-    });
-    doc.save("tasks.pdf");
+// Importar JSON
+importFile.addEventListener("change",e=>{
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        const imported=JSON.parse(ev.target.result);
+        if(Array.isArray(imported)){
+          tasks=imported;
+          saveTasks();
+          renderTasks();
+        }else{alert("Arquivo inválido");}
+      }catch(err){alert("Erro ao ler arquivo JSON");}
+    };
+    reader.readAsText(file);
+  }
 });
 
-// Importar CSV
-importCsvInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if(file){
-        const reader = new FileReader();
-        reader.onload = function(event){
-            const lines = event.target.result.split("\n").slice(1);
-            lines.forEach(line => {
-                const [text, deadline, alert, category, priority, completed] = line.split(",");
-                if(text && deadline){
-                    tasks.push({
-                        text,
-                        deadline,
-                        alert: parseInt(alert) || 0,
-                        category,
-                        priority,
-                        completed: completed === "true",
-                        notified: false,
-                        alerted: false,
-                        created: new Date()
-                    });
-                }
-            });
-            saveTasks();
-            renderTasks();
-        }
-        reader.readAsText(file);
-    }
-});
+// Atualização periódica para alertas
+setInterval(()=>renderTasks(),60000);
 
-// Inicialização
+// Inicializar
 renderTasks();
