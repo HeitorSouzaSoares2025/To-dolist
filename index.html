@@ -25,15 +25,9 @@ li .task-actions button { margin-left:5px; border:none; border-radius:5px; curso
 li .task-actions button.edit { background:#ffc107; color:#fff; }
 li .task-actions button.delete { background:#dc3545; color:#fff; }
 li .task-actions button:hover { opacity:0.8; }
-.priority-Baixa { border-left:5px solid #17a2b8; }
-.priority-Média { border-left:5px solid #ffc107; }
-.priority-Alta { border-left:5px solid #dc3545; }
 #task-count { margin-top:15px; text-align:center; font-weight:bold; }
 .export-import { display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap; }
 .export-import button, .export-import input { flex:1; padding:8px; border-radius:5px; border:1px solid #ccc; cursor:pointer; }
-.alert-soon { animation:blink 1s infinite; border-left:5px solid orange !important; }
-.alert-due { border-left:5px solid red !important; }
-@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
 @media(max-width:700px){ form { flex-direction:column; } .filters { flex-direction:column; } .export-import { flex-direction:column; } }
 </style>
 </head>
@@ -85,46 +79,39 @@ li .task-actions button:hover { opacity:0.8; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const taskForm = document.getElementById('task-form');
-const taskInput = document.getElementById('task-input');
-const taskDeadline = document.getElementById('task-deadline');
-const taskAlert = document.getElementById('task-alert');
-const categorySelect = document.getElementById('category-select');
-const prioritySelect = document.getElementById('priority-select');
-const taskList = document.getElementById('task-list');
-const taskCount = document.getElementById('task-count');
-const filterStatus = document.getElementById('filter-status');
-const filterCategory = document.getElementById('filter-category');
-const alarmSound = document.getElementById('alarm-sound');
-const exportCsvBtn = document.getElementById('export-csv');
-const exportPdfBtn = document.getElementById('export-pdf');
-const importCsvInput = document.getElementById('import-csv');
+const taskForm=document.getElementById('task-form');
+const taskInput=document.getElementById('task-input');
+const taskDeadline=document.getElementById('task-deadline');
+const taskAlert=document.getElementById('task-alert');
+const categorySelect=document.getElementById('category-select');
+const prioritySelect=document.getElementById('priority-select');
+const taskList=document.getElementById('task-list');
+const taskCount=document.getElementById('task-count');
+const filterStatus=document.getElementById('filter-status');
+const filterCategory=document.getElementById('filter-category');
+const alarmSound=document.getElementById('alarm-sound');
 
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+const exportCsvBtn=document.getElementById('export-csv');
+const exportPdfBtn=document.getElementById('export-pdf');
+const importCsvInput=document.getElementById('import-csv');
+
+let tasks=JSON.parse(localStorage.getItem('tasks'))||[];
 if("Notification" in window){ Notification.requestPermission(); }
 
 function saveTasks(){ localStorage.setItem('tasks',JSON.stringify(tasks)); }
-function updateCount(){ taskCount.textContent = `Tarefas pendentes: ${tasks.filter(t=>!t.completed).length}`; }
+function updateCount(){ taskCount.textContent=`Tarefas pendentes: ${tasks.filter(t=>!t.completed).length}`; }
 function notify(task,msg){ if(Notification.permission==="granted"){ new Notification(msg,{ body:`[${task.category}] ${task.text} (${task.priority}) - Prazo: ${task.deadline}` }); } alarmSound.play(); }
 
 function checkDeadlines(){
-    const now = new Date();
+    const now=new Date();
     tasks.forEach(task=>{
         if(task.completed) return;
-        const deadline = new Date(task.deadline);
-        const alertTime = new Date(deadline.getTime() - (task.alert*60000||0));
-
-        if(!task.alerted && task.alert>0 && now >= alertTime && now < deadline){
-            notify(task,"Alerta antecipado!");
-            task.alerted = true;
-        }
-        if(!task.notified && now >= deadline){
-            notify(task,"Tarefa vencida!");
-            task.notified = true;
-        }
+        const deadline=new Date(task.deadline);
+        const alertTime=new Date(deadline.getTime()-(task.alert*60000||0));
+        if(!task.alerted && task.alert>0 && now>=alertTime && now<deadline){ notify(task,"Alerta antecipado!"); task.alerted=true; }
+        if(!task.notified && now>=deadline){ notify(task,"Tarefa vencida!"); task.notified=true; }
     });
-    saveTasks();
-    renderTasks();
+    saveTasks(); renderTasks();
 }
 setInterval(checkDeadlines,60000);
 
@@ -133,24 +120,47 @@ function createTaskElement(task,index){
     li.className=`priority-${task.priority}`;
     if(task.completed) li.classList.add('completed');
 
-    const now = new Date();
-    const deadline = new Date(task.deadline);
-    const alertTime = new Date(deadline.getTime() - (task.alert*60000||0));
+    const now=new Date();
+    const deadline=new Date(task.deadline);
+    const diffMs = deadline - now;
+    const diffHours = diffMs/3600000;
+
+    // Gradiente de urgência
     if(!task.completed){
-        if(now >= deadline){ li.classList.add('alert-due'); }
-        else if(task.alert>0 && now >= alertTime){ li.classList.add('alert-soon'); }
+        if(diffHours <= 0){
+            li.style.borderLeftColor="#dc3545";
+        } else if(diffHours <= 24){
+            const ratio = diffHours/24;
+            const r = Math.round(255*(1-ratio));
+            const g = Math.round(193*ratio);
+            const b = 7;
+            li.style.borderLeftColor=`rgb(${r},${g},${b})`;
+        } else {
+            li.style.borderLeftColor="#28a745";
+        }
     }
 
+    // Tooltip
+    let tooltipText="";
+    if(task.completed){
+        tooltipText="Tarefa concluída";
+    } else if(diffMs<=0){
+        tooltipText="Vencida!";
+    } else {
+        const hours=Math.floor(diffMs/3600000);
+        const minutes=Math.floor((diffMs%3600000)/60000);
+        tooltipText=`Tempo restante: ${hours}h ${minutes}m`;
+    }
+    li.title = tooltipText;
+
     li.setAttribute('draggable',true);
-    li.innerHTML = `<span class="task-info">[${task.category}] ${task.text} (${task.priority}) - Prazo: ${task.deadline.replace("T"," ")} - Alertar: ${task.alert} min antes</span>
+    li.innerHTML=`<span class="task-info">[${task.category}] ${task.text} (${task.priority}) - Prazo: ${task.deadline.replace("T"," ")} - Alertar: ${task.alert} min antes</span>
     <div class="task-actions">
     <button class="edit">Editar</button>
     <button class="delete">Excluir</button>
     </div>`;
 
-    li.querySelector('.task-info').addEventListener('click',()=>{
-        task.completed=!task.completed; saveTasks(); renderTasks();
-    });
+    li.querySelector('.task-info').addEventListener('click',()=>{ task.completed=!task.completed; saveTasks(); renderTasks(); });
     li.querySelector('.edit').addEventListener('click',()=>{
         const newText=prompt("Editar tarefa:",task.text);
         const newDeadline=prompt("Editar prazo (AAAA-MM-DDTHH:MM):",task.deadline);
@@ -160,7 +170,6 @@ function createTaskElement(task,index){
     li.querySelector('.delete').addEventListener('click',()=>{
         if(confirm("Deseja realmente excluir esta tarefa?")){ tasks.splice(index,1); saveTasks(); renderTasks(); }
     });
-
     li.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain',index); });
     li.addEventListener('dragover',e=>e.preventDefault());
     li.addEventListener('drop',e=>{
@@ -178,5 +187,32 @@ function createTaskElement(task,index){
 function renderTasks(){
     taskList.innerHTML='';
     let filtered=tasks;
-    if(filterStatus.value!=='all'){ const completed=filterStatus.value==='completed'; filtered=filtered.filter(t
+    if(filterStatus.value!=='all'){ const completed=filterStatus.value==='completed'; filtered=filtered.filter(t=>t.completed===completed);}
+    if(filterCategory.value!=='all'){ filtered=filtered.filter(t=>t.category===filterCategory.value);}
+    filtered.forEach((task,index)=>taskList.appendChild(createTaskElement(task,index)));
+    updateCount();
+}
+
+taskForm.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(!taskInput.value || !taskDeadline.value) return;
+    const newTask={ text:taskInput.value, deadline:taskDeadline.value, alert:parseInt(taskAlert.value)||0, category:categorySelect.value, priority:prioritySelect.value, completed:false, notified:false, alerted:false };
+    tasks.push(newTask); saveTasks(); taskInput.value=''; taskDeadline.value=''; taskAlert.value='0'; renderTasks();
+});
+
+filterStatus.addEventListener('change',renderTasks);
+filterCategory.addEventListener('change',renderTasks);
+
+exportCsvBtn.addEventListener('click',()=>{
+    const csvContent="data:text/csv;charset=utf-8,"+["Tarefa,Prazo,Alertar,Categoria,Prioridade,Concluída"].concat(tasks.map(t=>`${t.text},${t.deadline},${t.alert},${t.category},${t.priority},${t.completed}`)).join("\n");
+    const encodedUri=encodeURI(csvContent);
+    const link=document.createElement("a"); link.setAttribute("href",encodedUri); link.setAttribute("download","tasks.csv"); document.body.appendChild(link); link.click(); document.body.removeChild(link);
+});
+
+exportPdfBtn.addEventListener('click',()=>{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(12); let y=10;
+    doc.text("To-Do List",10,y); y+=10;
+    tasks.forEach(t=>{ doc.text(`- [${t.category}] ${t.text} (${t
 
