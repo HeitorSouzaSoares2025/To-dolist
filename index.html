@@ -1,47 +1,182 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do List Profissional</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List Profissional</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background:#f4f4f4; display:flex; justify-content:center; padding:20px; }
+.container { background:#fff; padding:20px; border-radius:10px; width:100%; max-width:700px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+h1 { text-align:center; margin-bottom:20px; color:#333; }
+form { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px; }
+form input, form select { flex:1; padding:10px; border-radius:5px; border:1px solid #ccc; }
+form input[type="datetime-local"], form input[type="number"] { flex:1 0 150px; }
+form button { padding:10px 15px; border:none; background:#28a745; color:#fff; border-radius:5px; cursor:pointer; transition:0.3s; }
+form button:hover { background:#218838; }
+.filters { display:flex; gap:10px; margin-bottom:15px; }
+.filters select { flex:1; padding:8px; border-radius:5px; border:1px solid #ccc; }
+ul#task-list { list-style:none; }
+ul#task-list li { display:flex; justify-content:space-between; align-items:center; padding:10px; margin-bottom:8px; border-radius:5px; transition:0.3s; cursor:pointer; border-left:5px solid transparent; }
+li.completed span { text-decoration:line-through; color:#888; }
+li .task-info { flex:1; }
+li .task-actions button { margin-left:5px; border:none; border-radius:5px; cursor:pointer; padding:5px 8px; transition:0.3s; }
+li .task-actions button.edit { background:#ffc107; color:#fff; }
+li .task-actions button.delete { background:#dc3545; color:#fff; }
+li .task-actions button:hover { opacity:0.8; }
+.priority-Baixa { border-left:5px solid #17a2b8; }
+.priority-Média { border-left:5px solid #ffc107; }
+.priority-Alta { border-left:5px solid #dc3545; }
+#task-count { margin-top:15px; text-align:center; font-weight:bold; }
+.export-import { display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap; }
+.export-import button, .export-import input { flex:1; padding:8px; border-radius:5px; border:1px solid #ccc; cursor:pointer; }
+.alert-soon { animation:blink 1s infinite; border-left:5px solid orange !important; }
+.alert-due { border-left:5px solid red !important; }
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@media(max-width:700px){ form { flex-direction:column; } .filters { flex-direction:column; } .export-import { flex-direction:column; } }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Minha To-Do List</h1>
+<div class="container">
+<h1>To-Do List Profissional</h1>
 
-    <!-- Contador de tarefas -->
-    <div class="task-counter">
-      Total: <span id="total">0</span> | Pendentes: <span id="pending">0</span> | Concluídas: <span id="completed">0</span>
-    </div>
+<form id="task-form">
+<input type="text" id="task-input" placeholder="Digite sua tarefa..." required>
+<input type="datetime-local" id="task-deadline" required>
+<input type="number" id="task-alert" placeholder="Alertar X min antes" min="0" value="0">
+<select id="category-select">
+<option value="Pessoal">Pessoal</option>
+<option value="Trabalho">Trabalho</option>
+<option value="Estudo">Estudo</option>
+</select>
+<select id="priority-select">
+<option value="Baixa">Baixa</option>
+<option value="Média">Média</option>
+<option value="Alta">Alta</option>
+</select>
+<button type="submit">Adicionar</button>
+</form>
 
-    <!-- Barra de progresso -->
-    <div class="progress-bar">
-      <span id="progress"></span>
-    </div>
+<div class="filters">
+<select id="filter-status">
+<option value="all">Todas</option>
+<option value="pending">Pendentes</option>
+<option value="completed">Concluídas</option>
+</select>
+<select id="filter-category">
+<option value="all">Todas categorias</option>
+<option value="Pessoal">Pessoal</option>
+<option value="Trabalho">Trabalho</option>
+<option value="Estudo">Estudo</option>
+</select>
+</div>
 
-    <!-- Área de entrada -->
-    <div class="input-area">
-      <input type="text" id="taskInput" placeholder="Digite uma tarefa...">
-      <select id="prioritySelect">
-        <option value="Baixa">Baixa</option>
-        <option value="Média">Média</option>
-        <option value="Alta">Alta</option>
-      </select>
-      <button id="addTask">Adicionar</button>
-    </div>
+<div class="export-import">
+<button id="export-csv">Exportar CSV</button>
+<button id="export-pdf">Exportar PDF</button>
+<input type="file" id="import-csv" accept=".csv">
+</div>
 
-    <!-- Filtros -->
-    <div class="filters">
-      <button data-filter="all">Todas</button>
-      <button data-filter="active">Pendentes</button>
-      <button data-filter="completed">Concluídas</button>
-    </div>
+<ul id="task-list"></ul>
+<div id="task-count">Tarefas pendentes: 0</div>
+<audio id="alarm-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+</div>
 
-    <!-- Lista -->
-    <ul id="taskList"></ul>
-  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const taskForm = document.getElementById('task-form');
+const taskInput = document.getElementById('task-input');
+const taskDeadline = document.getElementById('task-deadline');
+const taskAlert = document.getElementById('task-alert');
+const categorySelect = document.getElementById('category-select');
+const prioritySelect = document.getElementById('priority-select');
+const taskList = document.getElementById('task-list');
+const taskCount = document.getElementById('task-count');
+const filterStatus = document.getElementById('filter-status');
+const filterCategory = document.getElementById('filter-category');
+const alarmSound = document.getElementById('alarm-sound');
+const exportCsvBtn = document.getElementById('export-csv');
+const exportPdfBtn = document.getElementById('export-pdf');
+const importCsvInput = document.getElementById('import-csv');
 
-  <script src="script.js"></script>
-</body>
-</html>
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+if("Notification" in window){ Notification.requestPermission(); }
+
+function saveTasks(){ localStorage.setItem('tasks',JSON.stringify(tasks)); }
+function updateCount(){ taskCount.textContent = `Tarefas pendentes: ${tasks.filter(t=>!t.completed).length}`; }
+function notify(task,msg){ if(Notification.permission==="granted"){ new Notification(msg,{ body:`[${task.category}] ${task.text} (${task.priority}) - Prazo: ${task.deadline}` }); } alarmSound.play(); }
+
+function checkDeadlines(){
+    const now = new Date();
+    tasks.forEach(task=>{
+        if(task.completed) return;
+        const deadline = new Date(task.deadline);
+        const alertTime = new Date(deadline.getTime() - (task.alert*60000||0));
+
+        if(!task.alerted && task.alert>0 && now >= alertTime && now < deadline){
+            notify(task,"Alerta antecipado!");
+            task.alerted = true;
+        }
+        if(!task.notified && now >= deadline){
+            notify(task,"Tarefa vencida!");
+            task.notified = true;
+        }
+    });
+    saveTasks();
+    renderTasks();
+}
+setInterval(checkDeadlines,60000);
+
+function createTaskElement(task,index){
+    const li=document.createElement('li');
+    li.className=`priority-${task.priority}`;
+    if(task.completed) li.classList.add('completed');
+
+    const now = new Date();
+    const deadline = new Date(task.deadline);
+    const alertTime = new Date(deadline.getTime() - (task.alert*60000||0));
+    if(!task.completed){
+        if(now >= deadline){ li.classList.add('alert-due'); }
+        else if(task.alert>0 && now >= alertTime){ li.classList.add('alert-soon'); }
+    }
+
+    li.setAttribute('draggable',true);
+    li.innerHTML = `<span class="task-info">[${task.category}] ${task.text} (${task.priority}) - Prazo: ${task.deadline.replace("T"," ")} - Alertar: ${task.alert} min antes</span>
+    <div class="task-actions">
+    <button class="edit">Editar</button>
+    <button class="delete">Excluir</button>
+    </div>`;
+
+    li.querySelector('.task-info').addEventListener('click',()=>{
+        task.completed=!task.completed; saveTasks(); renderTasks();
+    });
+    li.querySelector('.edit').addEventListener('click',()=>{
+        const newText=prompt("Editar tarefa:",task.text);
+        const newDeadline=prompt("Editar prazo (AAAA-MM-DDTHH:MM):",task.deadline);
+        const newAlert=prompt("Alertar X minutos antes:",task.alert);
+        if(newText && newDeadline){ task.text=newText; task.deadline=newDeadline; task.alert=parseInt(newAlert)||0; task.notified=false; task.alerted=false; saveTasks(); renderTasks(); }
+    });
+    li.querySelector('.delete').addEventListener('click',()=>{
+        if(confirm("Deseja realmente excluir esta tarefa?")){ tasks.splice(index,1); saveTasks(); renderTasks(); }
+    });
+
+    li.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain',index); });
+    li.addEventListener('dragover',e=>e.preventDefault());
+    li.addEventListener('drop',e=>{
+        e.preventDefault();
+        const draggedIndex=e.dataTransfer.getData('text/plain');
+        const temp=tasks[draggedIndex];
+        tasks.splice(draggedIndex,1);
+        tasks.splice(index,0,temp);
+        saveTasks(); renderTasks();
+    });
+
+    return li;
+}
+
+function renderTasks(){
+    taskList.innerHTML='';
+    let filtered=tasks;
+    if(filterStatus.value!=='all'){ const completed=filterStatus.value==='completed'; filtered=filtered.filter(t
+
