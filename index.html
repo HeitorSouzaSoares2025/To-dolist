@@ -3,16 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To-Do List</title>
+  <title>To-Do List Profissional</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>Minha To-Do List ✅</h1>
+    <h1>📋 Minha To-Do List</h1>
+
+    <!-- Área de adicionar tarefa -->
     <div class="input-area">
       <input type="text" id="taskInput" placeholder="Digite uma tarefa...">
+
+      <select id="category">
+        <option value="Estudo">📘 Estudo</option>
+        <option value="Trabalho">💻 Trabalho</option>
+        <option value="Pessoal">🏡 Pessoal</option>
+      </select>
+
+      <select id="priority">
+        <option value="Alta">🔴 Alta</option>
+        <option value="Média">🟡 Média</option>
+        <option value="Baixa">🟢 Baixa</option>
+      </select>
+
       <button onclick="addTask()">Adicionar</button>
     </div>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <button onclick="filterTasks('all')">Todas</button>
+      <button onclick="filterTasks('completed')">Concluídas</button>
+      <button onclick="filterTasks('pending')">Pendentes</button>
+    </div>
+
+    <!-- Lista de tarefas -->
     <ul id="taskList"></ul>
   </div>
 
