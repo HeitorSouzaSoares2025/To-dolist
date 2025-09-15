@@ -13,6 +13,7 @@ body {
   padding: 25px;
   border-radius: 16px;
   width: 420px;
+  max-width: 90%; /* 🔹 Ajuste para telas menores */
   box-shadow: 0 6px 15px rgba(0,0,0,0.3);
 }
 
@@ -33,6 +34,7 @@ h1 {
   border: 1px solid #ccc;
   border-radius: 8px;
   flex: 1;
+  min-width: 0; /* 🔹 Evita quebrar layout em telas pequenas */
 }
 
 .input-area button {
@@ -42,6 +44,7 @@ h1 {
   color: white;
   border-radius: 8px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .input-area button:hover {
@@ -51,6 +54,7 @@ h1 {
 .filters {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap; /* 🔹 Permite quebrar linha no celular */
   gap: 10px;
   margin-bottom: 15px;
 }
@@ -83,6 +87,8 @@ li {
   justify-content: space-between;
   align-items: center;
   border-left: 6px solid #ccc;
+  flex-wrap: wrap; /* 🔹 Se faltar espaço, o texto quebra embaixo */
+  gap: 10px;
 }
 
 li.completed {
@@ -94,6 +100,7 @@ li.completed {
 .task-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .task-meta {
@@ -118,3 +125,36 @@ button.remove:hover {
 li[data-priority="Alta"] { border-left-color: red; }
 li[data-priority="Média"] { border-left-color: orange; }
 li[data-priority="Baixa"] { border-left-color: green; }
+
+/* 📱 Responsividade */
+@media (max-width: 480px) {
+  .container {
+    width: 95%;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .input-area {
+    flex-direction: column; /* 🔹 Campos empilhados no celular */
+  }
+
+  .input-area input,
+  .input-area select,
+  .input-area button {
+    width: 100%;
+  }
+
+  .filters {
+    flex-direction: column; /* 🔹 Botões em lista no celular */
+    align-items: stretch;
+  }
+
+  li {
+    flex-direction: column; /* 🔹 Cada tarefa em bloco */
+    align-items: flex-start;
+  }
+
+  button.remove {
+    align-self: flex-end;
+  }
+}
