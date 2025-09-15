@@ -1,94 +1,95 @@
 const taskInput = document.getElementById("taskInput");
-const categorySelect = document.getElementById("category");
-const prioritySelect = document.getElementById("priority");
+const prioritySelect = document.getElementById("prioritySelect");
+const addTaskBtn = document.getElementById("addTask");
 const taskList = document.getElementById("taskList");
+const filters = document.querySelectorAll(".filters button");
+const progressBar = document.getElementById("progress");
 
-// Carregar ao abrir
-window.onload = loadTasks;
-
-function addTask() {
-  const text = taskInput.value.trim();
-  const category = categorySelect.value;
-  const priority = prioritySelect.value;
-
-  if (text === "") return;
-
-  createTaskElement({ text, category, priority, completed: false });
-  saveTasks();
-  taskInput.value = "";
+// Função para atualizar a barra de progresso
+function updateProgress() {
+  const tasks = document.querySelectorAll("#taskList li");
+  const completed = document.querySelectorAll("#taskList li.completed");
+  const percent = tasks.length ? (completed.length / tasks.length) * 100 : 0;
+  progressBar.style.width = percent + "%";
 }
 
-function createTaskElement(task) {
+// Criar tarefa
+function createTask(text, priority) {
   const li = document.createElement("li");
-  li.setAttribute("data-priority", task.priority);
-  if (task.completed) li.classList.add("completed");
+  li.setAttribute("data-priority", priority);
 
   const taskInfo = document.createElement("div");
-  taskInfo.classList.add("task-info");
+  taskInfo.className = "task-info";
 
   const taskText = document.createElement("span");
-  taskText.textContent = task.text;
+  taskText.textContent = text;
 
   const taskMeta = document.createElement("span");
-  taskMeta.classList.add("task-meta");
-  taskMeta.textContent = `${task.category} • Prioridade: ${task.priority}`;
+  taskMeta.className = "task-meta";
+  taskMeta.textContent = "Prioridade: " + priority;
 
   taskInfo.appendChild(taskText);
   taskInfo.appendChild(taskMeta);
 
-  li.appendChild(taskInfo);
-
-  // Clique para concluir
+  // Botão concluir
   li.addEventListener("click", () => {
     li.classList.toggle("completed");
-    saveTasks();
+    updateProgress();
   });
 
   // Botão remover
   const removeBtn = document.createElement("button");
-  removeBtn.textContent = "X";
-  removeBtn.classList.add("remove");
-  removeBtn.onclick = (e) => {
-    e.stopPropagation();
+  removeBtn.className = "remove";
+  removeBtn.textContent = "Remover";
+  removeBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); // evita conflito com o click do li
     li.remove();
-    saveTasks();
-  };
+    updateProgress();
+  });
 
+  li.appendChild(taskInfo);
   li.appendChild(removeBtn);
   taskList.appendChild(li);
+
+  updateProgress();
 }
 
-function saveTasks() {
-  const tasks = [];
-  document.querySelectorAll("#taskList li").forEach(li => {
-    tasks.push({
-      text: li.querySelector(".task-info span").textContent,
-      category: li.querySelector(".task-meta").textContent.split(" • ")[0],
-      priority: li.getAttribute("data-priority"),
-      completed: li.classList.contains("completed")
+// Adicionar tarefa pelo botão
+addTaskBtn.addEventListener("click", () => {
+  const text = taskInput.value.trim();
+  const priority = prioritySelect.value;
+
+  if (text !== "") {
+    createTask(text, priority);
+    taskInput.value = "";
+  }
+});
+
+// Adicionar tarefa com Enter
+taskInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    addTaskBtn.click();
+  }
+});
+
+// Filtros
+filters.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const filter = btn.dataset.filter;
+    const tasks = taskList.querySelectorAll("li");
+
+    tasks.forEach((task) => {
+      switch (filter) {
+        case "all":
+          task.style.display = "flex";
+          break;
+        case "active":
+          task.style.display = task.classList.contains("completed") ? "none" : "flex";
+          break;
+        case "completed":
+          task.style.display = task.classList.contains("completed") ? "flex" : "none";
+          break;
+      }
     });
   });
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-}
-
-function loadTasks() {
-  const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  tasks.forEach(task => createTaskElement(task));
-}
-
-function filterTasks(filter) {
-  const tasks = document.querySelectorAll("#taskList li");
-  tasks.forEach(li => {
-    switch (filter) {
-      case "all":
-        li.style.display = "flex";
-        break;
-      case "completed":
-        li.style.display = li.classList.contains("completed") ? "flex" : "none";
-        break;
-      case "pending":
-        li.style.display = !li.classList.contains("completed") ? "flex" : "none";
-        break;
-    }
-  });
-}
+});
