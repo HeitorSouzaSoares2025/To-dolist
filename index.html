@@ -3,56 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>To-Do List Profissional</title>
+<title>To-Do List Premium</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="style.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
-<body>
-<div class="container">
-<h1>To-Do List Profissional</h1>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center p-6 transition-colors duration-300">
 
-<form id="task-form">
-<input type="text" id="task-input" placeholder="Digite sua tarefa..." required>
-<input type="datetime-local" id="task-deadline" required>
-<input type="number" id="task-alert" placeholder="Alertar X min antes" min="0" value="0">
-<select id="category-select">
-<option value="Pessoal">Pessoal</option>
-<option value="Trabalho">Trabalho</option>
-<option value="Estudo">Estudo</option>
-</select>
-<select id="priority-select">
-<option value="Baixa">Baixa</option>
-<option value="Média">Média</option>
-<option value="Alta">Alta</option>
-</select>
-<button type="submit">Adicionar</button>
-</form>
+<header class="w-full max-w-4xl flex justify-between items-center mb-6">
+  <h1 class="text-3xl font-bold">📝 To-Do List Premium</h1>
+  <button id="toggleTheme" class="px-3 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg">🌙</button>
+</header>
 
-<div class="filters">
-<select id="filter-status">
-<option value="all">Todas</option>
-<option value="pending">Pendentes</option>
-<option value="completed">Concluídas</option>
-</select>
+<!-- Barra de progresso -->
+<div class="w-full max-w-4xl bg-gray-300 dark:bg-gray-700 rounded-full h-4 mb-2">
+  <div id="progressBar" class="bg-green-500 h-4 rounded-full transition-all duration-300" style="width:0%"></div>
+</div>
+<p id="progressText" class="mb-6 text-sm text-gray-600 dark:text-gray-400">0/0 concluídas</p>
 
-<select id="filter-category">
-<option value="all">Todas categorias</option>
-<option value="Pessoal">Pessoal</option>
-<option value="Trabalho">Trabalho</option>
-<option value="Estudo">Estudo</option>
-</select>
+<!-- Formulário -->
+<div class="w-full max-w-4xl flex flex-wrap gap-2 mb-4">
+  <input id="taskInput" type="text" placeholder="Digite uma tarefa..." class="flex-1 px-4 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+  <select id="categoryInput" class="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+    <option value="Pessoal">Pessoal</option>
+    <option value="Trabalho">Trabalho</option>
+    <option value="Estudos">Estudos</option>
+  </select>
+  <input id="deadlineInput" type="datetime-local" class="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
+  <input id="alertMinutes" type="number" min="1" value="15" class="w-24 px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800" placeholder="Min">
+  <button id="addTask" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Adicionar</button>
 </div>
 
-<div class="export-import">
-<button id="export-csv">Exportar CSV</button>
-<button id="export-pdf">Exportar PDF</button>
-<input type="file" id="import-csv" accept=".csv">
+<!-- Filtros -->
+<div class="w-full max-w-4xl flex flex-wrap gap-2 mb-6">
+  <button class="filter-btn bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-lg" data-filter="all">Todas</button>
+  <button class="filter-btn bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-lg" data-filter="pending">Pendentes</button>
+  <button class="filter-btn bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-lg" data-filter="done">Concluídas</button>
+  <button class="filter-btn bg-pink-500 text-white px-3 py-1 rounded-lg" data-filter="Pessoal">Pessoal</button>
+  <button class="filter-btn bg-green-500 text-white px-3 py-1 rounded-lg" data-filter="Trabalho">Trabalho</button>
+  <button class="filter-btn bg-purple-500 text-white px-3 py-1 rounded-lg" data-filter="Estudos">Estudos</button>
+  <button id="exportBtn" class="bg-yellow-500 text-white px-3 py-1 rounded-lg">Exportar JSON</button>
+  <input type="file" id="importFile" class="px-3 py-1 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
 </div>
 
-<ul id="task-list"></ul>
-<div id="task-count">Tarefas pendentes: 0</div>
-<audio id="alarm-sound" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
-</div>
+<!-- Lista de tarefas -->
+<ul id="taskList" class="w-full max-w-4xl space-y-3 mb-6"></ul>
+
+<!-- Histórico -->
+<h2 class="w-full max-w-4xl text-xl font-semibold mb-2">✅ Histórico de Concluídas</h2>
+<ul id="completedList" class="w-full max-w-4xl space-y-3 mb-6"></ul>
+
+<audio id="alertSound">
+  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
 
 <script src="script.js"></script>
 </body>
