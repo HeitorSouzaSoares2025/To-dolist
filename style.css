@@ -1,6 +1,6 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #f0f0f0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #667eea, #764ba2);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -10,27 +10,29 @@ body {
 
 .container {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  width: 350px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  padding: 25px;
+  border-radius: 16px;
+  width: 420px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
 }
 
 h1 {
   text-align: center;
-  color: #333;
+  margin-bottom: 20px;
 }
 
 .input-area {
   display: flex;
+  gap: 5px;
   margin-bottom: 15px;
 }
 
-.input-area input {
-  flex: 1;
+.input-area input,
+.input-area select {
   padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 8px 0 0 8px;
+  border-radius: 8px;
+  flex: 1;
 }
 
 .input-area button {
@@ -38,7 +40,7 @@ h1 {
   border: none;
   background: #28a745;
   color: white;
-  border-radius: 0 8px 8px 0;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -46,24 +48,57 @@ h1 {
   background: #218838;
 }
 
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.filters button {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #eee;
+}
+
+.filters button:hover {
+  background: #ddd;
+}
+
 ul {
   list-style: none;
   padding: 0;
+  max-height: 350px;
+  overflow-y: auto;
 }
 
 li {
   background: #fafafa;
   margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-left: 6px solid #ccc;
 }
 
 li.completed {
   text-decoration: line-through;
   color: gray;
+  background: #f0f0f0;
+}
+
+.task-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.task-meta {
+  font-size: 0.8em;
+  color: #666;
 }
 
 button.remove {
@@ -74,3 +109,12 @@ button.remove {
   padding: 5px 8px;
   cursor: pointer;
 }
+
+button.remove:hover {
+  background: darkred;
+}
+
+/* Cores por prioridade */
+li[data-priority="Alta"] { border-left-color: red; }
+li[data-priority="Média"] { border-left-color: orange; }
+li[data-priority="Baixa"] { border-left-color: green; }
