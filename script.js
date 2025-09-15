@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded",()=>{
+
 const taskInput = document.getElementById("taskInput");
 const categoryInput = document.getElementById("categoryInput");
 const deadlineInput = document.getElementById("deadlineInput");
@@ -25,7 +27,6 @@ toggleThemeBtn.addEventListener("click", ()=>{
   localStorage.setItem("theme",document.documentElement.classList.contains("dark")?"dark":"light");
 });
 
-// Carregar tarefas do localStorage
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 function saveTasks(){
@@ -41,7 +42,7 @@ function updateProgress(){
   progressText.textContent=`${done}/${total} concluídas`;
 }
 
-// Renderiza tarefas
+// Função para renderizar tarefas
 function renderTasks(filter="all"){
   taskList.innerHTML="";
   completedList.innerHTML="";
@@ -109,7 +110,6 @@ function renderTasks(filter="all"){
     li.appendChild(left);
     li.appendChild(delBtn);
 
-    // Alertas visuais e sonoros
     if(task.deadline && !task.done){
       const now=new Date();
       const deadlineDate=new Date(task.deadline);
@@ -117,12 +117,6 @@ function renderTasks(filter="all"){
       if(diff<=task.alertBefore && diff>0){
         li.classList.add("task-alert");
         alertSound.play();
-        if("Notification" in window && Notification.permission==="granted"){
-          new Notification("⏰ Tarefa quase vencendo!",{
-            body:`${task.text} (faltam ${Math.round(diff)} min)`,
-            icon:"https://cdn-icons-png.flaticon.com/512/1827/1827415.png"
-          });
-        }
       }
     }
 
@@ -131,40 +125,11 @@ function renderTasks(filter="all"){
     } else {
       taskList.appendChild(li);
     }
-
-    // Drag & Drop
-    li.addEventListener("dragstart",(e)=>{
-      li.classList.add("dragging");
-      e.dataTransfer.setData("text/plain",index);
-    });
-    li.addEventListener("dragend",()=>li.classList.remove("dragging"));
   });
 }
 
-// Drag & Drop área
-taskList.addEventListener("dragover",e=>{
-  e.preventDefault();
-  const dragging=document.querySelector(".dragging");
-  const afterElement=getDragAfterElement(taskList,e.clientY);
-  if(afterElement==null){
-    taskList.appendChild(dragging);
-  }else{
-    taskList.insertBefore(dragging,afterElement);
-  }
-});
-
-function getDragAfterElement(container,y){
-  const draggableElements=[...container.querySelectorAll("li:not(.dragging)")];
-  return draggableElements.reduce((closest,child)=>{
-    const box=child.getBoundingClientRect();
-    const offset=y-box.top-box.height/2;
-    if(offset<0 && offset>closest.offset){
-      return {offset:offset,element:child};
-    }else{return closest;}
-  },{offset:Number.NEGATIVE_INFINITY}).element;
-}
-
 // Adicionar tarefa
+addTaskBtn.type="button"; // evita submit
 addTaskBtn.addEventListener("click",()=>{
   const text=taskInput.value.trim();
   const category=categoryInput.value;
@@ -177,13 +142,15 @@ addTaskBtn.addEventListener("click",()=>{
     taskInput.value="";
     deadlineInput.value="";
     alertMinutesInput.value="15";
+  }else{
+    alert("Digite uma tarefa antes!");
   }
 });
 
 // Filtros
 filterButtons.forEach(btn=>btn.addEventListener("click",()=>renderTasks(btn.dataset.filter)));
 
-// Exportar JSON
+// Exportar
 exportBtn.addEventListener("click",()=>{
   const dataStr="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(tasks));
   const dlAnchor=document.createElement("a");
@@ -192,7 +159,7 @@ exportBtn.addEventListener("click",()=>{
   dlAnchor.click();
 });
 
-// Importar JSON
+// Importar
 importFile.addEventListener("change",e=>{
   const file=e.target.files[0];
   if(file){
@@ -204,15 +171,15 @@ importFile.addEventListener("change",e=>{
           tasks=imported;
           saveTasks();
           renderTasks();
-        }else{alert("Arquivo inválido");}
+        }else alert("Arquivo inválido");
       }catch(err){alert("Erro ao ler arquivo JSON");}
     };
     reader.readAsText(file);
   }
 });
 
-// Atualização periódica para alertas
 setInterval(()=>renderTasks(),60000);
 
-// Inicializar
 renderTasks();
+
+});
