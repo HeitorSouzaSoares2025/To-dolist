@@ -13,13 +13,32 @@ body {
   padding: 25px;
   border-radius: 16px;
   width: 420px;
-  max-width: 90%; /* 🔹 Ajuste para telas menores */
+  max-width: 90%;
   box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Barra de progresso */
+.progress-bar {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+.progress-bar span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #28a745, #218838);
+  border-radius: 6px;
+  transition: width 0.4s ease;
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .input-area {
@@ -34,7 +53,7 @@ h1 {
   border: 1px solid #ccc;
   border-radius: 8px;
   flex: 1;
-  min-width: 0; /* 🔹 Evita quebrar layout em telas pequenas */
+  min-width: 0;
 }
 
 .input-area button {
@@ -45,8 +64,8 @@ h1 {
   border-radius: 8px;
   cursor: pointer;
   flex-shrink: 0;
+  transition: background 0.3s;
 }
-
 .input-area button:hover {
   background: #218838;
 }
@@ -54,19 +73,18 @@ h1 {
 .filters {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap; /* 🔹 Permite quebrar linha no celular */
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 15px;
 }
-
 .filters button {
   border: none;
   padding: 8px 12px;
   border-radius: 6px;
   cursor: pointer;
   background: #eee;
+  transition: background 0.3s;
 }
-
 .filters button:hover {
   background: #ddd;
 }
@@ -78,6 +96,7 @@ ul {
   overflow-y: auto;
 }
 
+/* Animação suave ao aparecer */
 li {
   background: #fafafa;
   margin-bottom: 10px;
@@ -87,14 +106,31 @@ li {
   justify-content: space-between;
   align-items: center;
   border-left: 6px solid #ccc;
-  flex-wrap: wrap; /* 🔹 Se faltar espaço, o texto quebra embaixo */
+  flex-wrap: wrap;
   gap: 10px;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+  animation: fadeIn 0.4s ease;
+}
+li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+li::before {
+  content: "📝";
+  margin-right: 6px;
+}
 li.completed {
   text-decoration: line-through;
   color: gray;
   background: #f0f0f0;
+}
+li.completed::before {
+  content: "✅";
 }
 
 .task-info {
@@ -102,7 +138,6 @@ li.completed {
   flex-direction: column;
   flex: 1;
 }
-
 .task-meta {
   font-size: 0.8em;
   color: #666;
@@ -115,10 +150,13 @@ button.remove {
   border-radius: 6px;
   padding: 5px 8px;
   cursor: pointer;
+  transition: background 0.3s;
 }
-
 button.remove:hover {
   background: darkred;
+}
+button.remove::before {
+  content: "🗑️ ";
 }
 
 /* Cores por prioridade */
@@ -126,7 +164,40 @@ li[data-priority="Alta"] { border-left-color: red; }
 li[data-priority="Média"] { border-left-color: orange; }
 li[data-priority="Baixa"] { border-left-color: green; }
 
-/* 📱 Responsividade */
+/* Dark mode automático */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(to right, #1e1e2f, #2c2c44);
+    color: white;
+  }
+  .container {
+    background: #2c2c44;
+    color: white;
+  }
+  li {
+    background: #3b3b55;
+    color: #eee;
+  }
+  li.completed {
+    background: #2b2b3a;
+    color: #999;
+  }
+  .filters button {
+    background: #444;
+    color: white;
+  }
+  .filters button:hover {
+    background: #555;
+  }
+  .input-area input,
+  .input-area select {
+    background: #444;
+    color: white;
+    border: 1px solid #666;
+  }
+}
+
+/* Responsividade */
 @media (max-width: 480px) {
   .container {
     width: 95%;
@@ -135,7 +206,7 @@ li[data-priority="Baixa"] { border-left-color: green; }
   }
 
   .input-area {
-    flex-direction: column; /* 🔹 Campos empilhados no celular */
+    flex-direction: column;
   }
 
   .input-area input,
@@ -145,12 +216,12 @@ li[data-priority="Baixa"] { border-left-color: green; }
   }
 
   .filters {
-    flex-direction: column; /* 🔹 Botões em lista no celular */
+    flex-direction: column;
     align-items: stretch;
   }
 
   li {
-    flex-direction: column; /* 🔹 Cada tarefa em bloco */
+    flex-direction: column;
     align-items: flex-start;
   }
 
