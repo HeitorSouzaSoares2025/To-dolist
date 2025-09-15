@@ -13,15 +13,27 @@ body {
   padding: 25px;
   border-radius: 16px;
   width: 420px;
-  max-width: 90%;
+  max-width: 95%;
   box-shadow: 0 6px 15px rgba(0,0,0,0.3);
   position: relative;
   overflow: hidden;
 }
 
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.task-counter {
+  font-size: 0.9em;
+  color: #555;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
 /* Barra de progresso */
 .progress-bar {
-  height: 6px;
+  height: 8px;
   background: #e0e0e0;
   border-radius: 6px;
   margin-bottom: 15px;
@@ -31,22 +43,19 @@ body {
   display: block;
   height: 100%;
   width: 0%;
-  background: linear-gradient(to right, #28a745, #218838);
   border-radius: 6px;
-  transition: width 0.4s ease;
+  transition: width 0.4s ease, background 0.4s ease;
 }
+.progress-bar span.low { background: red; }
+.progress-bar span.medium { background: orange; }
+.progress-bar span.high { background: green; }
 
-h1 {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
+/* Área de input */
 .input-area {
   display: flex;
   gap: 5px;
   margin-bottom: 15px;
 }
-
 .input-area input,
 .input-area select {
   padding: 10px;
@@ -55,7 +64,6 @@ h1 {
   flex: 1;
   min-width: 0;
 }
-
 .input-area button {
   padding: 10px 15px;
   border: none;
@@ -66,10 +74,9 @@ h1 {
   flex-shrink: 0;
   transition: background 0.3s;
 }
-.input-area button:hover {
-  background: #218838;
-}
+.input-area button:hover { background: #218838; }
 
+/* Filtros */
 .filters {
   display: flex;
   justify-content: center;
@@ -85,10 +92,9 @@ h1 {
   background: #eee;
   transition: background 0.3s;
 }
-.filters button:hover {
-  background: #ddd;
-}
+.filters button:hover { background: #ddd; }
 
+/* Lista */
 ul {
   list-style: none;
   padding: 0;
@@ -96,7 +102,7 @@ ul {
   overflow-y: auto;
 }
 
-/* Animação suave ao aparecer */
+/* Tarefas */
 li {
   background: #fafafa;
   margin-bottom: 10px;
@@ -108,43 +114,39 @@ li {
   border-left: 6px solid #ccc;
   flex-wrap: wrap;
   gap: 10px;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+  transition: all 0.3s ease;
+  opacity: 1;
   animation: fadeIn 0.4s ease;
 }
-li:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
+li:hover { transform: translateY(-3px); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+li.removing { opacity: 0; transform: translateX(100%); }
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-li::before {
-  content: "📝";
-  margin-right: 6px;
-}
-li.completed {
-  text-decoration: line-through;
-  color: gray;
-  background: #f0f0f0;
-}
+li.completed { text-decoration: line-through; background: #f0f0f0; color: gray; }
+li.completed .task-meta { color: #999; }
+li.completed .completed-time { font-size: 0.75em; color: #555; margin-top: 2px; font-style: italic; }
+
+/* Ícone de check animado */
 li.completed::before {
   content: "✅";
+  display: inline-block;
+  margin-right: 6px;
+  transform: scale(0);
+  animation: checkPop 0.3s forwards;
+}
+@keyframes checkPop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.5); }
+  100% { transform: scale(1); }
 }
 
-.task-info {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.task-meta {
-  font-size: 0.8em;
-  color: #666;
-}
-
-button.remove {
-  background: red;
+/* Botões */
+button.remove,
+button.edit {
   border: none;
   color: white;
   border-radius: 6px;
@@ -152,80 +154,41 @@ button.remove {
   cursor: pointer;
   transition: background 0.3s;
 }
-button.remove:hover {
-  background: darkred;
-}
-button.remove::before {
-  content: "🗑️ ";
-}
+button.remove { background: red; }
+button.remove:hover { background: darkred; }
+button.edit { background: #007bff; margin-right: 5px; }
+button.edit:hover { background: #0056b3; }
 
-/* Cores por prioridade */
-li[data-priority="Alta"] { border-left-color: red; }
-li[data-priority="Média"] { border-left-color: orange; }
-li[data-priority="Baixa"] { border-left-color: green; }
+/* Badges de prioridade */
+.priority-badge {
+  font-size: 0.75em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: white;
+  margin-left: 5px;
+}
+.priority-badge.Alta { background: red; }
+.priority-badge.Média { background: orange; }
+.priority-badge.Baixa { background: green; }
 
-/* Dark mode automático */
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
-  body {
-    background: linear-gradient(to right, #1e1e2f, #2c2c44);
-    color: white;
-  }
-  .container {
-    background: #2c2c44;
-    color: white;
-  }
-  li {
-    background: #3b3b55;
-    color: #eee;
-  }
-  li.completed {
-    background: #2b2b3a;
-    color: #999;
-  }
-  .filters button {
-    background: #444;
-    color: white;
-  }
-  .filters button:hover {
-    background: #555;
-  }
-  .input-area input,
-  .input-area select {
-    background: #444;
-    color: white;
-    border: 1px solid #666;
-  }
+  body { background: linear-gradient(to right, #1e1e2f, #2c2c44); color: white; }
+  .container { background: #2c2c44; color: white; }
+  li { background: #3b3b55; color: #eee; }
+  li.completed { background: #2b2b3a; color: #999; }
+  .filters button { background: #444; color: white; }
+  .filters button:hover { background: #555; }
+  .input-area input, .input-area select { background: #444; color: white; border: 1px solid #666; }
 }
 
 /* Responsividade */
 @media (max-width: 480px) {
-  .container {
-    width: 95%;
-    padding: 15px;
-    border-radius: 12px;
-  }
-
-  .input-area {
-    flex-direction: column;
-  }
-
-  .input-area input,
-  .input-area select,
-  .input-area button {
-    width: 100%;
-  }
-
-  .filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  li {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  button.remove {
-    align-self: flex-end;
-  }
+  .container { width: 95%; padding: 15px; border-radius: 12px; }
+  .input-area { flex-direction: column; }
+  .input-area input, .input-area select, .input-area button { width: 100%; }
+  .filters { flex-direction: column; align-items: stretch; }
+  li { flex-direction: column; align-items: flex-start; }
+  button.remove, button.edit { align-self: flex-end; }
 }
