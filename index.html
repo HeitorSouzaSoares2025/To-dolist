@@ -6,23 +6,180 @@
   <title>To-Do List</title>
   <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
   <div class="w-full max-w-md bg-white shadow-lg rounded-2xl p-6">
     <h1 class="text-2xl font-bold text-center mb-4">📝 To-Do List</h1>
-    <div class="flex mb-4">
+
+    <!-- Entrada de tarefa -->
+    <div class="flex mb-4 space-x-2">
       <input id="taskInput" 
              type="text" 
              placeholder="Digite uma tarefa..." 
-             class="flex-1 border rounded-l px-3 py-2 focus:outline-none" />
+             class="flex-1 border rounded px-3 py-2 focus:outline-none" />
+      <select id="priorityInput" class="border rounded px-2 py-2">
+        <option value="baixa">⬇️ Baixa</option>
+        <option value="media">⏺️ Média</option>
+        <option value="alta">⬆️ Alta</option>
+      </select>
       <button onclick="addTask()" 
-              class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">
-        Adicionar
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        +
       </button>
     </div>
-    <ul id="taskList" class="space-y-2"></ul>
+
+    <!-- Filtros -->
+    <div class="flex justify-center space-x-2 mb-4">
+      <button onclick="setFilter('all')" id="filter-all"
+              class="px-3 py-1 text-sm rounded bg-blue-500 text-white">Todas</button>
+      <button onclick="setFilter('pending')" id="filter-pending"
+              class="px-3 py-1 text-sm rounded bg-gray-200 hover:bg-gray-300">Pendentes</button>
+      <button onclick="setFilter('done')" id="filter-done"
+              class="px-3 py-1 text-sm rounded bg-gray-200 hover:bg-gray-300">Concluídas</button>
+    </div>
+
+    <!-- Lista -->
+    <ul id="taskList" class="space-y-2 mb-4"></ul>
+
+    <!-- Rodapé com contador e limpar -->
+    <div class="flex justify-between items-center">
+      <p id="taskCount" class="text-sm text-gray-600">0 tarefas pendentes</p>
+      <button id="clearBtn" onclick="clearCompleted()" 
+              class="hidden text-sm text-red-500 hover:text-red-700">Limpar concluídas</button>
+    </div>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');
+    const priorityInput = document.getElementById('priorityInput');
+    const taskList = document.getElementById('taskList');
+    const taskCount = document.getElementById('taskCount');
+    const clearBtn = document.getElementById('clearBtn');
+
+    let filter = "all";
+
+    // ======= Funções =======
+    function updateCount() {
+      const total = taskList.querySelectorAll('li:not(.done)').length;
+      taskCount.textContent = `${total} tarefa${total !== 1 ? 's' : ''} pendente${total !== 1 ? 's' : ''}`;
+
+      // Mostrar/ocultar botão "Limpar concluídas"
+      const hasCompleted = taskList.querySelectorAll('li.done').length > 0;
+      clearBtn.classList.toggle("hidden", !hasCompleted);
+    }
+
+    function saveTasks() {
+      const tasks = [];
+      taskList.querySelectorAll('li').forEach(li => {
+        const span = li.querySelector('span');
+        tasks.push({
+          text: span.textContent,
+          priority: span.dataset.priority,
+          done: li.classList.contains('done')
+        });
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function loadTasks() {
+      const tasks = JSON.parse(localStorage.getItem('tasks') || "[]");
+      taskList.innerHTML = "";
+      tasks.forEach(task => createTask(task.text, task.priority, task.done));
+      updateCount();
+    }
+
+    function createTask(text, priority, done = false) {
+      const li = document.createElement('li');
+      li.className = "flex items-center justify-between bg-gray-50 p-2 rounded shadow-sm";
+      if (done) li.classList.add("done");
+
+      // span da tarefa
+      const span = document.createElement('span');
+      span.textContent = text;
+      span.className = "flex-1 cursor-pointer";
+      span.dataset.priority = priority;
+
+      // prioridade visual
+      if (priority === "baixa") span.classList.add("text-green-600");
+      if (priority === "media") span.classList.add("text-yellow-600");
+      if (priority === "alta") span.classList.add("text-red-600");
+
+      // marcar concluído
+      span.onclick = () => {
+        li.classList.toggle("done");
+        span.classList.toggle("line-through");
+        span.classList.toggle("text-gray-400");
+        updateCount();
+        saveTasks();
+        applyFilter();
+      };
+
+      // editar com duplo clique
+      span.ondblclick = () => {
+        const novoTexto = prompt("Editar tarefa:", span.textContent);
+        if (novoTexto) {
+          span.textContent = novoTexto;
+          saveTasks();
+        }
+      };
+
+      // botão excluir
+      const delBtn = document.createElement('button');
+      delBtn.textContent = "❌";
+      delBtn.className = "ml-2 text-red-500 hover:text-red-700";
+      delBtn.onclick = () => { li.remove(); updateCount(); saveTasks(); };
+
+      li.appendChild(span);
+      li.appendChild(delBtn);
+      taskList.appendChild(li);
+    }
+
+    function addTask() {
+      const text = taskInput.value.trim();
+      const priority = priorityInput.value;
+      if (text === '') return;
+
+      createTask(text, priority, false);
+      taskInput.value = "";
+      updateCount();
+      saveTasks();
+      applyFilter();
+    }
+
+    // ======= Filtros =======
+    function setFilter(type) {
+      filter = type;
+      document.getElementById("filter-all").className = "px-3 py-1 text-sm rounded " + (filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300");
+      document.getElementById("filter-pending").className = "px-3 py-1 text-sm rounded " + (filter === "pending" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300");
+      document.getElementById("filter-done").className = "px-3 py-1 text-sm rounded " + (filter === "done" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300");
+      applyFilter();
+    }
+
+    function applyFilter() {
+      taskList.querySelectorAll('li').forEach(li => {
+        if (filter === "all") {
+          li.style.display = "flex";
+        } else if (filter === "pending") {
+          li.style.display = li.classList.contains("done") ? "none" : "flex";
+        } else if (filter === "done") {
+          li.style.display = li.classList.contains("done") ? "flex" : "none";
+        }
+      });
+    }
+
+    // ======= Limpar concluídas =======
+    function clearCompleted() {
+      taskList.querySelectorAll('li.done').forEach(li => li.remove());
+      updateCount();
+      saveTasks();
+    }
+
+    // ======= Inicialização =======
+    loadTasks();
+    applyFilter();
+  </script>
 </body>
 </html>
