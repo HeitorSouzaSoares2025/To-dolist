@@ -1,61 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>To-Do List Premium</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do List</title>
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center p-6 transition-colors duration-300">
-
-<header class="w-full max-w-4xl flex justify-between items-center mb-6">
-  <h1 class="text-3xl font-bold">📝 To-Do List Premium</h1>
-  <button id="toggleTheme" class="px-3 py-2 bg-gray-300 dark:bg-gray-700 rounded-lg">🌙</button>
-</header>
-
-<!-- Barra de progresso -->
-<div class="w-full max-w-4xl bg-gray-300 dark:bg-gray-700 rounded-full h-4 mb-2">
-  <div id="progressBar" class="bg-green-500 h-4 rounded-full transition-all duration-300" style="width:0%"></div>
-</div>
-<p id="progressText" class="mb-6 text-sm text-gray-600 dark:text-gray-400">0/0 concluídas</p>
-
-<!-- Formulário -->
-<div class="w-full max-w-4xl flex flex-wrap gap-2 mb-4">
-  <input id="taskInput" type="text" placeholder="Digite uma tarefa..." class="flex-1 px-4 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-  <select id="categoryInput" class="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-    <option value="Pessoal">Pessoal</option>
-    <option value="Trabalho">Trabalho</option>
-    <option value="Estudos">Estudos</option>
-  </select>
-  <input id="deadlineInput" type="datetime-local" class="px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-  <input id="alertMinutes" type="number" min="1" value="15" class="w-24 px-3 py-2 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800" placeholder="Min">
-  <button id="addTask" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Adicionar</button>
-</div>
-
-<!-- Filtros -->
-<div class="w-full max-w-4xl flex flex-wrap gap-2 mb-6">
-  <button class="filter-btn bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-lg" data-filter="all">Todas</button>
-  <button class="filter-btn bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-lg" data-filter="pending">Pendentes</button>
-  <button class="filter-btn bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-lg" data-filter="done">Concluídas</button>
-  <button class="filter-btn bg-pink-500 text-white px-3 py-1 rounded-lg" data-filter="Pessoal">Pessoal</button>
-  <button class="filter-btn bg-green-500 text-white px-3 py-1 rounded-lg" data-filter="Trabalho">Trabalho</button>
-  <button class="filter-btn bg-purple-500 text-white px-3 py-1 rounded-lg" data-filter="Estudos">Estudos</button>
-  <button id="exportBtn" class="bg-yellow-500 text-white px-3 py-1 rounded-lg">Exportar JSON</button>
-  <input type="file" id="importFile" class="px-3 py-1 rounded-lg border dark:border-gray-600 bg-white dark:bg-gray-800">
-</div>
-
-<!-- Lista de tarefas -->
-<ul id="taskList" class="w-full max-w-4xl space-y-3 mb-6"></ul>
-
-<!-- Histórico -->
-<h2 class="w-full max-w-4xl text-xl font-semibold mb-2">✅ Histórico de Concluídas</h2>
-<ul id="completedList" class="w-full max-w-4xl space-y-3 mb-6"></ul>
-
-<audio id="alertSound">
-  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
-</audio>
-
-<script src="script.js"></script>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="w-full max-w-md bg-white shadow-lg rounded-2xl p-6">
+    <h1 class="text-2xl font-bold text-center mb-4">📝 To-Do List</h1>
+    <div class="flex mb-4">
+      <input id="taskInput" 
+             type="text" 
+             placeholder="Digite uma tarefa..." 
+             class="flex-1 border rounded-l px-3 py-2 focus:outline-none" />
+      <button onclick="addTask()" 
+              class="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600">
+        Adicionar
+      </button>
+    </div>
+    <ul id="taskList" class="space-y-2"></ul>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
