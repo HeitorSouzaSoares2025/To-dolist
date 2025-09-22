@@ -1,24 +1,4 @@
-/* Animação ao arrastar */
-.dragging {
-  opacity: 0.5;
-  transform: scale(1.02);
-  transition: transform 0.2s ease;
-}
-
-/* Tarefa com alerta próximo do prazo */
-.task-alert {
-  border: 2px solid #ef4444 !important;
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%,100% { box-shadow: 0 0 10px #ef4444; }
-  50% { box-shadow: 0 0 20px #ef4444; }
-}
-
-/* Responsividade mobile */
-@media (max-width: 640px) {
-  #taskInput, #categoryInput, #deadlineInput, #alertMinutes, #addTask {
-    flex: 1 1 100%;
-  }
+/* Estilos extras opcionais */
+body {
+  font-family: 'Inter', sans-serif;
 }
