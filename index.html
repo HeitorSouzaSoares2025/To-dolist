@@ -8,25 +8,26 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: 'Inter', sans-serif; }
+    mark { background-color: #fef08a; padding: 0 2px; border-radius: 3px; }
   </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="w-full max-w-md bg-white shadow-lg rounded-2xl p-6">
-    <h1 class="text-2xl font-bold text-center mb-4">📝 To-Do List</h1>
+<body class="bg-gradient-to-r from-blue-50 to-indigo-100 flex items-center justify-center min-h-screen px-4">
+  <div class="w-full max-w-md bg-white shadow-2xl rounded-2xl p-6 border border-gray-200">
+    <h1 class="text-3xl font-bold text-center text-indigo-600 mb-6">📝 To-Do List</h1>
 
     <!-- Entrada de tarefa -->
     <div class="flex mb-4 space-x-2">
       <input id="taskInput" 
              type="text" 
              placeholder="Digite uma tarefa..." 
-             class="flex-1 border rounded px-3 py-2 focus:outline-none" />
-      <select id="priorityInput" class="border rounded px-2 py-2">
+             class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none" />
+      <select id="priorityInput" class="border border-gray-300 rounded-lg px-2 py-2 focus:ring-2 focus:ring-indigo-400">
         <option value="baixa">⬇️ Baixa</option>
         <option value="media">⏺️ Média</option>
         <option value="alta">⬆️ Alta</option>
       </select>
       <button onclick="addTask()" 
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition">
         +
       </button>
     </div>
@@ -34,11 +35,20 @@
     <!-- Filtros -->
     <div class="flex justify-center space-x-2 mb-4">
       <button onclick="setFilter('all')" id="filter-all"
-              class="px-3 py-1 text-sm rounded bg-blue-500 text-white">Todas</button>
+              class="px-3 py-1 text-sm rounded-lg bg-indigo-500 text-white">Todas</button>
       <button onclick="setFilter('pending')" id="filter-pending"
-              class="px-3 py-1 text-sm rounded bg-gray-200 hover:bg-gray-300">Pendentes</button>
+              class="px-3 py-1 text-sm rounded-lg bg-gray-200 hover:bg-gray-300">Pendentes</button>
       <button onclick="setFilter('done')" id="filter-done"
-              class="px-3 py-1 text-sm rounded bg-gray-200 hover:bg-gray-300">Concluídas</button>
+              class="px-3 py-1 text-sm rounded-lg bg-gray-200 hover:bg-gray-300">Concluídas</button>
+    </div>
+
+    <!-- Busca -->
+    <div class="mb-4">
+      <input id="searchInput" 
+             type="text" 
+             placeholder="🔍 Buscar tarefa..." 
+             class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none" 
+             oninput="applyFilter()" />
     </div>
 
     <!-- Lista -->
@@ -48,7 +58,7 @@
     <div class="flex justify-between items-center">
       <p id="taskCount" class="text-sm text-gray-600">0 tarefas pendentes</p>
       <button id="clearBtn" onclick="clearCompleted()" 
-              class="hidden text-sm text-red-500 hover:text-red-700">Limpar concluídas</button>
+              class="hidden text-sm text-red-500 hover:text-red-700">🗑️ Limpar concluídas</button>
     </div>
   </div>
 
@@ -58,15 +68,14 @@
     const taskList = document.getElementById('taskList');
     const taskCount = document.getElementById('taskCount');
     const clearBtn = document.getElementById('clearBtn');
+    const searchInput = document.getElementById('searchInput');
 
     let filter = "all";
 
-    // ======= Funções =======
     function updateCount() {
       const total = taskList.querySelectorAll('li:not(.done)').length;
       taskCount.textContent = `${total} tarefa${total !== 1 ? 's' : ''} pendente${total !== 1 ? 's' : ''}`;
 
-      // Mostrar/ocultar botão "Limpar concluídas"
       const hasCompleted = taskList.querySelectorAll('li.done').length > 0;
       clearBtn.classList.toggle("hidden", !hasCompleted);
     }
@@ -91,23 +100,26 @@
       updateCount();
     }
 
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${query})`, "gi");
+      return text.replace(regex, "<mark>$1</mark>");
+    }
+
     function createTask(text, priority, done = false) {
       const li = document.createElement('li');
-      li.className = "flex items-center justify-between bg-gray-50 p-2 rounded shadow-sm";
+      li.className = "flex items-center justify-between bg-gray-50 p-3 rounded-lg shadow hover:shadow-md transition";
       if (done) li.classList.add("done");
 
-      // span da tarefa
       const span = document.createElement('span');
-      span.textContent = text;
+      span.innerHTML = highlightText(text, searchInput.value); 
       span.className = "flex-1 cursor-pointer";
       span.dataset.priority = priority;
 
-      // prioridade visual
       if (priority === "baixa") span.classList.add("text-green-600");
       if (priority === "media") span.classList.add("text-yellow-600");
       if (priority === "alta") span.classList.add("text-red-600");
 
-      // marcar concluído
       span.onclick = () => {
         li.classList.toggle("done");
         span.classList.toggle("line-through");
@@ -117,16 +129,15 @@
         applyFilter();
       };
 
-      // editar com duplo clique
       span.ondblclick = () => {
         const novoTexto = prompt("Editar tarefa:", span.textContent);
         if (novoTexto) {
           span.textContent = novoTexto;
           saveTasks();
+          applyFilter();
         }
       };
 
-      // botão excluir
       const delBtn = document.createElement('button');
       delBtn.textContent = "❌";
       delBtn.className = "ml-2 text-red-500 hover:text-red-700";
@@ -149,35 +160,43 @@
       applyFilter();
     }
 
-    // ======= Filtros =======
     function setFilter(type) {
       filter = type;
-      document.getElementById("filter-all").className = "px-3 py-1 text-sm rounded " + (filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300");
-      document.getElementById("filter-pending").className = "px-3 py-1 text-sm rounded " + (filter === "pending" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300");
-      document.getElementById("filter-done").className = "px-3 py-1 text-sm rounded " + (filter === "done" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300");
+      document.getElementById("filter-all").className = "px-3 py-1 text-sm rounded-lg " + (filter === "all" ? "bg-indigo-500 text-white" : "bg-gray-200 hover:bg-gray-300");
+      document.getElementById("filter-pending").className = "px-3 py-1 text-sm rounded-lg " + (filter === "pending" ? "bg-indigo-500 text-white" : "bg-gray-200 hover:bg-gray-300");
+      document.getElementById("filter-done").className = "px-3 py-1 text-sm rounded-lg " + (filter === "done" ? "bg-indigo-500 text-white" : "bg-gray-200 hover:bg-gray-300");
       applyFilter();
     }
 
     function applyFilter() {
+      const searchText = searchInput.value.toLowerCase();
       taskList.querySelectorAll('li').forEach(li => {
+        const span = li.querySelector('span');
+        const text = span.textContent.toLowerCase();
+        const matchesSearch = text.includes(searchText);
+
+        if (matchesSearch) {
+          span.innerHTML = highlightText(span.textContent, searchText);
+        } else {
+          span.innerHTML = span.textContent;
+        }
+
         if (filter === "all") {
-          li.style.display = "flex";
+          li.style.display = matchesSearch ? "flex" : "none";
         } else if (filter === "pending") {
-          li.style.display = li.classList.contains("done") ? "none" : "flex";
+          li.style.display = (!li.classList.contains("done") && matchesSearch) ? "flex" : "none";
         } else if (filter === "done") {
-          li.style.display = li.classList.contains("done") ? "flex" : "none";
+          li.style.display = (li.classList.contains("done") && matchesSearch) ? "flex" : "none";
         }
       });
     }
 
-    // ======= Limpar concluídas =======
     function clearCompleted() {
       taskList.querySelectorAll('li.done').forEach(li => li.remove());
       updateCount();
       saveTasks();
     }
 
-    // ======= Inicialização =======
     loadTasks();
     applyFilter();
   </script>
