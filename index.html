@@ -6,42 +6,11 @@
 <title>To-Do List</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+
 <style>
-  /* Indicador lateral de prioridade */
-.task {
-  position: relative;
-  border-left: 6px solid transparent;
-}
-
-/* Light mode */
-.task[data-priority="low"]    { border-left-color: #22c55e; }  /* Verde */
-.task[data-priority="medium"] { border-left-color: #f59e0b; }  /* Amarelo */
-.task[data-priority="high"]   { border-left-color: #ef4444; }  /* Vermelho */
-
-/* Dark mode – cores mais vibrantes para destacar no fundo escuro */
-body.dark .task[data-priority="low"]    { border-left-color: #4ade80; }  /* Verde claro neon */
-body.dark .task[data-priority="medium"] { border-left-color: #facc15; }  /* Amarelo vivo */
-body.dark .task[data-priority="high"]   { border-left-color: #f87171; }  /* Vermelho claro */
-
-  /* Melhor contraste no select e nas opções */
-select, option {
-  background: var(--bg-light);
-  color: var(--text-light);
-}
-
-body.dark select, 
-body.dark option {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-}
-
-/* Cores visuais para prioridades */
-option[value="low"]    { color: #22c55e; }  /* Verde */
-option[value="medium"] { color: #f59e0b; }  /* Amarelo */
-option[value="high"]   { color: #ef4444; }  /* Vermelho */
-
+/* ==================== CORES BASE ==================== */
 :root {
-  --accent: #22c55e;      /* Verde claro padrão */
+  --accent: #22c55e;
   --accent-dark: #16a34a;
   --border: #d1d5db;
   --bg-light: #ffffff;
@@ -50,7 +19,7 @@ option[value="high"]   { color: #ef4444; }  /* Vermelho */
   --text-dark: #e5e7eb;
   --card-bg-light: rgba(255,255,255,0.7);
   --card-bg-dark: rgba(30,41,59,0.6);
-  --star: #facc15;        /* Dourado */
+  --star: #facc15;
 }
 body {
   font-family: 'Inter', sans-serif;
@@ -62,6 +31,8 @@ body.dark {
   background: var(--bg-dark);
   color: var(--text-dark);
 }
+
+/* ==================== TAREFAS ==================== */
 .task-card {
   background: var(--card-bg-light);
   backdrop-filter: blur(8px);
@@ -71,23 +42,32 @@ body.dark {
   box-shadow: 0 4px 12px rgba(34,197,94,0.15);
   animation: fadeIn .4s ease-in;
   transition: background .3s, border .3s, transform .2s;
+  position: relative;
 }
 body.dark .task-card {
   background: var(--card-bg-dark);
   border-color: #334155;
 }
-.task-card:hover {
-  transform: translateY(-2px);
-}
+.task-card:hover { transform: translateY(-2px); }
 .task-card.dragging { opacity: .5; }
-.priority-high { border-left: 4px solid #ef4444; }
-.priority-medium { border-left: 4px solid #f59e0b; }
-.priority-low { border-left: 4px solid #22c55e; }
+
+/* === Barra lateral de prioridade (LIGHT) === */
+.priority-low    { border-left: 6px solid #22c55e; }
+.priority-medium { border-left: 6px solid #f59e0b; }
+.priority-high   { border-left: 6px solid #ef4444; }
+
+/* === Barra lateral de prioridade (DARK) === */
+body.dark .priority-low    { border-left-color: #4ade80; }
+body.dark .priority-medium { border-left-color: #facc15; }
+body.dark .priority-high   { border-left-color: #f87171; }
+
+/* === Importante === */
 .important {
   border: 2px solid var(--star);
   box-shadow: 0 0 8px rgba(250,204,21,0.6);
 }
-.calendar input[type="date"],
+
+/* ==================== FORM / INPUTS ==================== */
 input, select {
   background: transparent;
   color: inherit;
@@ -95,12 +75,20 @@ input, select {
   border-radius: 0.5rem;
   padding: 0.5rem;
 }
-body.dark input, body.dark select {
+body.dark input, 
+body.dark select {
   border-color: #475569;
+  background-color: #1e293b;
+  color: #e5e7eb;
 }
-button {
-  transition: all .3s ease;
-}
+
+/* Cor das opções no select */
+option[value="low"]    { color: #22c55e; }
+option[value="medium"] { color: #f59e0b; }
+option[value="high"]   { color: #ef4444; }
+
+/* ==================== BOTÕES ==================== */
+button { transition: all .3s ease; }
 .btn-accent {
   background: linear-gradient(to right, var(--accent), #06b6d4);
   color: #fff;
@@ -114,29 +102,27 @@ button {
   font-size: 1.2rem;
   transition: transform .2s;
 }
-.star-btn:hover {
-  transform: scale(1.2);
-}
+.star-btn:hover { transform: scale(1.2); }
+
+/* ==================== ANIMAÇÃO ==================== */
 @keyframes fadeIn {
   from {opacity:0; transform: translateY(10px);}
   to {opacity:1; transform: translateY(0);}
 }
 </style>
 </head>
+
 <body class="min-h-screen flex flex-col items-center px-2">
 
-<!-- LOGIN -->
+<!-- ==================== LOGIN ==================== -->
 <div id="loginSection" class="w-full max-w-sm p-6 mt-8 rounded-xl shadow-md bg-white/70 dark:bg-slate-800/70 backdrop-blur">
   <h1 class="text-2xl mb-4 text-center font-bold">Login</h1>
   <input id="usernameInput" type="text" placeholder="Digite seu usuário"
          class="w-full p-2 mb-4 rounded border placeholder-gray-400">
-  <button id="loginBtn"
-          class="w-full btn-accent font-semibold py-2 rounded">
-    Entrar
-  </button>
+  <button id="loginBtn" class="w-full btn-accent font-semibold py-2 rounded">Entrar</button>
 </div>
 
-<!-- APP -->
+<!-- ==================== APP ==================== -->
 <div id="appSection" class="hidden w-full max-w-2xl p-4">
   <header class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
     <h1 class="text-3xl font-bold">To-Do List</h1>
@@ -173,6 +159,7 @@ button {
 </div>
 
 <script>
+/* ==================== VARIÁVEIS ==================== */
 const loginSection=document.getElementById('loginSection')
 const appSection=document.getElementById('appSection')
 const usernameInput=document.getElementById('usernameInput')
@@ -190,15 +177,18 @@ const filterSelect=document.getElementById('filterSelect')
 let currentUser=null
 let tasks=[]
 
-function saveTasks(){localStorage.setItem(`tasks_${currentUser}`,JSON.stringify(tasks))}
-function loadTasks(){tasks=JSON.parse(localStorage.getItem(`tasks_${currentUser}`)||'[]')}
+/* ==================== FUNÇÕES PRINCIPAIS ==================== */
+function saveTasks(){ localStorage.setItem(`tasks_${currentUser}`,JSON.stringify(tasks)) }
+function loadTasks(){ tasks=JSON.parse(localStorage.getItem(`tasks_${currentUser}`)||'[]') }
+
 function renderTasks(){
  taskList.innerHTML=''
  const search=searchInput.value.toLowerCase()
  const filter=filterSelect.value
  const sortedTasks=[...tasks].sort((a,b)=>b.important-a.important)
+
  sortedTasks.forEach((t,i)=>{
-  if(t.title.toLowerCase().includes(search)&&(filter==='all'||(filter==='pending'&&!t.completed)||(filter==='completed'&&t.completed))){
+  if(t.title.toLowerCase().includes(search) && (filter==='all'||(filter==='pending'&&!t.completed)||(filter==='completed'&&t.completed))){
     const li=document.createElement('li')
     li.draggable=true
     li.dataset.index=i
@@ -217,6 +207,7 @@ function renderTasks(){
         </div>
       </div>
       <ul class="subtasks mt-2 pl-6"></ul>`
+
     const subtasksUl=li.querySelector('.subtasks')
     t.subtasks.forEach((s)=>{
       const sLi=document.createElement('li')
@@ -228,6 +219,7 @@ function renderTasks(){
         saveTasks();renderTasks()
       })
     })
+
     li.querySelector('input[type="checkbox"]').addEventListener('change',()=>{
       t.completed=!t.completed
       saveTasks();renderTasks()
@@ -250,6 +242,7 @@ function renderTasks(){
  enableDragDrop()
 }
 
+/* ==================== DRAG & DROP ==================== */
 function enableDragDrop(){
  const items=document.querySelectorAll('#taskList .task-card')
  items.forEach(it=>{
@@ -269,6 +262,7 @@ function reorderTasks(){
  saveTasks();renderTasks()
 }
 
+/* ==================== EVENTOS ==================== */
 taskForm.addEventListener('submit',e=>{
  e.preventDefault()
  const title=taskInput.value.trim()
@@ -297,6 +291,7 @@ logoutBtn.addEventListener('click',()=>{
  loginSection.classList.remove('hidden')
 })
 
+/* ==================== NOTIFICAÇÕES ==================== */
 function checkDueDates(){
  const today=new Date().toISOString().split('T')[0]
  tasks.forEach(t=>{
@@ -305,8 +300,9 @@ function checkDueDates(){
   }
  })
 }
-if('Notification'in window&&Notification.permission!=='granted'){Notification.requestPermission()}
+if('Notification'in window && Notification.permission!=='granted'){Notification.requestPermission()}
 setInterval(checkDueDates,60000)
 </script>
+
 </body>
 </html>
