@@ -170,7 +170,6 @@ body.dark .stats-panel {
 }
 
 /* -------- BADGES -------- */
-/* -------- BADGES -------- */
 #badgeSection {
   padding: 1rem 2rem;
 }
@@ -340,6 +339,11 @@ body.dark #trophyModal .modal-content {
 .task-card button:hover {
   transform: scale(1.2);
   opacity: 0.85;
+}
+
+.task-card.completed h3 {
+  text-decoration: line-through;
+  opacity: 0.6;
 }
 
 /* Favoritar */
