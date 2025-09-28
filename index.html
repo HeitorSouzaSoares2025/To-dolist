@@ -4,217 +4,239 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Task Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-  /* ===========================
-     RESET & BASE
-  ============================*/
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
-  }
+/* ===========================
+   RESET & BASE
+===========================*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
 
-  body {
-    background: linear-gradient(to right, #f0f4f8, #e0eafc);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: start;
-    padding: 2rem;
-    transition: background 0.3s ease;
-  }
+body {
+  background: linear-gradient(to right, #f0f4f8, #e0eafc);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  padding: 2rem;
+  transition: background 0.4s ease, color 0.4s ease;
+}
 
-  body.dark {
-    background: linear-gradient(to right, #121212, #1c1c1c);
-    color: #eee;
-  }
+body.dark {
+  background: linear-gradient(to right, #121212, #1c1c1c);
+  color: #eee;
+}
 
-  /* ===========================
-     CONTAINER
-  ============================*/
-  .container {
-    width: 100%;
-    max-width: 600px;
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    transition: background 0.3s ease, color 0.3s ease;
-  }
+/* ===========================
+   CONTAINER
+===========================*/
+.container {
+  width: 100%;
+  max-width: 600px;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  transition: background 0.4s ease, color 0.4s ease;
+}
 
-  body.dark .container {
-    background: #1f1f1f;
-    color: #eee;
-  }
+body.dark .container {
+  background: #1f1f1f;
+  color: #eee;
+}
 
-  h1 {
-    text-align: center;
-    margin-bottom: 1rem;
-  }
+h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
 
-  /* ===========================
-     CONTROLS
-  ============================*/
-  .controls {
-    display: flex;
-    gap: .5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-  }
+/* ===========================
+   CONTROLS
+===========================*/
+.controls {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
 
-  input[type="text"], input[type="date"], select {
-    flex: 1;
-    padding: .5rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    outline: none;
-  }
+input[type="text"], input[type="date"], select {
+  flex: 1;
+  padding: .6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: all 0.3s ease;
+}
 
-  body.dark input, body.dark select {
-    background: #2c2c2c;
-    color: #eee;
-    border-color: #444;
-  }
+input:focus, select:focus {
+  border-color: #3f51b5;
+  box-shadow: 0 0 0 2px rgba(63,81,181,0.2);
+}
 
-  button {
-    padding: .5rem 1rem;
-    background: #3f51b5;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
+body.dark input, body.dark select {
+  background: #2c2c2c;
+  color: #eee;
+  border-color: #444;
+}
 
-  button:hover {
-    background: #303f9f;
-  }
+button {
+  padding: .6rem 1rem;
+  background: #3f51b5;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
 
-  body.dark button {
-    background: #5c6bc0;
-  }
+button:hover {
+  background: #303f9f;
+  transform: translateY(-2px);
+}
 
-  /* ===========================
-     FILTERS & DARK MODE TOGGLE
-  ============================*/
-  .filters {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: .5rem;
-  }
+body.dark button {
+  background: #5c6bc0;
+}
 
-  .filters button.active {
-    background: #ff9800;
-  }
+button:active {
+  transform: translateY(0);
+}
 
-  body.dark .filters button.active {
-    background: #ffa726;
-  }
+/* ===========================
+   FILTERS & DARK MODE TOGGLE
+===========================*/
+.filters {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
 
-  .dark-toggle {
-    cursor: pointer;
-    font-size: .9rem;
-    padding: .3rem .6rem;
-    background: #222;
-    color: #eee;
-    border-radius: 6px;
-    border: none;
-  }
+.filters button.active {
+  background: #ff9800;
+}
 
-  body.dark .dark-toggle {
-    background: #eee;
-    color: #222;
-  }
+body.dark .filters button.active {
+  background: #ffa726;
+}
 
-  /* ===========================
-     TASK LIST
-  ============================*/
-  ul {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-  }
+.dark-toggle {
+  cursor: pointer;
+  font-size: .9rem;
+  padding: .4rem .8rem;
+  background: #222;
+  color: #eee;
+  border-radius: 6px;
+  border: none;
+  transition: background 0.3s ease;
+}
 
-  .task-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: .8rem;
-    background: #fafafa;
-    border-radius: 8px;
-    border-left: 6px solid #2196f3;
-    transition: background 0.3s ease;
-    position: relative;
-  }
+body.dark .dark-toggle {
+  background: #eee;
+  color: #222;
+}
 
-  body.dark .task-item {
-    background: #2b2b2b;
-  }
+/* ===========================
+   TASK LIST
+===========================*/
+ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
 
-  .task-item.completed {
-    text-decoration: line-through;
-    opacity: 0.6;
-  }
+.task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .9rem 1rem;
+  background: #fafafa;
+  border-radius: 10px;
+  border-left: 6px solid #2196f3;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
-  /* Priority bars */
-  .task-item.priority-low { border-left-color: #4caf50; }
-  .task-item.priority-medium { border-left-color: #ff9800; }
-  .task-item.priority-high { border-left-color: #f44336; }
+.task-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
 
-  /* Overdue */
-  .task-item.overdue { border-left-color: #b71c1c; }
+body.dark .task-item {
+  background: #2b2b2b;
+}
 
-  /* Task content */
-  .task-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: .3rem;
-  }
+.task-item.completed {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
 
-  .task-date {
-    font-size: .8rem;
-    background: #e3f2fd;
-    padding: .2rem .5rem;
-    border-radius: 6px;
-    display: inline-block;
-  }
+/* Priority bars */
+.task-item.priority-low { border-left-color: #4caf50; }
+.task-item.priority-medium { border-left-color: #ff9800; }
+.task-item.priority-high { border-left-color: #f44336; }
 
-  body.dark .task-date {
-    background: #37474f;
-    color: #fff;
-  }
+/* Overdue */
+.task-item.overdue { border-left-color: #b71c1c; }
 
-  .task-item.overdue .task-date {
-    background: #ffebee;
-    color: #c62828;
-    font-weight: 600;
-  }
+/* Task content */
+.task-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
 
-  .task-item.overdue .task-date::after {
-    content: " ⚠️";
-    font-size: .8rem;
-  }
+.task-date {
+  font-size: .8rem;
+  background: #e3f2fd;
+  padding: .25rem .5rem;
+  border-radius: 6px;
+  display: inline-block;
+}
 
-  /* Task actions */
-  .task-actions button {
-    background: transparent;
-    color: inherit;
-    border: none;
-    cursor: pointer;
-    font-size: 1.1rem;
-    margin-left: .5rem;
-  }
+body.dark .task-date {
+  background: #37474f;
+  color: #fff;
+}
 
-  .task-actions button:hover {
-    color: #f44336;
-  }
+.task-item.overdue .task-date {
+  background: #ffebee;
+  color: #c62828;
+  font-weight: 600;
+}
 
+.task-item.overdue .task-date::after {
+  content: " ⚠️";
+  font-size: .8rem;
+}
+
+/* Task actions */
+.task-actions button {
+  background: transparent;
+  color: inherit;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-left: .5rem;
+  transition: color 0.2s ease;
+}
+
+.task-actions button:hover {
+  color: #f44336;
+}
 </style>
 </head>
 <body>
@@ -244,163 +266,157 @@
 </div>
 
 <script>
-  // ===========================
-  // VARIÁVEIS E INICIALIZAÇÃO
-  // ===========================
-  const taskInput = document.getElementById('taskInput');
-  const taskDate = document.getElementById('taskDate');
-  const taskPriority = document.getElementById('taskPriority');
-  const addTaskBtn = document.getElementById('addTaskBtn');
-  const taskList = document.getElementById('taskList');
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const darkToggle = document.getElementById('darkToggle');
+/* ===========================
+   VARIÁVEIS E INICIALIZAÇÃO
+===========================*/
+const taskInput = document.getElementById('taskInput');
+const taskDate = document.getElementById('taskDate');
+const taskPriority = document.getElementById('taskPriority');
+const addTaskBtn = document.getElementById('addTaskBtn');
+const taskList = document.getElementById('taskList');
+const filterBtns = document.querySelectorAll('.filter-btn');
+const darkToggle = document.getElementById('darkToggle');
 
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-  let currentFilter = 'all';
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+let currentFilter = 'all';
 
-  // ===========================
-  // PERMISSÃO PARA NOTIFICAÇÕES
-  // ===========================
-  if ('Notification' in window && Notification.permission !== 'granted') {
-    Notification.requestPermission();
-  }
+/* ===========================
+   PERMISSÃO PARA NOTIFICAÇÕES
+===========================*/
+if ('Notification' in window && Notification.permission !== 'granted') {
+  Notification.requestPermission();
+}
 
-  // ===========================
-  // FUNÇÕES
-  // ===========================
-  function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }
+/* ===========================
+   FUNÇÕES
+===========================*/
+function saveTasks() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
 
-  function renderTasks() {
-    taskList.innerHTML = '';
-    const now = new Date();
+function renderTasks() {
+  taskList.innerHTML = '';
+  const now = new Date();
 
-    tasks.forEach((task, index) => {
-      if (currentFilter === 'pending' && task.completed) return;
-      if (currentFilter === 'completed' && !task.completed) return;
+  tasks.forEach((task, index) => {
+    if (currentFilter === 'pending' && task.completed) return;
+    if (currentFilter === 'completed' && !task.completed) return;
 
-      const li = document.createElement('li');
-      li.className = `task-item priority-${task.priority}`;
-      if (task.completed) li.classList.add('completed');
+    const li = document.createElement('li');
+    li.className = `task-item priority-${task.priority}`;
+    if (task.completed) li.classList.add('completed');
 
-      // Verificar se está vencida
-      if (task.dueDate) {
-        const dueDate = new Date(task.dueDate);
-        if (dueDate < now && !task.completed) {
-          li.classList.add('overdue');
-        }
-      }
+    if (task.dueDate) {
+      const dueDate = new Date(task.dueDate);
+      if (dueDate < now && !task.completed) li.classList.add('overdue');
+    }
 
-      // Conteúdo da tarefa
-      const content = document.createElement('div');
-      content.className = 'task-content';
-      content.innerHTML = `<span>${task.text}</span>`;
-      if (task.dueDate) {
-        const dateBadge = document.createElement('span');
-        dateBadge.className = 'task-date';
-        dateBadge.textContent = `Vence: ${task.dueDate}`;
-        content.appendChild(dateBadge);
-      }
+    const content = document.createElement('div');
+    content.className = 'task-content';
+    content.innerHTML = `<span>${task.text}</span>`;
 
-      // Ações
-      const actions = document.createElement('div');
-      actions.className = 'task-actions';
+    if (task.dueDate) {
+      const dateBadge = document.createElement('span');
+      dateBadge.className = 'task-date';
+      dateBadge.textContent = `Vence: ${task.dueDate}`;
+      content.appendChild(dateBadge);
+    }
 
-      const completeBtn = document.createElement('button');
-      completeBtn.textContent = '✓';
-      completeBtn.onclick = () => toggleComplete(index);
+    const actions = document.createElement('div');
+    actions.className = 'task-actions';
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = '🗑️';
-      deleteBtn.onclick = () => deleteTask(index);
+    const completeBtn = document.createElement('button');
+    completeBtn.textContent = '✓';
+    completeBtn.onclick = () => toggleComplete(index);
 
-      actions.appendChild(completeBtn);
-      actions.appendChild(deleteBtn);
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '🗑️';
+    deleteBtn.onclick = () => deleteTask(index);
 
-      li.appendChild(content);
-      li.appendChild(actions);
-      taskList.appendChild(li);
-    });
-  }
+    actions.appendChild(completeBtn);
+    actions.appendChild(deleteBtn);
 
-  function addTask() {
-    const text = taskInput.value.trim();
-    if (!text) return;
+    li.appendChild(content);
+    li.appendChild(actions);
+    taskList.appendChild(li);
+  });
+}
 
-    const newTask = {
-      text,
-      dueDate: taskDate.value,
-      priority: taskPriority.value,
-      completed: false
-    };
-    tasks.push(newTask);
-    saveTasks();
-    renderTasks();
-    checkDueTasks(tasks);
+function addTask() {
+  const text = taskInput.value.trim();
+  if (!text) return;
 
-    taskInput.value = '';
-    taskDate.value = '';
-  }
-
-  function toggleComplete(index) {
-    tasks[index].completed = !tasks[index].completed;
-    saveTasks();
-    renderTasks();
-  }
-
-  function deleteTask(index) {
-    tasks.splice(index, 1);
-    saveTasks();
-    renderTasks();
-  }
-
-  function setFilter(filter) {
-    currentFilter = filter;
-    filterBtns.forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.filter-btn[data-filter="${filter}"]`).classList.add('active');
-    renderTasks();
-  }
-
-  function toggleDarkMode() {
-    document.body.classList.toggle('dark');
-  }
-
-  // Notificações de vencimento
-  function checkDueTasks(taskArray) {
-    if (Notification.permission !== 'granted') return;
-    const now = new Date();
-
-    taskArray.forEach(task => {
-      if (!task.dueDate || task.completed) return;
-      const due = new Date(task.dueDate);
-      const diff = due.getTime() - now.getTime();
-      const daysLeft = diff / (1000 * 60 * 60 * 24);
-
-      if (due < now) {
-        new Notification('⚠️ Tarefa vencida', {
-          body: `A tarefa "${task.text}" já passou da data!`,
-          icon: 'https://cdn-icons-png.flaticon.com/512/564/564619.png'
-        });
-      } else if (daysLeft <= 1) {
-        new Notification('⏳ Tarefa próxima do vencimento', {
-          body: `A tarefa "${task.text}" vence em breve.`,
-          icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png'
-        });
-      }
-    });
-  }
-
-  // ===========================
-  // EVENTOS
-  // ===========================
-  addTaskBtn.addEventListener('click', addTask);
-  filterBtns.forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.filter)));
-  darkToggle.addEventListener('click', toggleDarkMode);
-
-  // Inicialização
+  const newTask = {
+    text,
+    dueDate: taskDate.value,
+    priority: taskPriority.value,
+    completed: false
+  };
+  tasks.push(newTask);
+  saveTasks();
   renderTasks();
   checkDueTasks(tasks);
+
+  taskInput.value = '';
+  taskDate.value = '';
+}
+
+function toggleComplete(index) {
+  tasks[index].completed = !tasks[index].completed;
+  saveTasks();
+  renderTasks();
+}
+
+function deleteTask(index) {
+  tasks.splice(index, 1);
+  saveTasks();
+  renderTasks();
+}
+
+function setFilter(filter) {
+  currentFilter = filter;
+  filterBtns.forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.filter-btn[data-filter="${filter}"]`).classList.add('active');
+  renderTasks();
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark');
+}
+
+function checkDueTasks(taskArray) {
+  if (Notification.permission !== 'granted') return;
+  const now = new Date();
+
+  taskArray.forEach(task => {
+    if (!task.dueDate || task.completed) return;
+    const due = new Date(task.dueDate);
+    const diff = due.getTime() - now.getTime();
+    const daysLeft = diff / (1000 * 60 * 60 * 24);
+
+    if (due < now) {
+      new Notification('⚠️ Tarefa vencida', {
+        body: `A tarefa "${task.text}" já passou da data!`,
+        icon: 'https://cdn-icons-png.flaticon.com/512/564/564619.png'
+      });
+    } else if (daysLeft <= 1) {
+      new Notification('⏳ Tarefa próxima do vencimento', {
+        body: `A tarefa "${task.text}" vence em breve.`,
+        icon: 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png'
+      });
+    }
+  });
+}
+
+/* ===========================
+   EVENTOS
+===========================*/
+addTaskBtn.addEventListener('click', addTask);
+filterBtns.forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.filter)));
+darkToggle.addEventListener('click', toggleDarkMode);
+
+renderTasks();
+checkDueTasks(tasks);
 </script>
 
 </body>
