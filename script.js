@@ -1,3 +1,16 @@
+// Usuário atual
+const currentUser = localStorage.getItem('currentUser');
+if (!currentUser) {
+  window.location.href = 'login.html';
+}
+
+let tasks = JSON.parse(localStorage.getItem(`tasks_${currentUser}`)) || [];
+
+// Salvar sempre com base no usuário
+function saveTasks() {
+  localStorage.setItem(`tasks_${currentUser}`, JSON.stringify(tasks));
+}
+
 // ----------------- Seletores -----------------
 const taskForm = document.getElementById('taskForm');
 const taskList = document.getElementById('taskList');
