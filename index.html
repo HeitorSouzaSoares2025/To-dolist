@@ -1,143 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <!-- Define a codificação para acentos e caracteres especiais -->
-
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- Garante que a página se ajuste a telas de celulares (responsividade) -->
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TaskMaster</title>
-  <!-- Título exibido na aba do navegador -->
 
-  <!-- ================= PWA / Manifest ================= -->
-  <link rel="manifest" href="/manifest.json" />
-  <!-- Aponta para o arquivo manifest do PWA -->
-
-  <meta name="theme-color" content="#0f172a" />
-  <!-- Cor da barra do navegador em dispositivos móveis -->
-
-  <!-- ================= Fonte externa ================= -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <!-- Fonte Inter para textos do app -->
-
-  <!-- ================= CSS do projeto ================= -->
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
-
-  <!-- ================= Biblioteca Chart.js ================= -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Usada para gerar gráficos de tarefas -->
 </head>
+<body class="light">
 
-<body>
-  <!-- ================= Header ================= -->
-  <header class="appHeader">
-    <div class="left">
-      <h1 id="appTitle">TaskMaster</h1>
-      <!-- Nome do app -->
-
-      <div class="small-note" id="userLabel"></div>
-      <!-- Exibe o nome do usuário logado -->
-    </div>
-
-    <div class="controls">
-      <!-- Botões de controle do app -->
-      <button id="compactToggle" class="btn-accent">📐 Compacto</button>
-      <!-- Alterna entre layout compacto e padrão -->
-
-      <button id="themeToggle" class="btn-accent">🌙 Tema</button>
-      <!-- Alterna entre modo claro e escuro -->
-
-      <button id="logoutBtn" class="btn-accent">Sair</button>
-      <!-- Faz logout do usuário -->
+  <header class="header">
+    <h1>TaskMaster</h1>
+    <div class="actions">
+      <button id="themeToggle">🌞/🌙</button>
+      <button id="logoutBtn">Sair</button>
     </div>
   </header>
 
-  <!-- ================= Barra de pesquisa e filtros ================= -->
-  <section class="search-section">
-    <input type="text" id="searchInput" placeholder="Buscar tarefas...">
-    <!-- Campo para pesquisar tarefas -->
-
-    <select id="filterSelect">
-      <!-- Menu de filtro de tarefas -->
-      <option value="all">Todas</option>
-      <option value="pending">Pendentes</option>
-      <option value="completed">Concluídas</option>
-      <option value="important">Importantes</option>
-      <option value="trabalho">Trabalho</option>
-      <option value="pessoal">Pessoal</option>
-      <option value="estudo">Estudo</option>
-    </select>
-  </section>
-
-  <!-- ================= Formulário para adicionar tarefas ================= -->
-  <form id="taskForm" class="task-form">
-    <input id="taskInput" type="text" placeholder="Nova tarefa" autocomplete="off">
-    <!-- Campo de texto para nome da tarefa -->
-
-    <select id="priorityInput">
-      <!-- Prioridade da tarefa -->
-      <option value="low">Baixa</option>
-      <option value="medium">Média</option>
-      <option value="high">Alta</option>
-    </select>
-
-    <input id="dueDateInput" type="date">
-    <!-- Data de entrega da tarefa -->
-
-    <select id="categorySelect">
-      <!-- Categoria da tarefa -->
-      <option value="trabalho">Trabalho</option>
-      <option value="pessoal">Pessoal</option>
-      <option value="estudo">Estudo</option>
-      <option value="custom">Outra...</option>
-    </select>
-
-    <input id="customCategoryInput" type="text" placeholder="Digite a categoria" class="hidden">
-    <!-- Campo que aparece apenas se o usuário escolher "Outra..." -->
-
-    <button class="btn-accent">Adicionar</button>
-    <!-- Botão para salvar a nova tarefa -->
-  </form>
-
-  <!-- ================= Painel de estatísticas ================= -->
-  <section class="stats-panel">
-    <canvas id="tasksChart"></canvas>
-    <!-- Gráfico mostrando o status das tarefas -->
-  </section>
-
-  <!-- ================= Lista de tarefas ================= -->
-  <section id="taskList" class="task-list" aria-live="polite"></section>
-  <!-- Onde as tarefas serão renderizadas dinamicamente -->
-
-  <!-- ================= Conquistas ================= -->
-  <section id="badgeSection" class="badge-section">
-    <h2>🏆 Minhas Conquistas</h2>
-
-    <div class="progress-container">
-      <!-- Barra de progresso geral -->
-      <div class="progress-bar" id="progressBar"></div>
-      <span id="progressText">0% concluído</span>
+  <main class="container">
+    <div class="top-bar">
+      <input type="text" id="searchInput" placeholder="Buscar tarefas...">
+      <select id="filterSelect">
+        <option value="all">Todas</option>
+        <option value="low">Baixa</option>
+        <option value="medium">Média</option>
+        <option value="high">Alta</option>
+        <option value="work">Trabalho</option>
+        <option value="personal">Pessoal</option>
+      </select>
     </div>
 
-    <div id="badgeGrid" class="badge-grid"></div>
-    <!-- Grid para exibir conquistas obtidas -->
-  </section>
+    <form id="taskForm" class="task-form">
+      <input type="text" id="taskInput" placeholder="Nova tarefa" required>
+      <select id="prioritySelect">
+        <option value="low">Baixa</option>
+        <option value="medium">Média</option>
+        <option value="high">Alta</option>
+      </select>
+      <input type="date" id="dateInput">
+      <select id="categorySelect">
+        <option value="work">Trabalho</option>
+        <option value="personal">Pessoal</option>
+      </select>
+      <button type="submit" class="btn-accent">Adicionar</button>
+    </form>
 
-  <!-- ================= Modal de troféu ================= -->
-  <div id="trophyModal" class="modal" aria-hidden="true">
-    <div class="modal-content">
-      <h2>🏅 Nova Conquista!</h2>
-      <p id="trophyMessage"></p>
-      <!-- Mensagem exibindo a descrição da conquista -->
+    <ul id="taskList" class="task-list"></ul>
 
-      <button id="closeTrophy" class="btn-accent">Fechar</button>
-      <!-- Fecha o modal -->
-    </div>
-  </div>
+    <canvas id="chartCanvas" width="400" height="200"></canvas>
+  </main>
 
-  <!-- ================= JavaScript ================= -->
-  <script src="script.js" defer></script>
-  <!-- Script principal do app, carregado no final para performance -->
+  <script src="script.js"></script>
 </body>
 </html>
