@@ -327,3 +327,51 @@ body.dark #trophyModal .modal-content {
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   }
 }
+
+/* -------- BOTÕES DAS TAREFAS -------- */
+.task-card button {
+  background: transparent;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.task-card button:hover {
+  transform: scale(1.2);
+  opacity: 0.85;
+}
+
+/* Favoritar */
+.star-btn {
+  color: var(--star);
+}
+
+/* Concluir (emoji) */
+.btn-complete {
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+
+/* Editar */
+.btn-edit {
+  font-size: 1.2rem;
+  color: #3b82f6; /* azul */
+}
+
+/* Remover */
+.btn-delete {
+  font-size: 1.2rem;
+  color: #ef4444; /* vermelho */
+}
+
+/* -------- DARK MODE PARA BOTÕES -------- */
+body.dark .btn-edit {
+  color: #60a5fa;
+}
+body.dark .btn-delete {
+  color: #f87171;
+}
+body.dark .btn-complete {
+  color: #4ade80;
+}
