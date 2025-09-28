@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - TaskMaster</title>
+  <link rel="stylesheet" href="login.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+
+  <div class="login-container">
+    <h1 class="app-title">TaskMaster</h1>
+    <p class="subtitle">Entre para acessar suas tarefas</p>
+
+    <form id="loginForm" class="login-form">
+      <input type="text" id="username" placeholder="Digite seu nome..." required>
+
+      <select id="themeSelect" required>
+        <option value="light">Tema Claro 🌞</option>
+        <option value="dark">Tema Escuro 🌙</option>
+      </select>
+
+      <button type="submit" class="btn-accent">Entrar</button>
+    </form>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>
