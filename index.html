@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="light">
+<body>
 
   <!-- Header -->
   <header class="appHeader">
@@ -28,20 +28,36 @@
       <option value="pending">Pendentes</option>
       <option value="completed">Concluídas</option>
       <option value="important">Importantes</option>
+      <option value="trabalho">Trabalho</option>
+      <option value="pessoal">Pessoal</option>
+      <option value="estudo">Estudo</option>
     </select>
   </section>
 
   <!-- Formulário -->
-  <form id="taskForm">
-    <input type="text" id="taskTitle" placeholder="Título da tarefa" required>
-    <input type="text" id="taskDesc" placeholder="Descrição (opcional)">
-    <select id="taskPriority">
-      <option value="low">Baixa prioridade</option>
-      <option value="medium">Média prioridade</option>
-      <option value="high">Alta prioridade</option>
+  <form id="taskForm" class="flex flex-col gap-3 mb-6 p-4 rounded-lg border backdrop-blur">
+    <input id="taskInput" type="text" placeholder="Nova tarefa" class="p-2 rounded border">
+
+    <select id="priorityInput" class="p-2 rounded border">
+      <option value="low">Baixa</option>
+      <option value="medium">Média</option>
+      <option value="high">Alta</option>
     </select>
-    <input type="date" id="taskDue">
-    <button type="submit" class="btn-accent">Adicionar Tarefa</button>
+
+    <input id="dueDateInput" type="date" class="p-2 rounded border">
+
+    <!-- Seleção de categoria -->
+    <select id="categorySelect" class="p-2 rounded border">
+      <option value="trabalho">Trabalho</option>
+      <option value="pessoal">Pessoal</option>
+      <option value="estudo">Estudo</option>
+      <option value="custom">Outra...</option>
+    </select>
+
+    <!-- Input para categoria personalizada -->
+    <input id="customCategoryInput" type="text" placeholder="Digite a categoria" class="p-2 rounded border hidden">
+
+    <button class="btn-accent font-semibold py-2 rounded">Adicionar</button>
   </form>
 
   <!-- Painel de estatísticas -->
@@ -49,7 +65,7 @@
     <canvas id="tasksChart"></canvas>
   </section>
 
-  <!-- Área de tarefas -->
+  <!-- Lista de tarefas -->
   <section id="taskList" class="task-list"></section>
 
   <!-- Expositor de badges -->
