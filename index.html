@@ -3,229 +3,202 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task Manager Neon</title>
+<title>Neon To-Do List</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<style>
+body.dark{background:#000;color:#0ff}
+.task-card.dragging{opacity:.5}
+.calendar input[type="date"]{background:#111;color:#0ff;border:1px solid #0ff;border-radius:4px;padding:4px}
+.neon-border{border:2px solid #0ff;box-shadow:0 0 10px #0ff}
+.priority-high{border-left:4px solid #0ff}
+.priority-medium{border-left:4px solid #0f0}
+.priority-low{border-left:4px solid #555}
+</style>
 </head>
-<body class="min-h-screen bg-black text-white flex flex-col items-center justify-start py-6">
-
-<div id="loginSection" class="w-full max-w-sm bg-gray-900 p-6 rounded-xl shadow-lg space-y-4">
-  <h2 class="text-2xl font-bold text-center text-green-400">Bem-vindo</h2>
-  <input id="usernameInput" type="text" placeholder="Digite seu usuário" class="w-full p-3 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-400">
-  <button id="loginBtn" class="w-full py-2 rounded-md bg-green-500 hover:bg-green-400 text-black font-semibold">Entrar</button>
+<body class="bg-black text-white min-h-screen flex flex-col items-center">
+<div id="loginSection" class="w-full max-w-sm p-4 mt-8 neon-border rounded-lg">
+<h1 class="text-2xl mb-4 text-center text-cyan-400 font-bold">Login</h1>
+<input id="usernameInput" type="text" placeholder="Digite seu usuário" class="w-full p-2 mb-4 bg-black border border-cyan-400 rounded">
+<button id="loginBtn" class="w-full bg-cyan-500 text-black font-semibold py-2 rounded hover:bg-cyan-400">Entrar</button>
 </div>
 
-<div id="app" class="hidden w-full max-w-xl bg-gray-900 p-6 rounded-xl shadow-lg space-y-6">
-  <div class="flex justify-between items-center">
-    <h1 class="text-3xl font-bold text-green-400">Task Manager</h1>
-    <button id="darkToggle" class="px-3 py-2 bg-gray-800 rounded-lg text-blue-400 hover:text-green-400">🌙</button>
-  </div>
+<div id="appSection" class="hidden w-full max-w-2xl p-4">
+<header class="flex justify-between items-center mb-4">
+<h1 class="text-3xl font-bold text-cyan-400">To-Do List Neon</h1>
+<div class="flex gap-2">
+<button id="toggleDarkMode" class="px-3 py-1 rounded bg-cyan-500 text-black hover:bg-cyan-400">Dark Mode</button>
+<button id="logoutBtn" class="px-3 py-1 rounded bg-red-500 text-black hover:bg-red-400">Sair</button>
+</div>
+</header>
 
-  <div class="flex flex-col md:flex-row gap-3">
-    <input id="taskInput" type="text" placeholder="Nova tarefa" class="flex-1 p-3 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
-    <input id="taskDate" type="date" class="p-3 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
-    <select id="taskPriority" class="p-3 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-400">
-      <option value="low">Baixa</option>
-      <option value="medium">Média</option>
-      <option value="high">Alta</option>
-    </select>
-    <button id="addTaskBtn" class="px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-400 text-black font-semibold">Adicionar</button>
-  </div>
+<form id="taskForm" class="flex flex-col gap-3 mb-6 p-4 rounded-lg neon-border">
+<input id="taskInput" type="text" placeholder="Nova tarefa" class="p-2 rounded bg-black border border-cyan-400">
+<select id="priorityInput" class="p-2 rounded bg-black border border-cyan-400">
+<option value="low">Baixa</option>
+<option value="medium">Média</option>
+<option value="high">Alta</option>
+</select>
+<div class="calendar">
+<input id="dueDateInput" type="date">
+</div>
+<button class="bg-cyan-500 text-black font-semibold py-2 rounded hover:bg-cyan-400">Adicionar</button>
+</form>
 
-  <div class="flex flex-col md:flex-row gap-3">
-    <input id="searchInput" type="text" placeholder="Buscar tarefas..." class="flex-1 p-3 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-400">
-    <div class="flex gap-2">
-      <button class="filter-btn px-4 py-2 rounded-md bg-blue-500 text-black font-semibold" data-filter="all">Todas</button>
-      <button class="filter-btn px-4 py-2 rounded-md bg-gray-700 hover:bg-green-400 hover:text-black" data-filter="pending">Pendentes</button>
-      <button class="filter-btn px-4 py-2 rounded-md bg-gray-700 hover:bg-green-400 hover:text-black" data-filter="completed">Concluídas</button>
-    </div>
-  </div>
+<div class="flex justify-between items-center mb-4">
+<input id="searchInput" type="text" placeholder="Buscar tarefas" class="p-2 rounded bg-black border border-cyan-400 w-1/2">
+<select id="filterSelect" class="p-2 rounded bg-black border border-cyan-400">
+<option value="all">Todas</option>
+<option value="pending">Pendentes</option>
+<option value="completed">Concluídas</option>
+</select>
+</div>
 
-  <ul id="taskList" class="space-y-4"></ul>
+<ul id="taskList" class="flex flex-col gap-3"></ul>
 </div>
 
 <script>
-const loginSection = document.getElementById('loginSection')
-const app = document.getElementById('app')
-const usernameInput = document.getElementById('usernameInput')
-const loginBtn = document.getElementById('loginBtn')
-const darkToggle = document.getElementById('darkToggle')
-const taskInput = document.getElementById('taskInput')
-const taskDate = document.getElementById('taskDate')
-const taskPriority = document.getElementById('taskPriority')
-const addTaskBtn = document.getElementById('addTaskBtn')
-const searchInput = document.getElementById('searchInput')
-const filterBtns = document.querySelectorAll('.filter-btn')
-const taskList = document.getElementById('taskList')
+const loginSection=document.getElementById('loginSection')
+const appSection=document.getElementById('appSection')
+const usernameInput=document.getElementById('usernameInput')
+const loginBtn=document.getElementById('loginBtn')
+const logoutBtn=document.getElementById('logoutBtn')
+const toggleDarkMode=document.getElementById('toggleDarkMode')
+const taskForm=document.getElementById('taskForm')
+const taskInput=document.getElementById('taskInput')
+const priorityInput=document.getElementById('priorityInput')
+const dueDateInput=document.getElementById('dueDateInput')
+const taskList=document.getElementById('taskList')
+const searchInput=document.getElementById('searchInput')
+const filterSelect=document.getElementById('filterSelect')
 
-let currentUser = localStorage.getItem('currentUser') || ''
-let tasks = []
-let currentFilter = 'all'
+let currentUser=null
+let tasks=[]
 
-if (currentUser) {
-  loginSection.classList.add('hidden')
-  app.classList.remove('hidden')
-  loadTasks()
+function saveTasks(){localStorage.setItem(`tasks_${currentUser}`,JSON.stringify(tasks))}
+function loadTasks(){tasks=JSON.parse(localStorage.getItem(`tasks_${currentUser}`)||'[]')}
+function renderTasks(){
+taskList.innerHTML=''
+const search=searchInput.value.toLowerCase()
+const filter=filterSelect.value
+tasks.forEach((t,i)=>{
+if(t.title.toLowerCase().includes(search)&&(filter==='all'||(filter==='pending'&&!t.completed)||(filter==='completed'&&t.completed))){
+const li=document.createElement('li')
+li.draggable=true
+li.dataset.index=i
+li.className=`task-card p-3 rounded bg-black neon-border ${t.priority==='high'?'priority-high':t.priority==='medium'?'priority-medium':'priority-low'}`
+li.innerHTML=`
+<div class="flex justify-between items-center">
+<div>
+<input type="checkbox" class="mr-2" ${t.completed?'checked':''}>
+<span class="${t.completed?'line-through text-gray-500':''}">${t.title}</span>
+${t.dueDate?`<small class="ml-2 text-cyan-400">[${t.dueDate}]</small>`:''}
+</div>
+<div class="flex gap-2">
+<button class="add-subtask text-cyan-400">＋</button>
+<button class="delete-task text-red-400">✕</button>
+</div>
+</div>
+<ul class="subtasks mt-2 pl-6"></ul>
+`
+const subtasksUl=li.querySelector('.subtasks')
+t.subtasks.forEach((s,si)=>{
+const sLi=document.createElement('li')
+sLi.innerHTML=`<input type="checkbox" class="mr-2" ${s.done?'checked':''}> <span class="${s.done?'line-through text-gray-500':''}">${s.text}</span>`
+subtasksUl.appendChild(sLi)
+sLi.querySelector('input').addEventListener('change',()=>{
+s.done=!s.done
+saveTasks()
+renderTasks()
+})
+})
+li.querySelector('input[type="checkbox"]').addEventListener('change',()=>{
+t.completed=!t.completed
+saveTasks()
+renderTasks()
+})
+li.querySelector('.delete-task').addEventListener('click',()=>{
+tasks.splice(i,1)
+saveTasks()
+renderTasks()
+})
+li.querySelector('.add-subtask').addEventListener('click',()=>{
+const txt=prompt('Digite a subtarefa:')
+if(txt){
+t.subtasks.push({text:txt,done:false})
+saveTasks()
+renderTasks()
+}
+})
+taskList.appendChild(li)
+}
+})
+enableDragDrop()
 }
 
-loginBtn.addEventListener('click', () => {
-  const name = usernameInput.value.trim()
-  if (!name) return
-  currentUser = name
-  localStorage.setItem('currentUser', name)
-  loginSection.classList.add('hidden')
-  app.classList.remove('hidden')
-  loadTasks()
+function enableDragDrop(){
+const items=document.querySelectorAll('#taskList .task-card')
+items.forEach(it=>{
+it.addEventListener('dragstart',()=>it.classList.add('dragging'))
+it.addEventListener('dragend',()=>{it.classList.remove('dragging');reorderTasks()})
+})
+taskList.addEventListener('dragover',e=>{
+e.preventDefault()
+const dragging=document.querySelector('.dragging')
+const siblings=[...taskList.querySelectorAll('.task-card:not(.dragging)')]
+const next=siblings.find(s=>e.clientY<=s.offsetTop+s.offsetHeight/2)
+taskList.insertBefore(dragging,next)
+})
+}
+
+function reorderTasks(){
+const newOrder=[...taskList.querySelectorAll('.task-card')].map(it=>tasks[it.dataset.index])
+tasks=newOrder
+saveTasks()
+renderTasks()
+}
+
+taskForm.addEventListener('submit',e=>{
+e.preventDefault()
+const title=taskInput.value.trim()
+if(title){
+tasks.push({title,completed:false,priority:priorityInput.value,dueDate:dueDateInput.value,subtasks:[]})
+saveTasks()
+renderTasks()
+taskForm.reset()
+}
 })
 
-function getStorageKey() {
-  return `tasks_${currentUser}`
+searchInput.addEventListener('input',renderTasks)
+filterSelect.addEventListener('change',renderTasks)
+
+toggleDarkMode.addEventListener('click',()=>document.body.classList.toggle('dark'))
+loginBtn.addEventListener('click',()=>{
+const u=usernameInput.value.trim()
+if(u){
+currentUser=u
+loginSection.classList.add('hidden')
+appSection.classList.remove('hidden')
+loadTasks()
+renderTasks()
 }
+})
+logoutBtn.addEventListener('click',()=>{
+currentUser=null
+tasks=[]
+appSection.classList.add('hidden')
+loginSection.classList.remove('hidden')
+})
 
-function saveTasks() {
-  localStorage.setItem(getStorageKey(), JSON.stringify(tasks))
+function checkDueDates(){
+const today=new Date().toISOString().split('T')[0]
+tasks.forEach(t=>{
+if(t.dueDate===today&&!t.completed){
+new Notification('Tarefa pendente',{body:t.title})
 }
-
-function loadTasks() {
-  tasks = JSON.parse(localStorage.getItem(getStorageKey())) || []
-  renderTasks()
+})
 }
-
-function renderTasks() {
-  taskList.innerHTML = ''
-  const now = new Date()
-  const searchTerm = searchInput.value.toLowerCase()
-
-  tasks.forEach((task, index) => {
-    if (currentFilter === 'pending' && task.completed) return
-    if (currentFilter === 'completed' && !task.completed) return
-    if (searchTerm && !task.text.toLowerCase().includes(searchTerm)) return
-
-    const li = document.createElement('li')
-    li.className = `flex justify-between items-center p-4 rounded-lg shadow-lg cursor-pointer transition 
-      ${task.completed ? 'line-through opacity-60' : ''} 
-      ${task.priority === 'low' ? 'border-l-4 border-green-400' : ''} 
-      ${task.priority === 'medium' ? 'border-l-4 border-blue-400' : ''} 
-      ${task.priority === 'high' ? 'border-l-4 border-red-500' : ''}`
-
-    const content = document.createElement('div')
-    content.className = 'flex flex-col gap-1'
-
-    const textEl = document.createElement('span')
-    textEl.textContent = task.text
-    textEl.className = 'cursor-text'
-    textEl.addEventListener('click', () => enableEdit(index, textEl))
-
-    content.appendChild(textEl)
-
-    if (task.dueDate) {
-      const dateEl = document.createElement('span')
-      dateEl.textContent = `Vence: ${task.dueDate}`
-      dateEl.className = 'text-sm px-2 py-1 rounded-md ' + (new Date(task.dueDate) < now && !task.completed ? 'bg-red-700 text-white' : 'bg-gray-700 text-green-400')
-      content.appendChild(dateEl)
-    }
-
-    const actions = document.createElement('div')
-    actions.className = 'flex gap-2'
-
-    const completeBtn = document.createElement('button')
-    completeBtn.textContent = '✓'
-    completeBtn.className = 'px-3 py-1 rounded-md bg-green-500 text-black hover:bg-green-400'
-    completeBtn.addEventListener('click', () => toggleComplete(index))
-
-    const deleteBtn = document.createElement('button')
-    deleteBtn.textContent = '🗑️'
-    deleteBtn.className = 'px-3 py-1 rounded-md bg-red-500 text-black hover:bg-red-400'
-    deleteBtn.addEventListener('click', () => deleteTask(index))
-
-    actions.appendChild(completeBtn)
-    actions.appendChild(deleteBtn)
-
-    li.appendChild(content)
-    li.appendChild(actions)
-    taskList.appendChild(li)
-  })
-}
-
-function enableEdit(index, el) {
-  const input = document.createElement('input')
-  input.type = 'text'
-  input.value = tasks[index].text
-  input.className = 'bg-gray-800 text-white px-2 py-1 rounded-md'
-  el.replaceWith(input)
-  input.focus()
-  input.addEventListener('blur', () => saveEdit(index, input))
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') saveEdit(index, input)
-    if (e.key === 'Escape') renderTasks()
-  })
-}
-
-function saveEdit(index, input) {
-  tasks[index].text = input.value.trim() || tasks[index].text
-  saveTasks()
-  renderTasks()
-}
-
-function addTask() {
-  const text = taskInput.value.trim()
-  if (!text) return
-  const newTask = {
-    text,
-    dueDate: taskDate.value,
-    priority: taskPriority.value,
-    completed: false
-  }
-  tasks.push(newTask)
-  saveTasks()
-  renderTasks()
-  checkDueTasks()
-  taskInput.value = ''
-  taskDate.value = ''
-}
-
-function toggleComplete(index) {
-  tasks[index].completed = !tasks[index].completed
-  saveTasks()
-  renderTasks()
-}
-
-function deleteTask(index) {
-  tasks.splice(index, 1)
-  saveTasks()
-  renderTasks()
-}
-
-function setFilter(filter) {
-  currentFilter = filter
-  filterBtns.forEach(btn => btn.classList.remove('bg-green-400','text-black'))
-  document.querySelector(`.filter-btn[data-filter="${filter}"]`).classList.add('bg-green-400','text-black')
-  renderTasks()
-}
-
-function checkDueTasks() {
-  if (!('Notification' in window)) return
-  if (Notification.permission !== 'granted') Notification.requestPermission()
-  const now = new Date()
-  tasks.forEach(task => {
-    if (!task.dueDate || task.completed) return
-    const due = new Date(task.dueDate)
-    const diff = due.getTime() - now.getTime()
-    const daysLeft = diff / (1000 * 60 * 60 * 24)
-    if (due < now) {
-      new Notification('⚠️ Tarefa vencida', { body: `A tarefa "${task.text}" está vencida!` })
-    } else if (daysLeft <= 1) {
-      new Notification('⏳ Tarefa próxima do vencimento', { body: `A tarefa "${task.text}" vence em breve.` })
-    }
-  })
-}
-
-darkToggle.addEventListener('click', () => document.body.classList.toggle('bg-gray-950'))
-addTaskBtn.addEventListener('click', addTask)
-filterBtns.forEach(btn => btn.addEventListener('click', () => setFilter(btn.dataset.filter)))
-searchInput.addEventListener('input', renderTasks)
-
-if (currentUser) checkDueTasks()
+if('Notification'in window&&Notification.permission!=='granted'){Notification.requestPermission()}
+setInterval(checkDueDates,60000)
 </script>
-
 </body>
 </html>
