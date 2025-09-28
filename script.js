@@ -1,4 +1,4 @@
-// Usuário atual
+// ----------------- Usuário atual -----------------
 const currentUser = localStorage.getItem('currentUser');
 if (!currentUser) {
   window.location.href = 'login.html';
@@ -6,7 +6,7 @@ if (!currentUser) {
 
 let tasks = JSON.parse(localStorage.getItem(`tasks_${currentUser}`)) || [];
 
-// Salvar sempre com base no usuário
+// Salvar sempre com base no usuário logado
 function saveTasks() {
   localStorage.setItem(`tasks_${currentUser}`, JSON.stringify(tasks));
 }
@@ -29,12 +29,19 @@ const dueDateInput = document.getElementById('dueDateInput');
 const categorySelect = document.getElementById('categorySelect');
 const customCategoryInput = document.getElementById('customCategoryInput');
 
-let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let chart;
 
 // ----------------- Tema -----------------
 themeToggle.addEventListener('click', () => {
   document.body.classList.toggle('dark');
+  const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+  localStorage.setItem('theme', theme);
+});
+
+// Aplica tema salvo
+window.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') document.body.classList.add('dark');
 });
 
 // ----------------- Mostrar campo de categoria personalizada -----------------
@@ -71,11 +78,12 @@ taskForm.addEventListener('submit', (e) => {
   };
 
   tasks.push(newTask);
-  localStorage.setItem('tasks', JSON.stringify(tasks));
+  saveTasks(); // ✅ salva por usuário
 
   renderTasks();
   updateChart();
   checkBadges();
+
   taskForm.reset();
   customCategoryInput.classList.add('hidden');
 });
@@ -120,7 +128,7 @@ function renderTasks() {
 function toggleComplete(id) {
   const task = tasks.find(t => t.id === id);
   if (task) task.completed = !task.completed;
-  localStorage.setItem('tasks', JSON.stringify(tasks));
+  saveTasks(); // ✅
   renderTasks();
   updateChart();
   checkBadges();
@@ -129,7 +137,7 @@ function toggleComplete(id) {
 function toggleImportant(id) {
   const task = tasks.find(t => t.id === id);
   if (task) task.important = !task.important;
-  localStorage.setItem('tasks', JSON.stringify(tasks));
+  saveTasks(); // ✅
   renderTasks();
 }
 
