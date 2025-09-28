@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TaskMaster</title>
+
+  <!-- PWA / Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
   <!-- Header -->
   <header class="appHeader">
-    <h1 id="appTitle">TaskMaster</h1>
-    <div class="appSection">
+    <div class="left">
+      <h1 id="appTitle">TaskMaster</h1>
+      <div class="small-note" id="userLabel"></div>
+    </div>
+
+    <div class="controls">
+      <button id="compactToggle" class="btn-accent">📐 Compacto</button>
       <button id="themeToggle" class="btn-accent">🌙 Tema</button>
       <button id="logoutBtn" class="btn-accent">Sair</button>
     </div>
   </header>
 
-  <!-- Busca e Filtros -->
+  <!-- Search / Filters -->
   <section class="search-section">
     <input type="text" id="searchInput" placeholder="Buscar tarefas...">
     <select id="filterSelect">
@@ -34,56 +43,45 @@
     </select>
   </section>
 
-  <!-- Formulário -->
-  <form id="taskForm" class="flex flex-col gap-3 mb-6 p-4 rounded-lg border backdrop-blur">
-    <input id="taskInput" type="text" placeholder="Nova tarefa" class="p-2 rounded border">
-
-    <select id="priorityInput" class="p-2 rounded border">
+  <!-- Form -->
+  <form id="taskForm" class="task-form">
+    <input id="taskInput" type="text" placeholder="Nova tarefa" autocomplete="off">
+    <select id="priorityInput">
       <option value="low">Baixa</option>
       <option value="medium">Média</option>
       <option value="high">Alta</option>
     </select>
-
-    <input id="dueDateInput" type="date" class="p-2 rounded border">
-
-    <!-- Seleção de categoria -->
-    <select id="categorySelect" class="p-2 rounded border">
+    <input id="dueDateInput" type="date">
+    <select id="categorySelect">
       <option value="trabalho">Trabalho</option>
       <option value="pessoal">Pessoal</option>
       <option value="estudo">Estudo</option>
       <option value="custom">Outra...</option>
     </select>
-
-    <!-- Input para categoria personalizada -->
-    <input id="customCategoryInput" type="text" placeholder="Digite a categoria" class="p-2 rounded border hidden">
-
-    <button class="btn-accent font-semibold py-2 rounded">Adicionar</button>
+    <input id="customCategoryInput" type="text" placeholder="Digite a categoria" class="hidden">
+    <button class="btn-accent">Adicionar</button>
   </form>
 
-  <!-- Painel de estatísticas -->
+  <!-- Stats & Chart -->
   <section class="stats-panel">
     <canvas id="tasksChart"></canvas>
   </section>
 
-  <!-- Lista de tarefas -->
-  <section id="taskList" class="task-list"></section>
+  <!-- Tasks -->
+  <section id="taskList" class="task-list" aria-live="polite"></section>
 
-  <!-- Expositor de badges -->
-  <section id="badgeSection">
+  <!-- Badges / Progress -->
+  <section id="badgeSection" class="badge-section">
     <h2>🏆 Minhas Conquistas</h2>
-
-    <!-- Barra de progresso -->
     <div class="progress-container">
       <div class="progress-bar" id="progressBar"></div>
       <span id="progressText">0% concluído</span>
     </div>
-
-    <!-- Grid de badges -->
     <div id="badgeGrid" class="badge-grid"></div>
   </section>
 
-  <!-- Modal de troféus -->
-  <div id="trophyModal" class="modal">
+  <!-- Trophy modal -->
+  <div id="trophyModal" class="modal" aria-hidden="true">
     <div class="modal-content">
       <h2>🏅 Nova Conquista!</h2>
       <p id="trophyMessage"></p>
