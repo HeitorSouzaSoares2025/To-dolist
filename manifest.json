@@ -1,37 +1,12 @@
 {
-  // Nome completo do app. É o que aparece na tela inicial quando o PWA é instalado.
   "name": "TaskMaster",
-
-  // Nome curto do app. É usado quando há pouco espaço, como no ícone da tela inicial.
   "short_name": "TaskMaster",
-
-  // URL de início do app. Ao abrir o PWA, ele começa por essa página.
-  // "./index.html" significa que vai abrir o index.html na raiz do projeto.
   "start_url": "./index.html",
-
-  // Modo de exibição do PWA:
-  // "standalone" faz com que ele pareça um app nativo, sem barra de endereço do navegador.
   "display": "standalone",
-
-  // Cor de fundo mostrada enquanto o app está carregando.
   "background_color": "#0f172a",
-
-  // Cor usada no topo do navegador e na barra de status do sistema.
   "theme_color": "#0f172a",
-
-  // Ícones do PWA em diferentes tamanhos, usados para atalhos, splash screens e instaladores.
   "icons": [
-    {
-      // Caminho do ícone de 192px — usado em atalhos menores, como notificações.
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      // Caminho do ícone de 512px — usado em splash screen e instalação.
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
