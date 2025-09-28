@@ -7,6 +7,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
+  /* Indicador lateral de prioridade */
+.task {
+  position: relative;
+  border-left: 6px solid transparent;
+}
+
+/* Light mode */
+.task[data-priority="low"]    { border-left-color: #22c55e; }  /* Verde */
+.task[data-priority="medium"] { border-left-color: #f59e0b; }  /* Amarelo */
+.task[data-priority="high"]   { border-left-color: #ef4444; }  /* Vermelho */
+
+/* Dark mode – cores mais vibrantes para destacar no fundo escuro */
+body.dark .task[data-priority="low"]    { border-left-color: #4ade80; }  /* Verde claro neon */
+body.dark .task[data-priority="medium"] { border-left-color: #facc15; }  /* Amarelo vivo */
+body.dark .task[data-priority="high"]   { border-left-color: #f87171; }  /* Vermelho claro */
+
   /* Melhor contraste no select e nas opções */
 select, option {
   background: var(--bg-light);
