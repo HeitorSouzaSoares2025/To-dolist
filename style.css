@@ -243,3 +243,87 @@ body.dark .badge {
 body.dark #trophyModal .modal-content {
   background: var(--card-bg-dark);
 }
+
+/* -------- PROGRESS BAR -------- */
+.progress-container {
+  position: relative;
+  background: rgba(0,0,0,0.1);
+  border-radius: 1rem;
+  height: 18px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+body.dark .progress-container {
+  background: rgba(255,255,255,0.1);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, var(--accent), #06b6d4);
+  border-radius: inherit;
+  transition: width 0.5s ease-in-out;
+}
+
+#progressText {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-light);
+  line-height: 18px;
+}
+body.dark #progressText {
+  color: var(--text-dark);
+}
+
+/* -------- TOOLTIP -------- */
+.badge {
+  position: relative;
+}
+.badge[title] {
+  cursor: help;
+}
+
+/* -------- MODAL ANIMATION -------- */
+#trophyModal {
+  opacity: 0;
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  transition: opacity 0.3s ease;
+}
+#trophyModal.show {
+  display: flex;
+  opacity: 1;
+}
+
+#trophyModal .modal-content {
+  background: var(--card-bg-light);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  max-width: 300px;
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+#trophyModal.show .modal-content {
+  transform: scale(1);
+}
+body.dark #trophyModal .modal-content {
+  background: var(--card-bg-dark);
+}
+
+/* -------- RESPONSIVIDADE BADGES -------- */
+@media (max-width: 600px) {
+  .badge-grid {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  }
+}
