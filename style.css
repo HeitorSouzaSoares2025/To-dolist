@@ -71,9 +71,29 @@ body.dark select option {
 
 
 .task-card.completed h3{text-decoration:line-through;opacity:.6}
-.priority-high{border-left:4px solid #ef4444}
-.priority-medium{border-left:4px solid #f59e0b}
-.priority-low{border-left:4px solid #22c55e}
+
+/* ===== Barrinha lateral de prioridade ===== */
+.priority-low {
+  border-left: 4px solid #22c55e;      /* verde vivo */
+}
+.priority-medium {
+  border-left: 4px solid #fbbf24;      /* amarelo vibrante */
+}
+.priority-high {
+  border-left: 4px solid #ef4444;      /* vermelho forte */
+}
+
+/* No modo escuro, deixamos as cores mais “neon” */
+body.dark .priority-low {
+  border-left-color: #4ade80;          /* verde neon */
+}
+body.dark .priority-medium {
+  border-left-color: #facc15;          /* amarelo neon */
+}
+body.dark .priority-high {
+  border-left-color: #f87171;          /* vermelho mais claro */
+}
+
 
 /* buttons area */
 .task-card .actions{display:flex;gap:.5rem;align-items:center}
