@@ -9,68 +9,79 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
-  --accent: #22c55e;
-  --accent-dark: #16a34a;
-  --border: #d1d5db;
-  --bg-light: #ffffff;
-  --text-light: #111827;
-  --bg-dark: #0f172a;
-  --text-dark: #e5e7eb;
-  --card-bg-light: rgba(255,255,255,0.7);
-  --card-bg-dark: rgba(30,41,59,0.6);
-  --star: #facc15;
+  --accent:#22c55e;
+  --accent-dark:#16a34a;
+  --border:#d1d5db;
+  --bg-light:#ffffff;
+  --text-light:#111827;
+  --bg-dark:#0f172a;
+  --text-dark:#e5e7eb;
+  --card-bg-light:rgba(255,255,255,0.7);
+  --card-bg-dark:rgba(30,41,59,0.6);
+  --star:#facc15;
 }
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg-light);
-  color: var(--text-light);
-  transition: background .3s, color .3s;
-}
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-}
+body{font-family:'Inter',sans-serif;background:var(--bg-light);color:var(--text-light);transition:background .3s,color .3s;}
+body.dark{background:var(--bg-dark);color:var(--text-dark);}
+
 /* Cards */
-.task-card {
-  background: var(--card-bg-light);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 0.75rem;
-  transition: background .3s, transform .2s;
+.task-card{
+  position:relative;
+  background:var(--card-bg-light);
+  backdrop-filter:blur(8px);
+  border:1px solid var(--border);
+  border-radius:.75rem;
+  padding:.75rem;
+  transition:background .3s,transform .2s;
 }
-body.dark .task-card {background: var(--card-bg-dark);border-color:#334155;}
-.task-card:hover {transform: translateY(-2px);}
-.task-card.dragging {opacity:.5;}
-.priority-high {border-left:4px solid #ef4444;}
-.priority-medium {border-left:4px solid #f59e0b;}
-.priority-low {border-left:4px solid #22c55e;}
-.important {border:2px solid var(--star);box-shadow:0 0 8px rgba(250,204,21,0.6);}
-.star-btn {color: var(--star);font-size:1.2rem;transition:transform .2s;}
-.star-btn:hover {transform:scale(1.2);}
-input, select {
-  border: 1px solid var(--border);
-  border-radius: .5rem;
-  padding: .5rem;
+body.dark .task-card{background:var(--card-bg-dark);border-color:#334155;}
+.task-card:hover{transform:translateY(-2px);}
+.task-card.dragging{opacity:.5;}
+/* Barras de prioridade */
+.task-card[data-priority="high"]{border-left:6px solid #ef4444;}
+.task-card[data-priority="medium"]{border-left:6px solid #f59e0b;}
+.task-card[data-priority="low"]{border-left:6px solid #22c55e;}
+body.dark .task-card[data-priority="high"]{border-left-color:#f87171;}
+body.dark .task-card[data-priority="medium"]{border-left-color:#facc15;}
+body.dark .task-card[data-priority="low"]{border-left-color:#4ade80;}
+
+.important{border:2px solid var(--star);box-shadow:0 0 8px rgba(250,204,21,0.6);}
+.star-btn{color:var(--star);font-size:1.2rem;transition:transform .2s;}
+.star-btn:hover{transform:scale(1.2);}
+
+input,select{
+  border:1px solid var(--border);
+  border-radius:.5rem;
+  padding:.5rem;
 }
-body.dark input,body.dark select {border-color:#475569;}
-.btn-accent {
-  background: linear-gradient(to right,var(--accent),#06b6d4);
+body.dark input,body.dark select{border-color:#475569;}
+select option[value="low"]{color:#22c55e;}
+select option[value="medium"]{color:#f59e0b;}
+select option[value="high"]{color:#ef4444;}
+body.dark select option[value="low"]{color:#4ade80;}
+body.dark select option[value="medium"]{color:#facc15;}
+body.dark select option[value="high"]{color:#f87171;}
+
+.btn-accent{
+  background:linear-gradient(to right,var(--accent),#06b6d4);
   color:#fff;
   padding:.5rem 1rem;
   border-radius:.5rem;
   transition:transform .2s;
 }
-.btn-accent:hover {transform:scale(1.05);}
+.btn-accent:hover{transform:scale(1.05);}
 </style>
 </head>
-<body class="min-h-screen flex flex-col items-center px-2">
+<body class="min-h-screen flex flex-col items-center justify-center">
 
 <!-- LOGIN -->
-<div id="loginSection" class="w-full max-w-sm p-6 mt-8 rounded-xl shadow-md bg-white/70 dark:bg-slate-800/70 backdrop-blur">
-  <h1 class="text-2xl mb-4 text-center font-bold">Login</h1>
+<div id="loginSection" class="w-full max-w-sm p-6 rounded-xl shadow-md bg-white/70 dark:bg-slate-800/70 backdrop-blur text-center">
+  <h1 class="text-3xl mb-4 font-bold">Bem-vindo!</h1>
   <input id="usernameInput" type="text" placeholder="Digite seu usuário"
          class="w-full p-2 mb-4 rounded border">
+  <select id="themeSelect" class="w-full p-2 mb-4 rounded border">
+    <option value="light">Tema Claro</option>
+    <option value="dark">Tema Escuro</option>
+  </select>
   <button id="loginBtn" class="w-full btn-accent font-semibold py-2 rounded">Entrar</button>
 </div>
 
@@ -107,8 +118,10 @@ body.dark input,body.dark select {border-color:#475569;}
   </div>
 
   <!-- GRÁFICO DE PROGRESSO -->
-  <div class="mb-6">
-    <canvas id="progressChart" height="120"></canvas>
+  <div class="mb-6 flex justify-center">
+    <div class="w-64 h-64">
+      <canvas id="progressChart"></canvas>
+    </div>
   </div>
 
   <ul id="taskList" class="flex flex-col gap-3"></ul>
@@ -118,6 +131,7 @@ body.dark input,body.dark select {border-color:#475569;}
 const loginSection=document.getElementById('loginSection')
 const appSection=document.getElementById('appSection')
 const usernameInput=document.getElementById('usernameInput')
+const themeSelect=document.getElementById('themeSelect')
 const loginBtn=document.getElementById('loginBtn')
 const logoutBtn=document.getElementById('logoutBtn')
 const toggleDarkMode=document.getElementById('toggleDarkMode')
@@ -146,7 +160,8 @@ function renderTasks(){
       const li=document.createElement('li')
       li.draggable=true
       li.dataset.index=i
-      li.className=`task-card ${t.priority==='high'?'priority-high':t.priority==='medium'?'priority-medium':'priority-low'} ${t.important?'important':''}`
+      li.className=`task-card ${t.important?'important':''}`
+      li.setAttribute('data-priority',t.priority)
       li.innerHTML=`
         <div class="flex justify-between items-center">
           <div>
@@ -213,7 +228,10 @@ function updateChart(){
     },
     options:{
       responsive:true,
-      plugins:{legend:{display:true,labels:{color:document.body.classList.contains('dark')?'#e5e7eb':'#111827'}}}
+      cutout:'65%',
+      plugins:{
+        legend:{display:true,labels:{color:document.body.classList.contains('dark')?'#e5e7eb':'#111827'}}
+      }
     }
   })
 }
@@ -232,7 +250,13 @@ toggleDarkMode.addEventListener('click',()=>{document.body.classList.toggle('dar
 
 loginBtn.addEventListener('click',()=>{
   const u=usernameInput.value.trim()
-  if(u){currentUser=u;loginSection.classList.add('hidden');appSection.classList.remove('hidden');loadTasks();renderTasks()}
+  if(u){
+    currentUser=u
+    document.body.classList.toggle('dark',themeSelect.value==='dark')
+    loginSection.classList.add('hidden')
+    appSection.classList.remove('hidden')
+    loadTasks();renderTasks()
+  }
 })
 logoutBtn.addEventListener('click',()=>{currentUser=null;tasks=[];appSection.classList.add('hidden');loginSection.classList.remove('hidden')})
 
