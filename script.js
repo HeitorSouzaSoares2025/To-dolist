@@ -1,359 +1,226 @@
-// script.js
-// Entrypoint for TaskMaster: drag-drop, subtasks, compact mode, notifications, PWA registration.
+// ===============================
+// SCRIPT PRINCIPAL DO TASKMASTER
+// ===============================
 
-// ----------------- Usuário atual -----------------
-const currentUser = localStorage.getItem('currentUser');
+// --- Seletores principais
+const currentUser = localStorage.getItem('currentUser'); // pega usuário logado
+const taskForm = document.getElementById('taskForm');    // formulário de nova tarefa
+const taskInput = document.getElementById('taskInput');  // input do título da tarefa
+const prioritySelect = document.getElementById('prioritySelect'); // prioridade
+const dueDateInput = document.getElementById('dueDate'); // data limite
+const categoryInput = document.getElementById('categoryInput'); // categoria
+const taskList = document.getElementById('taskList');    // lista onde tarefas serão renderizadas
+const themeToggle = document.getElementById('themeToggle'); // botão tema
+const compactToggle = document.getElementById('compactToggle'); // botão modo compacto
+const filterSelect = document.getElementById('filterSelect');   // seletor de filtros
+const searchInput = document.getElementById('searchInput');     // barra de pesquisa
+const progressBar = document.getElementById('progressBar');     // barra de progresso
+const badgeArea = document.getElementById('badgeArea');         // área de badges
+const chartCanvas = document.getElementById('taskChart');       // gráfico
+
+// --- Se não estiver logado, volta para login
 if (!currentUser) {
   window.location.href = 'login.html';
 }
 
-// load tasks per user
-let tasks = JSON.parse(localStorage.getItem(`tasks_${currentUser}`)) || [];
-function saveTasks(){ localStorage.setItem(`tasks_${currentUser}`, JSON.stringify(tasks)); }
+// --- Carregar ou inicializar lista de tarefas do usuário
+let tasks = JSON.parse(localStorage.getItem(`tasks_${currentUser}`) || '[]');
 
-// ----------------- Selectors -----------------
-const userLabel = document.getElementById('userLabel');
-const taskForm = document.getElementById('taskForm');
-const taskList = document.getElementById('taskList');
-const themeToggle = document.getElementById('themeToggle');
-const compactToggle = document.getElementById('compactToggle');
-const searchInput = document.getElementById('searchInput');
-const filterSelect = document.getElementById('filterSelect');
-const tasksChartCtx = document.getElementById('tasksChart');
-const badgeGrid = document.getElementById('badgeGrid');
-const trophyModal = document.getElementById('trophyModal');
-const trophyMessage = document.getElementById('trophyMessage');
-const closeTrophy = document.getElementById('closeTrophy');
-const logoutBtn = document.getElementById('logoutBtn');
+// -----------------------------
+// Salvar tarefas no localStorage
+function saveTasks() {
+  localStorage.setItem(`tasks_${currentUser}`, JSON.stringify(tasks));
+}
 
-const taskInput = document.getElementById('taskInput');
-const priorityInput = document.getElementById('priorityInput');
-const dueDateInput = document.getElementById('dueDateInput');
-const categorySelect = document.getElementById('categorySelect');
-const customCategoryInput = document.getElementById('customCategoryInput');
-
-const progressBar = document.getElementById('progressBar');
-const progressText = document.getElementById('progressText');
-
-let chart = null;
-
-// show user label
-userLabel.textContent = `Usuário: ${currentUser}`;
-
-// ----------------- Theme & Compact -----------------
+// -----------------------------
+// Alternância de Tema
 themeToggle.addEventListener('click', () => {
   document.body.classList.toggle('dark');
   localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
 });
+
+// Restaurar tema salvo
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') document.body.classList.add('dark');
+
+// -----------------------------
+// Modo compacto
 compactToggle.addEventListener('click', () => {
   document.body.classList.toggle('compact');
-  compactToggle.textContent = document.body.classList.contains('compact') ? '📐 Normal' : '📐 Compacto';
-  localStorage.setItem('compact', document.body.classList.contains('compact') ? '1':'0');
+  localStorage.setItem('compact', document.body.classList.contains('compact'));
 });
 
-// apply saved
-window.addEventListener('DOMContentLoaded', () => {
-  if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
-  if (localStorage.getItem('compact') === '1') {
-    document.body.classList.add('compact');
-    compactToggle.textContent = '📐 Normal';
-  }
-});
+// Restaurar modo compacto salvo
+if (localStorage.getItem('compact') === 'true') {
+  document.body.classList.add('compact');
+}
 
-// ----------------- Category custom field -----------------
-categorySelect.addEventListener('change', () => {
-  customCategoryInput.classList.toggle('hidden', categorySelect.value !== 'custom');
-  if (categorySelect.value !== 'custom') customCategoryInput.value = '';
-});
-
-// ----------------- Task form submit -----------------
-taskForm.addEventListener('submit', (e)=>{
+// -----------------------------
+// Adicionar nova tarefa
+taskForm.addEventListener('submit', (e) => {
   e.preventDefault();
+
   const title = taskInput.value.trim();
-  if(!title) return;
-  const priority = priorityInput.value;
+  const priority = prioritySelect.value;
   const due = dueDateInput.value;
-  const category = categorySelect.value === 'custom' && customCategoryInput.value.trim() ? customCategoryInput.value.trim() : categorySelect.value;
+  const category = categoryInput.value.trim();
+
+  if (!title) return;
 
   const task = {
-    id: Date.now(),
-    title, priority, due, category,
-    completed:false, important:false,
-    subtasks: []
+    id: Date.now(),       // id único
+    title,                // título
+    priority,             // prioridade
+    due,                  // data limite
+    category,             // categoria
+    completed: false,     // estado inicial
+    important: false,     // marcação de importante
+    subtasks: []          // lista de subtarefas
   };
-  tasks.unshift(task); // newest on top
-  saveTasks();
-  renderTasks();
-  updateChart();
-  checkBadges();
-  updateProgressBar();
-  taskForm.reset();
-  customCategoryInput.classList.add('hidden');
 
-  // auto notification if due is today (quick)
-  scheduleDueNotification(task);
+  tasks.unshift(task);    // adiciona no topo da lista
+  saveTasks();
+  renderTasks();          // renderiza novamente
+  taskForm.reset();       // limpa formulário
 });
 
-// ----------------- Render tasks (with drag handles & subtasks) -----------------
-function renderTasks(){
+// -----------------------------
+// Renderizar lista de tarefas
+function renderTasks() {
   taskList.innerHTML = '';
-  const search = (searchInput.value || '').toLowerCase();
-  const filter = filterSelect.value || 'all';
 
-  tasks
-    .filter(t => (t.title.toLowerCase().includes(search) || (t.subtasks||[]).some(s=>s.text.toLowerCase().includes(search))))
-    .filter(t => filter === 'all' || filter === t.category || (filter === 'pending' && !t.completed) || (filter === 'completed' && t.completed) || (filter === 'important' && t.important))
-    .forEach((t, idx) => {
-      const card = document.createElement('div');
-      card.className = `task-card fade-in priority-${t.priority} ${t.important?'important':''}`;
-      card.draggable = true;
-      card.dataset.id = t.id;
+  // Aplicar filtro
+  const filter = filterSelect.value;
+  const search = searchInput.value.toLowerCase();
 
-      // left content (title + subtasks)
-      const left = document.createElement('div');
-      left.className = 'left';
-      const title = document.createElement('h3');
-      title.textContent = t.title;
-      left.appendChild(title);
-      const meta = document.createElement('small');
-      meta.textContent = `Categoria: ${t.category} ${t.due ? ' • Prazo: '+t.due : ''}`;
-      left.appendChild(meta);
+  const filteredTasks = tasks.filter(t => {
+    const matchesSearch = t.title.toLowerCase().includes(search);
+    if (!matchesSearch) return false;
 
-      // subtask list
-      const subtasksEl = document.createElement('div');
-      subtasksEl.className = 'subtasks';
-      (t.subtasks||[]).forEach(sub=>{
-        const subEl = document.createElement('div');
-        subEl.className = 'subtask' + (sub.done?' completed':'');
-        subEl.innerHTML = `
-          <button aria-label="toggle subtask" class="sub-toggle">${sub.done? '✅':'⬜'}</button>
-          <div class="subtext">${escapeHtml(sub.text)}</div>
-        `;
-        subEl.querySelector('.sub-toggle').addEventListener('click', ()=>{
-          sub.done = !sub.done;
-          saveTasks(); renderTasks(); updateProgressBar(); checkBadges();
-        });
-        subtasksEl.appendChild(subEl);
-      });
-      // add subtask control
-      const addSubBtn = document.createElement('button');
-      addSubBtn.className = 'btn-add-sub';
-      addSubBtn.textContent = '＋ Subtarefa';
-      addSubBtn.addEventListener('click', ()=>{
-        const txt = prompt('Digite a subtarefa:');
-        if(!txt) return;
-        t.subtasks = t.subtasks || [];
-        t.subtasks.push({ text: txt.trim(), done:false });
-        saveTasks(); renderTasks(); checkBadges(); updateProgressBar();
-      });
+    if (filter === 'all') return true;
+    if (filter === 'completed') return t.completed;
+    if (filter === 'important') return t.important;
+    if (filter === 'pending') return !t.completed;
+    return true;
+  });
 
-      // actions area (star, complete emoji, edit, delete)
-      const actions = document.createElement('div');
-      actions.className = 'actions';
-      const starBtn = document.createElement('button');
-      starBtn.className = 'star-btn';
-      starBtn.title = 'Favoritar';
-      starBtn.innerText = t.important ? '⭐' : '☆';
-      starBtn.addEventListener('click', ()=>{ t.important = !t.important; saveTasks(); renderTasks(); });
+  filteredTasks.forEach(t => {
+    const li = document.createElement('li');
+    li.className = `task-card ${t.completed ? 'completed' : ''}`;
 
-      const completeBtn = document.createElement('button');
-      completeBtn.className = 'btn-complete';
-      completeBtn.title = 'Concluir';
-      completeBtn.innerText = t.completed ? '✅' : '⬜';
-      completeBtn.addEventListener('click', ()=>{ t.completed = !t.completed; saveTasks(); renderTasks(); updateChart(); checkBadges(); updateProgressBar(); });
+    // Título da tarefa
+    const title = document.createElement('span');
+    title.textContent = t.title;
 
-      const editBtn = document.createElement('button');
-      editBtn.className = 'btn-edit';
-      editBtn.title = 'Editar';
-      editBtn.innerText = '✏️';
-      editBtn.addEventListener('click', ()=> editTask(t.id));
-
-      const delBtn = document.createElement('button');
-      delBtn.className = 'btn-delete';
-      delBtn.title = 'Remover';
-      delBtn.innerText = '🗑️';
-      delBtn.addEventListener('click', ()=> deleteTask(t.id));
-
-      actions.appendChild(starBtn);
-      actions.appendChild(completeBtn);
-      actions.appendChild(editBtn);
-      actions.appendChild(delBtn);
-
-      // associate elements to card
-      card.appendChild(left);
-      left.appendChild(subtasksEl);
-      left.appendChild(addSubBtn);
-      card.appendChild(actions);
-
-      // mark completed styling
-      card.classList.toggle('completed', t.completed);
-
-      // drag events
-      card.addEventListener('dragstart', dragStart);
-      card.addEventListener('dragend', dragEnd);
-
-      taskList.appendChild(card);
+    // Botão completar
+    const completeBtn = document.createElement('button');
+    completeBtn.textContent = '✔';
+    completeBtn.addEventListener('click', () => {
+      t.completed = !t.completed;
+      saveTasks();
+      renderTasks();
     });
 
-  // allow drop on list
-  enableDragDropOnList();
-}
+    // Botão importante
+    const importantBtn = document.createElement('button');
+    importantBtn.textContent = '★';
+    if (t.important) importantBtn.classList.add('active');
+    importantBtn.addEventListener('click', () => {
+      t.important = !t.important;
+      saveTasks();
+      renderTasks();
+    });
 
-// ----------------- Drag & Drop -----------------
-let dragEl = null;
-function dragStart(e){
-  dragEl = e.currentTarget;
-  e.dataTransfer.effectAllowed = 'move';
-  e.currentTarget.classList.add('dragging');
-}
-function dragEnd(e){
-  if(dragEl) dragEl.classList.remove('dragging');
-  dragEl = null;
-}
-function enableDragDropOnList(){
-  taskList.addEventListener('dragover', e=>{
-    e.preventDefault();
-    const after = getDragAfterElement(taskList, e.clientY);
-    const dragging = document.querySelector('.dragging');
-    if(!dragging) return;
-    if(after == null) taskList.appendChild(dragging);
-    else taskList.insertBefore(dragging, after);
+    // Botão deletar
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '🗑';
+    deleteBtn.addEventListener('click', () => {
+      tasks = tasks.filter(task => task.id !== t.id);
+      saveTasks();
+      renderTasks();
+    });
+
+    li.appendChild(title);
+    li.appendChild(completeBtn);
+    li.appendChild(importantBtn);
+    li.appendChild(deleteBtn);
+
+    taskList.appendChild(li);
   });
 
-  taskList.addEventListener('drop', ()=>{
-    // rebuild tasks array in the new order
-    const newOrder = [...taskList.querySelectorAll('.task-card')].map(el => Number(el.dataset.id));
-    tasks = newOrder.map(id => tasks.find(t => t.id === id)).filter(Boolean);
-    saveTasks();
-    renderTasks();
-  });
-}
-function getDragAfterElement(container, y){
-  const draggableElements = [...container.querySelectorAll('.task-card:not(.dragging)')];
-  return draggableElements.reduce((closest, child) => {
-    const box = child.getBoundingClientRect();
-    const offset = y - box.top - box.height/2;
-    if(offset < 0 && offset > closest.offset) return { offset, element: child };
-    return closest;
-  }, { offset: Number.NEGATIVE_INFINITY }).element || null;
+  updateProgress();
+  updateChart();
+  updateBadges();
 }
 
-// ----------------- Edit & Delete -----------------
-function editTask(id){
-  const task = tasks.find(t=>t.id===id);
-  if(!task) return;
-  const newTitle = prompt('Editar título:', task.title);
-  if(newTitle === null) return;
-  task.title = newTitle.trim() || task.title;
-  saveTasks();
-  renderTasks();
+// -----------------------------
+// Atualizar barra de progresso
+function updateProgress() {
+  const total = tasks.length;
+  const done = tasks.filter(t => t.completed).length;
+  const percent = total ? Math.round((done / total) * 100) : 0;
+  progressBar.style.width = `${percent}%`;
+  progressBar.textContent = `${percent}%`;
 }
 
-function deleteTask(id){
-  if(!confirm('Remover tarefa?')) return;
-  tasks = tasks.filter(t=>t.id!==id);
-  saveTasks(); renderTasks(); updateChart(); checkBadges(); updateProgressBar();
+// -----------------------------
+// Atualizar gráfico
+function updateChart() {
+  const ctx = chartCanvas.getContext('2d');
+  const done = tasks.filter(t => t.completed).length;
+  const pending = tasks.length - done;
+
+  // Reseta canvas
+  ctx.clearRect(0,0,chartCanvas.width,chartCanvas.height);
+
+  // Simples gráfico de barras
+  ctx.fillStyle = 'green';
+  ctx.fillRect(20, 200 - done*10, 40, done*10);
+
+  ctx.fillStyle = 'red';
+  ctx.fillRect(80, 200 - pending*10, 40, pending*10);
+
+  ctx.fillStyle = '#fff';
+  ctx.fillText(`Concluídas: ${done}`, 20, 220);
+  ctx.fillText(`Pendentes: ${pending}`, 80, 220);
 }
 
-// ----------------- Search & Filter listeners -----------------
+// -----------------------------
+// Badges / Conquistas
+function updateBadges() {
+  badgeArea.innerHTML = '';
+  const done = tasks.filter(t => t.completed).length;
+
+  if (done >= 1) badgeArea.innerHTML += '<span>🏆 Primeira tarefa concluída!</span>';
+  if (done >= 10) badgeArea.innerHTML += '<span>🔥 10 tarefas concluídas!</span>';
+  if (done >= 50) badgeArea.innerHTML += '<span>💎 50 tarefas concluídas!</span>';
+}
+
+// -----------------------------
+// Busca e filtros
 searchInput.addEventListener('input', renderTasks);
 filterSelect.addEventListener('change', renderTasks);
 
-// ----------------- Progress Bar & Chart -----------------
-function updateProgressBar(){
-  const completed = tasks.filter(t=>t.completed).length;
-  const total = tasks.length;
-  const pct = total === 0 ? 0 : Math.round((completed/total)*100);
-  if(progressBar) progressBar.style.width = `${pct}%`;
-  if(progressText) progressText.textContent = `${pct}% concluído`;
+// -----------------------------
+// Notificações
+if ('Notification' in window && Notification.permission !== 'granted') {
+  Notification.requestPermission();
 }
 
-function updateChart(){
-  const completed = tasks.filter(t=>t.completed).length;
-  const pending = tasks.length - completed;
-  if(chart) chart.destroy();
-  chart = new Chart(tasksChartCtx.getContext ? tasksChartCtx.getContext('2d') : tasksChartCtx, {
-    type:'doughnut',
-    data:{ labels:['Concluídas','Pendentes'], datasets:[{ data:[completed,pending], backgroundColor:['#22c55e','#f59e0b'] }] },
-    options:{ responsive:true, plugins:{legend:{position:'bottom'}}}
-  });
-}
-
-// ----------------- Badges -----------------
-function checkBadges(){
-  const completed = tasks.filter(t=>t.completed).length;
-  badgeGrid.innerHTML = '';
-  const allBadges = [
-    { icon:'🥉', text:'Primeira Tarefa', unlock:1 },
-    { icon:'🥈', text:'5 Tarefas', unlock:5 },
-    { icon:'🥇', text:'10 Tarefas', unlock:10 },
-    { icon:'🏆', text:'20 Tarefas Concluídas', unlock:20 },
-    { icon:'🔥', text:'3 dias seguidos', unlock:9999, note:'(impl. futura)' }
-  ];
-  let newly = null;
-  allBadges.forEach(b=>{
-    const el = document.createElement('div');
-    el.className = 'badge ' + (completed >= b.unlock ? 'earned':'locked');
-    el.innerHTML = `<div class="icon">${b.icon}</div><div>${b.text}</div>`;
-    badgeGrid.appendChild(el);
-    if(completed === b.unlock) newly = b;
-  });
-  if(newly){
-    trophyMessage.textContent = `Você desbloqueou: ${newly.text}`;
-    trophyModal.style.display = 'flex';
-    setTimeout(()=>trophyModal.classList.add('show'),10);
-    // try show browser notification
-    tryShowNotification(`Conquista desbloqueada: ${newly.text}`);
+function notify(msg) {
+  if (Notification.permission === 'granted') {
+    new Notification(msg);
   }
 }
 
-// close trophy
-closeTrophy.addEventListener('click', ()=>{ trophyModal.classList.remove('show'); setTimeout(()=> trophyModal.style.display='none',300); });
-
-// ----------------- Notifications -----------------
-function tryShowNotification(text){
-  if(!('Notification' in window)) return;
-  if(Notification.permission === 'granted'){
-    new Notification('TaskMaster', { body: text, icon: '/icon-192.png' });
-  } else if(Notification.permission !== 'denied'){
-    Notification.requestPermission().then(perm => { if(perm==='granted') new Notification('TaskMaster', { body: text, icon:'/icon-192.png' }); });
-  }
+// -----------------------------
+// PWA: registro do Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('Service Worker registrado!'))
+    .catch(err => console.error('Erro SW:', err));
 }
 
-// schedule quick notification if due date is today and permission given
-function scheduleDueNotification(task){
-  if(!task.due) return;
-  const dueDate = new Date(task.due);
-  const today = new Date();
-  if(dueDate.toDateString() === today.toDateString()){
-    // short delay so user sees it right after adding
-    setTimeout(()=> tryShowNotification(`Tarefa com prazo hoje: ${task.title}`), 1500);
-  }
-}
-
-// ----------------- Logout -----------------
-logoutBtn.addEventListener('click', ()=>{
-  localStorage.removeItem('currentUser');
-  window.location.href = 'login.html';
-});
-
-// ----------------- Service Worker registration (PWA) -----------------
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('/sw.js').catch(()=>{/* ignore */});
-  });
-}
-
-// ----------------- Helper: escapeHtml for subtask text -----------------
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-
-// ----------------- Initialization -----------------
-renderTasks();
-updateChart();
-checkBadges();
-updateProgressBar();
-
-// ask for notification permission proactively but politely
-if('Notification' in window && Notification.permission === 'default'){
-  setTimeout(()=> Notification.requestPermission().catch(()=>{}), 2000);
-}
+// -----------------------------
+// Inicialização
+document.addEventListener('DOMContentLoaded', renderTasks);
