@@ -1,45 +1,164 @@
+/* ============================
+   VARIÁVEIS DE TEMA
+   ============================ */
 :root{
-  --accent:#22c55e; --accent2:#06b6d4; --bg:#ffffff; --bg-dark:#0f172a; --text:#111827; --text-dark:#e5e7eb;
-  --card: rgba(255,255,255,0.85); --card-dark: rgba(30,41,59,0.8); --star:#facc15;
+  --accent:#22c55e;          /* cor de destaque (verde) */
+  --accent2:#06b6d4;         /* cor de destaque secundária (ciano) */
+  --bg:#ffffff;              /* fundo claro */
+  --bg-dark:#0f172a;         /* fundo escuro */
+  --text:#111827;            /* texto no tema claro */
+  --text-dark:#e5e7eb;       /* texto no tema escuro */
+  --card: rgba(255,255,255,0.85);      /* fundo de cartões no claro */
+  --card-dark: rgba(30,41,59,0.8);     /* fundo de cartões no escuro */
+  --star:#facc15;            /* cor da estrela (importante) */
 }
-*{box-sizing:border-box}
-body{font-family:Inter,system-ui,Arial;margin:0;background:var(--bg);color:var(--text);transition:background .25s,color .25s}
-body.dark{background:var(--bg-dark);color:var(--text-dark)}
 
-.appHeader{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;background:var(--card);backdrop-filter:blur(6px)}
+/* ============================
+   RESET BÁSICO E BODY
+   ============================ */
+*{box-sizing:border-box}
+
+body{
+  font-family:Inter,system-ui,Arial;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  transition:background .25s,color .25s; /* transição suave */
+}
+
+body.dark{
+  background:var(--bg-dark);
+  color:var(--text-dark);
+}
+
+/* ============================
+   CABEÇALHO
+   ============================ */
+.appHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:1rem 1.25rem;
+  background:var(--card);
+  backdrop-filter:blur(6px); /* efeito de vidro */
+}
+
 body.dark .appHeader{background:var(--card-dark)}
-#appTitle{font-weight:800;font-size:1.6rem;margin:0}
-.small-note{font-size:.85rem;color:rgba(0,0,0,.6)}
+
+#appTitle{
+  font-weight:800;
+  font-size:1.6rem;
+  margin:0;
+}
+
+.small-note{
+  font-size:.85rem;
+  color:rgba(0,0,0,.6);
+}
+
 body.dark .small-note{color:rgba(255,255,255,.7)}
 
 .controls button{margin-left:.5rem}
-.btn-accent{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;padding:.5rem .75rem;border-radius:.5rem;border:0;cursor:pointer}
 
-/* Search */
-.search-section{display:flex;gap:.5rem;padding:1rem 1.25rem}
-.search-section input,.search-section select,
-.task-form input,.task-form select{padding:.5rem;border-radius:.5rem;border:1px solid #d1d5db;background:transparent}
+.btn-accent{
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  color:#fff;
+  padding:.5rem .75rem;
+  border-radius:.5rem;
+  border:0;
+  cursor:pointer;
+}
 
-/* Form */
-.task-form{display:flex;flex-wrap:wrap;padding:0.75rem 1.25rem;gap:.5rem;background:var(--card)}
+/* ============================
+   SEÇÃO DE PESQUISA
+   ============================ */
+.search-section{
+  display:flex;
+  gap:.5rem;
+  padding:1rem 1.25rem;
+}
+
+.search-section input,
+.search-section select,
+.task-form input,
+.task-form select{
+  padding:.5rem;
+  border-radius:.5rem;
+  border:1px solid #d1d5db;
+  background:transparent;
+}
+
+/* ============================
+   FORMULÁRIO
+   ============================ */
+.task-form{
+  display:flex;
+  flex-wrap:wrap;
+  padding:0.75rem 1.25rem;
+  gap:.5rem;
+  background:var(--card);
+}
 body.dark .task-form{background:var(--card-dark)}
+
 .hidden{display:none}
 
-/* Stats */
-.stats-panel{max-width:420px;margin:1rem auto;padding:0.5rem;background:var(--card);border-radius:.75rem}
+/* ============================
+   PAINEL DE ESTATÍSTICAS
+   ============================ */
+.stats-panel{
+  max-width:420px;
+  margin:1rem auto;
+  padding:0.5rem;
+  background:var(--card);
+  border-radius:.75rem;
+}
 body.dark .stats-panel{background:var(--card-dark)}
 
-/* Task list */
-.task-list{padding:1rem 1.25rem;display:grid;gap:.6rem}
-.task-card{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;border-radius:.75rem;background:var(--card);transition:transform .18s ease,box-shadow .18s;border:1px solid rgba(0,0,0,0.04)}
-body.dark .task-card{background:var(--card-dark);border-color:rgba(255,255,255,0.03)}
-.task-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(2,6,23,0.06)}
+/* ============================
+   LISTA DE TAREFAS
+   ============================ */
+.task-list{
+  padding:1rem 1.25rem;
+  display:grid;
+  gap:.6rem;
+}
+
+.task-card{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:.7rem 1rem;
+  border-radius:.75rem;
+  background:var(--card);
+  transition:transform .18s ease,box-shadow .18s;
+  border:1px solid rgba(0,0,0,0.04);
+}
+
+body.dark .task-card{
+  background:var(--card-dark);
+  border-color:rgba(255,255,255,0.03);
+}
+
+.task-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 8px 24px rgba(2,6,23,0.06);
+}
+
 .task-card .left{max-width:66%}
-.task-card h3{margin:0;font-size:1rem}
-.task-card small{display:block;color:rgba(0,0,0,.5);font-size:.8rem}
+
+.task-card h3{
+  margin:0;
+  font-size:1rem;
+}
+
+.task-card small{
+  display:block;
+  color:rgba(0,0,0,.5);
+  font-size:.8rem;
+}
 body.dark .task-card small{color:rgba(255,255,255,.65)}
 
-/* === Ajustes de texto para modo escuro === */
+/* Ajuste de cores de inputs conforme o tema */
 input,
 select,
 button,
@@ -47,149 +166,199 @@ button,
 .task-form select,
 .search-section input,
 .search-section select {
-  color: inherit;                 /* herda a cor do body (claro ou escuro) */
-  background-color: transparent;  /* mantém o fundo do tema */
+  color: inherit;
+  background-color: transparent;
 }
 
 /* Placeholder */
-::placeholder {
-  color: rgba(0, 0, 0, 0.6);
-}
-body.dark ::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
+::placeholder { color: rgba(0, 0, 0, 0.6); }
+body.dark ::placeholder { color: rgba(255, 255, 255, 0.7); }
 
 /* Opções do select */
-select option {
-  color: #111827;
-  background: #fff;
-}
-body.dark select option {
-  color: #e5e7eb;
-  background: #1a2235; /* mesmo tom do --bg-dark */
-}
+select option { color: #111827; background: #fff; }
+body.dark select option { color: #e5e7eb; background: #1a2235; }
 
-
+/* Tarefa concluída */
 .task-card.completed h3{text-decoration:line-through;opacity:.6}
 
-/* ===== Barrinha lateral de prioridade ===== */
-.priority-low {
-  border-left: 4px solid #22c55e;      /* verde vivo */
-}
-.priority-medium {
-  border-left: 4px solid #fbbf24;      /* amarelo vibrante */
-}
-.priority-high {
-  border-left: 4px solid #ef4444;      /* vermelho forte */
-}
+/* ============================
+   BARRA LATERAL DE PRIORIDADE
+   ============================ */
+.priority-low    { border-left: 4px solid #22c55e; }
+.priority-medium { border-left: 4px solid #fbbf24; }
+.priority-high   { border-left: 4px solid #ef4444; }
 
-/* No modo escuro, deixamos as cores mais “neon” */
-body.dark .priority-low {
-  border-left-color: #4ade80;          /* verde neon */
-}
-body.dark .priority-medium {
-  border-left-color: #facc15;          /* amarelo neon */
-}
-body.dark .priority-high {
-  border-left-color: #f87171;          /* vermelho mais claro */
-}
+/* Cores “neon” no modo escuro */
+body.dark .priority-low    { border-left-color: #4ade80; }
+body.dark .priority-medium { border-left-color: #facc15; }
+body.dark .priority-high   { border-left-color: #f87171; }
 
-
-/* buttons area */
+/* ============================
+   AÇÕES / BOTÕES
+   ============================ */
 .task-card .actions{display:flex;gap:.5rem;align-items:center}
 
-/* Buttons styling tweaks */
-.task-card button{background:transparent;border:0;cursor:pointer;font-size:1.2rem;padding:.2rem;transition:transform .12s}
+.task-card button{
+  background:transparent;
+  border:0;
+  cursor:pointer;
+  font-size:1.2rem;
+  padding:.2rem;
+  transition:transform .12s;
+}
+
 .task-card button:hover{transform:scale(1.2)}
 
-/* Compact mode */
+/* ============================
+   MODO COMPACTO
+   ============================ */
 body.compact .task-card{padding:.45rem .6rem}
 body.compact .task-card h3{font-size:.95rem}
 body.compact .task-form input{min-width:120px}
 
-/* Subtasks */
-.subtasks{margin-top:.5rem;padding-left:1rem}
-.subtask{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;font-size:.95rem}
+/* ============================
+   SUBTAREFAS
+   ============================ */
+.subtasks{
+  margin-top:.5rem;
+  padding-left:1rem;
+}
+
+.subtask{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  margin-bottom:.25rem;
+  font-size:.95rem;
+}
+
 .subtask .subtext{flex:1}
-.subtask.completed .subtext{text-decoration:line-through;color:rgba(0,0,0,.5)}
+
+.subtask.completed .subtext{
+  text-decoration:line-through;
+  color:rgba(0,0,0,.5);
+}
+
 body.dark .subtask.completed .subtext{color:rgba(255,255,255,.6)}
 
-/* Badges */
+/* ============================
+   BADGES E PROGRESSO
+   ============================ */
 .badge-section{padding:1rem 1.25rem}
-.progress-container{position:relative;background:rgba(0,0,0,.06);height:18px;border-radius:999px;overflow:hidden;margin-bottom:.6rem}
+
+.progress-container{
+  position:relative;
+  background:rgba(0,0,0,.06);
+  height:18px;
+  border-radius:999px;
+  overflow:hidden;
+  margin-bottom:.6rem;
+}
 body.dark .progress-container{background:rgba(255,255,255,.04)}
-.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
-#progressText{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;color:inherit}
-.badge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:.6rem}
-.badge{padding:.6rem;border-radius:.8rem;background:var(--card);text-align:center}
-.badge .icon{font-size:1.6rem}
-.badge.locked{filter:grayscale(1);opacity:.55}
-.badge.earned{box-shadow:0 6px 18px rgba(34,197,94,.12);transform-origin:center}
 
-/* === Badges mais legíveis === */
-.badge {
-  padding: 0.8rem;
-  border-radius: 1rem;
-  background: var(--card);
-  text-align: center;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+.progress-bar{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .5s;
 }
 
-/* Ícone maior e com sombra leve */
-.badge .icon {
-  font-size: 2rem;
-  display: block;
-  margin-bottom: 0.4rem;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.25);
+#progressText{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+  font-size:.8rem;
+  color:inherit;
 }
 
-/* Texto mais legível */
-.badge p {
-  font-weight: 600;
-  font-size: 0.9rem;
-  line-height: 1.2;
-  color: inherit;
+.badge-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+  gap:.6rem;
 }
 
-/* Conquistas bloqueadas – menos chamativas */
-.badge.locked {
-  filter: grayscale(1);
-  opacity: 0.5;
+/* Cartões de badge */
+.badge{
+  padding:0.8rem;
+  border-radius:1rem;
+  background:var(--card);
+  text-align:center;
+  transition:transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-/* Conquistas conquistadas – mais destaque */
-.badge.earned {
-  background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(6,182,212,0.15));
-  box-shadow: 0 4px 14px rgba(34,197,94,0.25);
-  transform: scale(1.02);
+.badge .icon{
+  font-size:2rem;
+  display:block;
+  margin-bottom:0.4rem;
+  text-shadow:0 2px 4px rgba(0,0,0,0.25);
 }
 
-/* Animação ao passar o mouse */
-.badge.earned:hover {
-  transform: scale(1.06);
-  box-shadow: 0 6px 18px rgba(34,197,94,0.35);
+.badge p{
+  font-weight:600;
+  font-size:0.9rem;
+  line-height:1.2;
+  color:inherit;
 }
 
-/* Tema escuro */
-body.dark .badge {
-  background: var(--card-dark);
-}
-body.dark .badge.earned {
-  background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(6,182,212,0.25));
+.badge.locked{
+  filter:grayscale(1);
+  opacity:0.5;
 }
 
+.badge.earned{
+  background:linear-gradient(135deg, rgba(34,197,94,0.15), rgba(6,182,212,0.15));
+  box-shadow:0 4px 14px rgba(34,197,94,0.25);
+  transform:scale(1.02);
+}
 
-/* Modal */
-.modal{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
+.badge.earned:hover{
+  transform:scale(1.06);
+  box-shadow:0 6px 18px rgba(34,197,94,0.35);
+}
+
+body.dark .badge{background:var(--card-dark)}
+body.dark .badge.earned{
+  background:linear-gradient(135deg, rgba(34,197,94,0.25), rgba(6,182,212,0.25));
+}
+
+/* ============================
+   MODAL
+   ============================ */
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.45);
+}
 .modal.show{display:flex}
-.modal-content{background:var(--card);padding:1rem;border-radius:1rem;max-width:340px;text-align:center}
+
+.modal-content{
+  background:var(--card);
+  padding:1rem;
+  border-radius:1rem;
+  max-width:340px;
+  text-align:center;
+}
 body.dark .modal-content{background:var(--card-dark)}
 
-/* animations */
+/* ============================
+   ANIMAÇÕES
+   ============================ */
 .fade-in{animation:fadeIn .28s ease both}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* responsive */
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ============================
+   RESPONSIVIDADE
+   ============================ */
 @media (max-width:700px){
   .search-section{flex-direction:column}
   .controls{display:flex;gap:.5rem}
