@@ -39,6 +39,37 @@ body.dark .task-card{background:var(--card-dark);border-color:rgba(255,255,255,0
 .task-card small{display:block;color:rgba(0,0,0,.5);font-size:.8rem}
 body.dark .task-card small{color:rgba(255,255,255,.65)}
 
+/* === Ajustes de texto para modo escuro === */
+input,
+select,
+button,
+.task-form input,
+.task-form select,
+.search-section input,
+.search-section select {
+  color: inherit;                 /* herda a cor do body (claro ou escuro) */
+  background-color: transparent;  /* mantém o fundo do tema */
+}
+
+/* Placeholder */
+::placeholder {
+  color: rgba(0, 0, 0, 0.6);
+}
+body.dark ::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Opções do select */
+select option {
+  color: #111827;
+  background: #fff;
+}
+body.dark select option {
+  color: #e5e7eb;
+  background: #1a2235; /* mesmo tom do --bg-dark */
+}
+
+
 .task-card.completed h3{text-decoration:line-through;opacity:.6}
 .priority-high{border-left:4px solid #ef4444}
 .priority-medium{border-left:4px solid #f59e0b}
