@@ -1,4 +1,163 @@
-/* Estilos extras opcionais */
+:root {
+  --accent: #22c55e;
+  --accent-dark: #16a34a;
+  --border: #d1d5db;
+  --bg-light: #ffffff;
+  --text-light: #111827;
+  --bg-dark: #0f172a;
+  --text-dark: #e5e7eb;
+  --card-bg-light: rgba(255, 255, 255, 0.7);
+  --card-bg-dark: rgba(30, 41, 59, 0.7);
+  --star: #facc15;
+}
+
+/* Reset */
 body {
   font-family: 'Inter', sans-serif;
+  margin: 0;
+  background: var(--bg-light);
+  color: var(--text-light);
+  transition: background 0.3s, color 0.3s;
+}
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+h1, h2 { margin: 0; }
+
+.appHeader {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: var(--card-bg-light);
+  backdrop-filter: blur(10px);
+  align-items: center;
+}
+body.dark .appHeader {
+  background: var(--card-bg-dark);
+}
+
+#appTitle {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.appSection button {
+  margin-left: 0.5rem;
+}
+
+.search-section {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+}
+
+#taskForm {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: var(--card-bg-light);
+  backdrop-filter: blur(8px);
+  border-radius: 0.75rem;
+}
+body.dark #taskForm {
+  background: var(--card-bg-dark);
+}
+
+input, select {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+body.dark input, body.dark select {
+  background: #1e293b;
+  color: #e5e7eb;
+  border-color: #475569;
+}
+
+.btn-accent {
+  background: linear-gradient(to right, var(--accent), #06b6d4);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.btn-accent:hover {
+  transform: scale(1.05);
+}
+
+.task-list {
+  padding: 1rem 2rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.task-card {
+  background: var(--card-bg-light);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s;
+}
+body.dark .task-card {
+  background: var(--card-bg-dark);
+}
+
+.priority-high { border-left: 4px solid #ef4444; }
+.priority-medium { border-left: 4px solid #f59e0b; }
+.priority-low { border-left: 4px solid #22c55e; }
+
+.important {
+  border: 2px solid var(--star);
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
+}
+
+.star-btn {
+  color: var(--star);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.stats-panel {
+  max-width: 600px;
+  margin: 1rem auto;
+}
+
+#badgeSection {
+  padding: 1rem 2rem;
+}
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+.badge {
+  background: var(--card-bg-light);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+body.dark .badge {
+  background: var(--card-bg-dark);
+}
+
+#trophyModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+#trophyModal .modal-content {
+  background: var(--card-bg-light);
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+body.dark #trophyModal .modal-content {
+  background: var(--card-bg-dark);
 }
