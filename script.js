@@ -29,6 +29,10 @@ const dueDateInput = document.getElementById('dueDateInput');
 const categorySelect = document.getElementById('categorySelect');
 const customCategoryInput = document.getElementById('customCategoryInput');
 
+// Barra de progresso
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+
 let chart;
 
 // ----------------- Tema -----------------
@@ -78,11 +82,12 @@ taskForm.addEventListener('submit', (e) => {
   };
 
   tasks.push(newTask);
-  saveTasks(); // ✅ salva por usuário
+  saveTasks();
 
   renderTasks();
   updateChart();
   checkBadges();
+  updateProgressBar();
 
   taskForm.reset();
   customCategoryInput.classList.add('hidden');
@@ -122,13 +127,15 @@ function renderTasks() {
 
       taskList.appendChild(card);
     });
+
+  updateProgressBar();
 }
 
 // ----------------- Funções de Tarefa -----------------
 function toggleComplete(id) {
   const task = tasks.find(t => t.id === id);
   if (task) task.completed = !task.completed;
-  saveTasks(); // ✅
+  saveTasks();
   renderTasks();
   updateChart();
   checkBadges();
@@ -137,15 +144,22 @@ function toggleComplete(id) {
 function toggleImportant(id) {
   const task = tasks.find(t => t.id === id);
   if (task) task.important = !task.important;
-  saveTasks(); // ✅
+  saveTasks();
   renderTasks();
 }
 
 searchInput.addEventListener('input', renderTasks);
 filterSelect.addEventListener('change', renderTasks);
 
+// ----------------- Barra de Progresso -----------------
+function updateProgressBar() {
+  const completed = tasks.filter(t => t.completed).length;
+  const total = tasks.length;
+  const percent = total === 0 ? 0 : Math.min(100, Math.round((completed / total) * 100));
 
-/.display = 'flex';
+  if (progressBar && progressText) {
+    progressBar.style.width = `${percent}%`;
+    progressText.textContent = `${percent}% concluído`;
   }
 }
 
@@ -198,7 +212,6 @@ function checkBadges() {
 
     badgeGrid.appendChild(badge);
 
-    // animação se desbloqueou agora
     if (completed === b.unlock) {
       newlyUnlocked = b;
       badge.animate([
@@ -209,14 +222,23 @@ function checkBadges() {
     }
   });
 
-  // Mostrar modal para nova conquista
   if (newlyUnlocked) {
     trophyMessage.textContent = `Você desbloqueou: ${newlyUnlocked.text}`;
     trophyModal.style.display = 'flex';
+    setTimeout(() => trophyModal.classList.add('show'), 10);
   }
+
+  updateProgressBar();
 }
+
+// ----------------- Fechar Modal -----------------
+closeTrophy.addEventListener('click', () => {
+  trophyModal.classList.remove('show');
+  setTimeout(() => { trophyModal.style.display = 'none'; }, 300);
+});
 
 // ----------------- Inicialização -----------------
 renderTasks();
 updateChart();
 checkBadges();
+updateProgressBar();
