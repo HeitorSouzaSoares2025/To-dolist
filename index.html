@@ -1,1035 +1,256 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Task Manager — Profissional</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
 
-  <!-- Fontes / Ícones -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-NWf3YgYvVg6v2b0z2Jx6cYfQv2k2Zk2NqWl1T4NfYk2G3+kfGfF7jr7s6b/9G6k8VZ4kG3p0yQpY1mQqfQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonte Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
-/* ===========================================================
-   TASK MANAGER - CSS
-   - Visual profissional
-   - Animations, toasts, modal, responsive
-   - Dark & Light theme
-   - Organized in sections for maintainability
-   =========================================================== */
+    * { font-family: 'Poppins', sans-serif; }
 
-/* =========================
-   RESET / BASE
-   ========================= */
-:root{
-  --bg-gradient-light: linear-gradient(135deg,#f0f4f8,#e0eafc);
-  --bg-gradient-dark: linear-gradient(135deg,#0f1720,#121826);
-  --card-bg-light: rgba(255,255,255,0.92);
-  --card-bg-dark: rgba(22,22,26,0.84);
-  --primary: #3f51b5;
-  --primary-contrast: #fff;
-  --accent: #ff9800;
-  --muted: #6b7280;
-  --success: #4caf50;
-  --warning: #ff9800;
-  --danger: #f44336;
-  --glass-blur: 8px;
-  --radius: 12px;
-  --shadow-1: 0 6px 20px rgba(16,24,40,0.08);
-  --shadow-2: 0 10px 30px rgba(2,6,23,0.12);
-  --max-width: 820px;
-  --ui-gap: 12px;
-  --toast-duration: 4200ms;
-}
+    /* Animações personalizadas */
+    .fade-in { animation: fade-in 0.4s ease-in-out; }
+    @keyframes fade-in { from {opacity:0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
 
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{
-  font-family:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  background:var(--bg-gradient-light);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding:28px;
-  transition:background .35s ease,color .35s ease;
-  color:#0f172a;
-}
+    .toast-show { animation: slide-in 0.4s ease; }
+    @keyframes slide-in { from {opacity:0; transform: translateX(100%);} to {opacity:1; transform: translateX(0);} }
 
-/* Dark theme on body.dark */
-body.dark{
-  background:var(--bg-gradient-dark);
-  color:#e6eef8;
-}
-
-/* =========================
-   LAYOUT CONTAINER
-   ========================= */
-.app {
-  width:100%;
-  max-width:var(--max-width);
-  margin:20px auto;
-  background:var(--card-bg-light);
-  border-radius:var(--radius);
-  padding:22px;
-  box-shadow:var(--shadow-2);
-  backdrop-filter: blur(var(--glass-blur));
-  transition:background .35s ease,box-shadow .35s ease,transform .25s ease;
-  position:relative;
-  overflow:visible;
-}
-body.dark .app{
-  background:var(--card-bg-dark);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-}
-
-/* HEADER */
-.header {
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:18px;
-}
-.brand {
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-.brand .logo {
-  width:48px;height:48px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,var(--primary),#00c6fb);
-  color:var(--primary-contrast);
-  box-shadow:var(--shadow-1);
-  font-weight:700;font-size:18px;
-}
-.brand h1{
-  font-size:20px;font-weight:600;color:inherit;
-  letter-spacing:0.2px;
-}
-.header-controls {
-  display:flex;gap:10px;align-items:center;
-}
-
-/* =========================
-   CONTROLS AREA (INPUTS)
-   ========================= */
-.controls {
-  display:flex;
-  gap:12px;
-  align-items:center;
-  margin-bottom:14px;
-  flex-wrap:wrap;
-}
-.controls .left {
-  display:flex;gap:12px;flex:1;align-items:center;min-width:220px;
-}
-.input, select, .btn {
-  border-radius:10px;padding:10px 12px;border:1px solid rgba(15,23,42,0.06);
-  background:transparent;outline:none;font-size:14px;color:inherit;
-  transition:all .18s ease;
-}
-.input{flex:1;min-width:140px}
-.input:focus{box-shadow:0 6px 18px rgba(63,81,181,0.08);border-color:rgba(63,81,181,0.25)}
-select{min-width:130px}
-.btn {
-  background:var(--primary);color:var(--primary-contrast);
-  border:none;cursor:pointer;padding:10px 14px;font-weight:600;
-  box-shadow:0 6px 14px rgba(63,81,181,0.12);
-}
-.btn.secondary {
-  background:transparent;color:var(--primary);
-  border:1px solid rgba(15,23,42,0.06);box-shadow:none;font-weight:600;
-}
-.btn.ghost { background:transparent;border:none;color:inherit;}
-
-/* responsive input stacking */
-@media (max-width:720px){ .controls{flex-direction:column;align-items:stretch}.controls .left{flex-direction:column} }
-
-/* =========================
-   SEARCH / SORT / SETTINGS ROW
-   ========================= */
-.tools {
-  display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;
-}
-.search {
-  display:flex;gap:8px;align-items:center;flex:1;min-width:180px;
-}
-.search .input{padding-left:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%236B7280' d='M21 20l-5.6-5.6a7 7 0 1 0-1.4 1.4L20 21zM4 10a6 6 0 1 1 12 0 6 6 0 0 1-12 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center}
-.sorts{display:flex;gap:8px;align-items:center}
-.toggle-row{display:flex;gap:8px;align-items:center}
-
-/* =========================
-   FILTER BUTTONS
-   ========================= */
-.filters {
-  display:flex;gap:8px;align-items:center;
-}
-.filter-btn{
-  padding:8px 12px;border-radius:10px;border:none;background:transparent;cursor:pointer;color:var(--muted);
-  transition:all .18s ease;font-weight:600;
-}
-.filter-btn.active{
-  background:linear-gradient(90deg,var(--primary),#00c6fb);color:var(--primary-contrast);box-shadow:0 8px 20px rgba(63,81,181,0.12);
-}
-
-/* =========================
-   TASK LIST
-   ========================= */
-.task-list {
-  margin-top:8px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  padding-bottom:6px;
-  min-height:80px;
-}
-
-/* individual task card */
-.task {
-  display:flex;
-  gap:12px;
-  align-items:center;
-  justify-content:space-between;
-  background:linear-gradient(180deg,rgba(255,255,255,0.8),rgba(255,255,255,0.72));
-  border-radius:10px;
-  padding:12px 14px;
-  border-left:6px solid var(--primary);
-  box-shadow:var(--shadow-1);
-  transition:transform .18s ease,box-shadow .18s ease,opacity .18s ease;
-}
-body.dark .task{
-  background: linear-gradient(180deg, rgba(30,30,30,0.72), rgba(20,20,20,0.6));
-  box-shadow:0 6px 18px rgba(0,0,0,0.45);
-}
-.task:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(2,6,23,0.12)}
-.task .left {
-  display:flex;gap:12px;align-items:center;flex:1;min-width:0;
-}
-.task .meta {
-  display:flex;flex-direction:column;gap:6px;min-width:0;
-}
-.task .title { font-weight:600; font-size:15px; color:inherit; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.task .subtitle { font-size:13px;color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.task .badges { display:flex;gap:8px;align-items:center;flex-wrap:wrap }
-.badge {
-  font-size:12px;padding:6px 8px;border-radius:999px;background:#eef2ff;color:#1e3a8a;font-weight:600;
-}
-body.dark .badge{background:#263241;color:#dbeafe}
-.badge.due{background:#e3f2fd;color:#0369a1}
-.badge.overdue{background:#fff1f0;color:#b91c1c;font-weight:700}
-.badge.priority-low{background:#ecfdf5;color:#03543f}
-.badge.priority-medium{background:#fff7ed;color:#92400e}
-.badge.priority-high{background:#fff1f0;color:#7f1d1d}
-
-/* completed state */
-.task.completed{opacity:0.6;text-decoration:line-through}
-
-/* action buttons */
-.actions {display:flex;gap:8px;align-items:center}
-.icon-btn {
-  width:38px;height:38px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;color:inherit;cursor:pointer;font-size:16px;
-  transition:all .14s ease;
-}
-.icon-btn:hover{transform:scale(1.06)}
-.icon-btn.positive{color:var(--success)}
-.icon-btn.negative{color:var(--danger)}
-.icon-btn.info{color:var(--primary)}
-
-/* =========================
-   MODAL (CONFIRM DELETE)
-   ========================= */
-.modal-backdrop{
-  position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(5,6,10,0.45);z-index:1200;padding:20px;
-}
-.modal-backdrop.show{display:flex}
-.modal {
-  width:100%;max-width:520px;background:var(--card-bg-light);padding:20px;border-radius:12px;box-shadow:var(--shadow-2);
-}
-body.dark .modal{background:var(--card-bg-dark)}
-
-/* =========================
-   TOASTS / FEEDBACK
-   ========================= */
-.toasts {
-  position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;gap:10px;z-index:1400;
-}
-.toast {
-  background:linear-gradient(90deg,var(--primary),#00c6fb);color:white;padding:10px 14px;border-radius:10px;box-shadow:0 10px 30px rgba(6,8,23,0.14);display:flex;gap:10px;align-items:center;min-width:220px;
-  opacity:0;transform:translateY(10px) scale(.98);
-  animation:toast-in .35s ease forwards;
-}
-.toast.info{background:linear-gradient(90deg,#0097A7,#00E5FF)}
-.toast.success{background:linear-gradient(90deg,#2E7D32,#66BB6A)}
-.toast.warn{background:linear-gradient(90deg,#F57C00,#FFB74D)}
-.toast.err{background:linear-gradient(90deg,#C62828,#FF5252)}
-@keyframes toast-in{to{opacity:1;transform:none}}
-
-/* =========================
-   EMPTY STATE
-   ========================= */
-.empty {
-  padding:22px;border-radius:12px;text-align:center;color:var(--muted);
-  background:linear-gradient(180deg,rgba(250,250,250,0.6),rgba(245,245,245,0.6));
-}
-
-/* =========================
-   EXPORT/IMPORT AREA
-   ========================= */
-.io-area { display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px }
-
-/* =========================
-   FOOTER / SMALL HELP
-   ========================= */
-.footer { margin-top:16px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap }
-
-/* =========================
-   ANIMATIONS / TRANSITIONS
-   ========================= */
-.fade-in { animation: fadeIn .28s ease both; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-
-/* =========================
-   RESPONSIVE
-   ========================= */
-@media (max-width:520px){
-  .app{padding:14px}
-  .controls .left{flex-direction:column}
-  .task{flex-direction:column;align-items:stretch}
-  .actions{justify-content:flex-end}
-}
+    .backdrop { background: rgba(0,0,0,0.5); }
   </style>
 </head>
-<body>
+<body class="bg-gradient-to-r from-slate-100 to-slate-200 dark:from-gray-900 dark:to-gray-800 min-h-screen flex justify-center p-6 transition-colors">
 
-  <div class="app" role="application" aria-label="Task manager app">
-    <!-- HEADER -->
-    <div class="header">
-      <div class="brand">
-        <div class="logo">TM</div>
-        <div>
-          <h1>Task Manager</h1>
-          <div style="font-size:12px;color:var(--muted);margin-top:6px">Organize suas tarefas — rápido e bonito</div>
-        </div>
-      </div>
+  <!-- CONTAINER -->
+  <div class="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6 space-y-4">
 
-      <div class="header-controls" aria-hidden="false">
-        <button class="btn secondary" id="exportBtn" title="Exportar tarefas (JSON)"><i class="fa-regular fa-file-export"></i>&nbsp;Export</button>
-        <button class="btn secondary" id="importBtn" title="Importar tarefas (JSON)"><i class="fa-regular fa-file-import"></i>&nbsp;Import</button>
-        <button class="btn ghost" id="clearAllBtn" title="Limpar todas as tarefas"><i class="fa-solid fa-trash"></i></button>
-      </div>
+    <h1 class="text-3xl font-bold text-center text-indigo-600 dark:text-indigo-400">Task Manager</h1>
+
+    <!-- CONTROLS -->
+    <div class="flex flex-wrap gap-3">
+      <input id="taskInput" type="text" placeholder="Nova tarefa" class="flex-1 px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
+      <input id="taskDate" type="date" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
+      <select id="taskPriority" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+        <option value="low">Baixa</option>
+        <option value="medium">Média</option>
+        <option value="high">Alta</option>
+      </select>
+      <button id="addTaskBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Adicionar</button>
     </div>
 
-    <!-- CONTROLS: add task, priority, date -->
-    <div class="controls">
-      <div class="left">
-        <input id="taskInput" class="input" type="text" placeholder="Nova tarefa — ex: Estudar React (press Enter)">
-        <input id="taskDate" class="input" type="date" aria-label="Data de vencimento (opcional)">
-        <select id="taskPriority" class="input" aria-label="Prioridade">
-          <option value="low">Baixa</option>
-          <option value="medium">Média</option>
-          <option value="high">Alta</option>
-        </select>
-      </div>
-
-      <div class="right">
-        <button id="addTaskBtn" class="btn"><i class="fa-solid fa-plus"></i>&nbsp;Adicionar</button>
-      </div>
+    <!-- SEARCH & SORT -->
+    <div class="flex flex-wrap gap-3">
+      <input id="searchInput" type="text" placeholder="🔎 Pesquisar..." class="flex-1 px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
+      <select id="sortSelect" class="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+        <option value="default">Ordenar</option>
+        <option value="date">Por data</option>
+        <option value="priority">Por prioridade</option>
+        <option value="status">Por status</option>
+      </select>
+      <button id="darkToggle" class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 dark:bg-gray-200 dark:text-black">🌙 Dark</button>
     </div>
 
-    <!-- TOOLS: search, sorts, filters, toggles -->
-    <div class="tools">
-      <div class="search">
-        <input id="searchInput" class="input" placeholder="🔎 Pesquisar tarefas..." />
-      </div>
-
-      <div class="sorts">
-        <select id="sortSelect" class="input" aria-label="Ordenar por">
-          <option value="created_desc">Mais recentes</option>
-          <option value="created_asc">Mais antigas</option>
-          <option value="due_asc">Vencimento ↑</option>
-          <option value="due_desc">Vencimento ↓</option>
-          <option value="priority_desc">Prioridade (Alta → Baixa)</option>
-          <option value="priority_asc">Prioridade (Baixa → Alta)</option>
-        </select>
-      </div>
-
-      <div class="toggle-row">
-        <div class="filters" role="tablist" aria-label="Filtros de tarefas">
-          <button class="filter-btn active" data-filter="all" aria-pressed="true">Todas</button>
-          <button class="filter-btn" data-filter="pending" aria-pressed="false">Pendentes</button>
-          <button class="filter-btn" data-filter="completed" aria-pressed="false">Concluídas</button>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:8px">
-          <label style="font-size:13px;color:var(--muted)">Notificações</label>
-          <button id="notifToggle" class="btn secondary" title="Ativar/Desativar notificações">Ativar</button>
-        </div>
-      </div>
+    <!-- FILTERS -->
+    <div class="flex flex-wrap gap-3">
+      <button class="filter-btn px-4 py-2 rounded-md bg-indigo-500 text-white hover:bg-indigo-600 transition" data-filter="all">Todas</button>
+      <button class="filter-btn px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 transition dark:bg-gray-700 dark:hover:bg-gray-600" data-filter="pending">Pendentes</button>
+      <button class="filter-btn px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 transition dark:bg-gray-700 dark:hover:bg-gray-600" data-filter="completed">Concluídas</button>
     </div>
 
     <!-- TASK LIST -->
-    <main>
-      <div id="taskList" class="task-list" aria-live="polite" aria-busy="false"></div>
-
-      <div id="emptyState" class="empty fade-in" style="display:none;margin-top:12px">
-        Sem tarefas por enquanto — adicione a primeira tarefa ✨
-      </div>
-    </main>
-
-    <!-- EXPORT / IMPORT (hidden file input) -->
-    <div class="io-area" style="margin-top:12px">
-      <input id="fileInput" type="file" accept="application/json" style="display:none" />
-      <button id="downloadJsonBtn" class="btn secondary" style="display:none">Baixar JSON</button>
-    </div>
-
-    <!-- FOOTER -->
-    <div class="footer">
-      <div>Feito com ❤️ — <small style="color:var(--muted)">PWA-ready</small></div>
-      <div style="color:var(--muted)">Você tem <span id="taskCount">0</span> tarefa(s)</div>
-    </div>
+    <ul id="taskList" class="space-y-3"></ul>
   </div>
 
-  <!-- MODAL: confirmação de exclusão -->
-  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal">
-      <h3 id="modalTitle">Confirmar exclusão</h3>
-      <p id="modalMessage" style="margin:8px 0 16px;color:var(--muted)">Tem certeza que deseja excluir esta tarefa? A ação não pode ser desfeita.</p>
-      <div style="display:flex;justify-content:flex-end;gap:10px">
-        <button id="modalCancel" class="btn secondary">Cancelar</button>
-        <button id="modalConfirm" class="btn" style="background:var(--danger);border:none">Excluir</button>
+  <!-- TOAST -->
+  <div id="toastContainer" class="fixed top-5 right-5 space-y-2 z-50"></div>
+
+  <!-- MODAL DE CONFIRMAÇÃO -->
+  <div id="modal" class="hidden fixed inset-0 flex justify-center items-center backdrop z-50">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg max-w-sm w-full space-y-4">
+      <h2 class="text-xl font-semibold text-center dark:text-white">Confirmar Exclusão</h2>
+      <p class="text-center dark:text-gray-200">Tem certeza que deseja excluir esta tarefa?</p>
+      <div class="flex justify-center gap-4">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white">Cancelar</button>
+        <button id="confirmDelete" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Excluir</button>
       </div>
     </div>
   </div>
-
-  <!-- TOASTS -->
-  <div id="toasts" class="toasts" aria-live="assertive" aria-atomic="true"></div>
 
 <script>
-/* ===========================================================
-   TASK MANAGER - JAVASCRIPT
-   - Implementa funcionalidades:
-     * CRUD de tarefas (LocalStorage)
-     * Editar, marcar concluída, deletar (com confirmação)
-     * Filtros, busca, ordenação
-     * Toasts (feedback)
-     * Export / Import JSON
-     * Notificações (com toggle e checagem automática)
-     * Animações e pequenas melhorias de UX
-   - Mantém compatibilidade com o que havia antes
-   =========================================================== */
+/* ===========================
+   VARIÁVEIS
+===========================*/
+const taskInput = document.getElementById('taskInput');
+const taskDate = document.getElementById('taskDate');
+const taskPriority = document.getElementById('taskPriority');
+const addTaskBtn = document.getElementById('addTaskBtn');
+const taskList = document.getElementById('taskList');
+const filterBtns = document.querySelectorAll('.filter-btn');
+const darkToggle = document.getElementById('darkToggle');
+const searchInput = document.getElementById('searchInput');
+const sortSelect = document.getElementById('sortSelect');
+const toastContainer = document.getElementById('toastContainer');
 
-/* =========================
-   UTIL / HELPERS
-   ========================= */
-const $ = (sel, root=document) => root.querySelector(sel);
-const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+const modal = document.getElementById('modal');
+const confirmDeleteBtn = document.getElementById('confirmDelete');
+const cancelDeleteBtn = document.getElementById('cancelDelete');
 
-function uid(len=10){
-  const s = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let out='';
-  for(let i=0;i<len;i++) out += s[Math.floor(Math.random()*s.length)];
-  return out;
-}
-function formatDateISO(d) {
-  if(!d) return '';
-  const dt = new Date(d);
-  if (isNaN(dt)) return d;
-  const yyyy = dt.getFullYear();
-  const mm = String(dt.getMonth()+1).padStart(2,'0');
-  const dd = String(dt.getDate()).padStart(2,'0');
-  return `${yyyy}-${mm}-${dd}`;
-}
-function daysBetween(a,b){
-  const diff = (new Date(a).setHours(0,0,0,0) - new Date(b).setHours(0,0,0,0));
-  return Math.round(diff / (1000 * 60 * 60 * 24));
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+let currentFilter = 'all';
+let deleteIndex = null;
+
+/* ===========================
+   FUNÇÕES
+===========================*/
+function saveTasks() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
-/* =========================
-   SELECTORS
-   ========================= */
-const el = {
-  taskInput: $('#taskInput'),
-  taskDate: $('#taskDate'),
-  taskPriority: $('#taskPriority'),
-  addTaskBtn: $('#addTaskBtn'),
-  taskList: $('#taskList'),
-  searchInput: $('#searchInput'),
-  sortSelect: $('#sortSelect'),
-  filterBtns: $$('.filter-btn'),
-  notifToggle: $('#notifToggle'),
-  modalBackdrop: $('#modalBackdrop'),
-  modalTitle: $('#modalTitle'),
-  modalMessage: $('#modalMessage'),
-  modalCancel: $('#modalCancel'),
-  modalConfirm: $('#modalConfirm'),
-  toasts: $('#toasts'),
-  exportBtn: $('#exportBtn'),
-  importBtn: $('#importBtn'),
-  fileInput: $('#fileInput'),
-  clearAllBtn: $('#clearAllBtn'),
-  taskCount: $('#taskCount'),
+function showToast(msg, type='info') {
+  const toast = document.createElement('div');
+  const colors = {
+    info: 'bg-indigo-500',
+    success: 'bg-green-500',
+    danger: 'bg-red-500'
+  };
+  toast.className = `${colors[type]} text-white px-4 py-2 rounded-md shadow toast-show`;
+  toast.textContent = msg;
+  toastContainer.appendChild(toast);
+  setTimeout(()=>toast.remove(),3000);
+}
+
+function renderTasks() {
+  taskList.innerHTML = '';
+  const now = new Date();
+  const search = searchInput.value.toLowerCase();
+
+  let sortedTasks = [...tasks];
+
+  if (sortSelect.value === 'date') {
+    sortedTasks.sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
+  } else if (sortSelect.value === 'priority') {
+    const order = {high:1, medium:2, low:3};
+    sortedTasks.sort((a,b) => order[a.priority]-order[b.priority]);
+  } else if (sortSelect.value === 'status') {
+    sortedTasks.sort((a,b)=>a.completed - b.completed);
+  }
+
+  sortedTasks.forEach((task, index) => {
+    if (currentFilter === 'pending' && task.completed) return;
+    if (currentFilter === 'completed' && !task.completed) return;
+    if (search && !task.text.toLowerCase().includes(search)) return;
+
+    const li = document.createElement('li');
+    li.className = `fade-in p-4 rounded-lg shadow flex justify-between items-center dark:bg-gray-800 ${task.completed?'opacity-60 line-through':''}`;
+
+    const borderColor = task.priority==='high'?'border-l-4 border-red-500':
+                        task.priority==='medium'?'border-l-4 border-yellow-500':
+                        'border-l-4 border-green-500';
+    li.classList.add(...borderColor.split(' '));
+
+    if (task.dueDate) {
+      const due = new Date(task.dueDate);
+      if (due < now && !task.completed) li.classList.add('border-l-4','border-red-700');
+    }
+
+    const leftDiv = document.createElement('div');
+    leftDiv.className = 'flex flex-col';
+    leftDiv.innerHTML = `<span class="font-medium dark:text-white">${task.text}</span>`;
+    if (task.dueDate) {
+      const badge = document.createElement('span');
+      badge.className = 'text-xs mt-1 px-2 py-1 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-700 dark:text-white';
+      badge.textContent = 'Vence: '+task.dueDate;
+      leftDiv.appendChild(badge);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'flex gap-2';
+    const completeBtn = document.createElement('button');
+    completeBtn.textContent = '✓';
+    completeBtn.className = 'px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600';
+    completeBtn.onclick = ()=>toggleComplete(index);
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '🗑️';
+    deleteBtn.className = 'px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600';
+    deleteBtn.onclick = ()=>openModal(index);
+
+    actions.appendChild(completeBtn);
+    actions.appendChild(deleteBtn);
+
+    li.appendChild(leftDiv);
+    li.appendChild(actions);
+    taskList.appendChild(li);
+  });
+}
+
+function addTask() {
+  const text = taskInput.value.trim();
+  if (!text) return showToast('Digite uma tarefa!','danger');
+  tasks.push({
+    text,
+    dueDate: taskDate.value,
+    priority: taskPriority.value,
+    completed: false
+  });
+  saveTasks();
+  renderTasks();
+  showToast('Tarefa adicionada!','success');
+  taskInput.value='';
+  taskDate.value='';
+}
+
+function toggleComplete(index) {
+  tasks[index].completed = !tasks[index].completed;
+  saveTasks();
+  renderTasks();
+  showToast(tasks[index].completed?'Tarefa concluída!':'Tarefa marcada como pendente','info');
+}
+
+function openModal(index){
+  deleteIndex = index;
+  modal.classList.remove('hidden');
+}
+
+confirmDeleteBtn.onclick = ()=>{
+  tasks.splice(deleteIndex,1);
+  saveTasks();
+  renderTasks();
+  showToast('Tarefa excluída!','danger');
+  modal.classList.add('hidden');
 };
 
-/* =========================
-   STATE
-   ========================= */
-const STORAGE_KEY = 'tm_tasks_v1';
-const SETTINGS_KEY = 'tm_settings_v1';
+cancelDeleteBtn.onclick = ()=> modal.classList.add('hidden');
 
-let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') || [];
-let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') || {};
-if (typeof settings.notifs === 'undefined') settings.notifs = true;
-if (typeof settings.autoCheckMinutes === 'undefined') settings.autoCheckMinutes = 15;
-
-let currentFilter = 'all';
-let searchTerm = '';
-let currentSort = 'created_desc';
-let pendingDeleteTaskId = null;
-let autoCheckIntervalId = null;
-
-/* =========================
-   PERSIST / LOAD
-   ========================= */
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+function setFilter(filter){
+  currentFilter = filter;
+  filterBtns.forEach(btn=>btn.classList.remove('bg-indigo-500','text-white'));
+  document.querySelector(`.filter-btn[data-filter="${filter}"]`).classList.add('bg-indigo-500','text-white');
+  renderTasks();
 }
 
-function loadState(){
-  tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') || [];
-  settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') || {};
-  if (typeof settings.notifs === 'undefined') settings.notifs = true;
-  if (typeof settings.autoCheckMinutes === 'undefined') settings.autoCheckMinutes = 15;
+function toggleDarkMode(){
+  document.documentElement.classList.toggle('dark');
 }
 
-/* =========================
-   TOASTS (FEEDBACK)
-   ========================= */
-function showToast(message, type='info', duration = null){
-  const t = document.createElement('div');
-  t.className = 'toast ' + (type || 'info') + ' fade-in';
-  t.setAttribute('role','status');
-  t.innerHTML = `<div style="display:flex;align-items:center;gap:10px">
-    <div style="font-size:16px"><i class="fa-solid fa-bell"></i></div>
-    <div style="font-weight:600">${message}</div>
-  </div>`;
-  el.toasts.appendChild(t);
+/* ===========================
+   EVENTOS
+===========================*/
+addTaskBtn.addEventListener('click',addTask);
+filterBtns.forEach(btn=>btn.addEventListener('click',()=>setFilter(btn.dataset.filter)));
+darkToggle.addEventListener('click',toggleDarkMode);
+searchInput.addEventListener('input',renderTasks);
+sortSelect.addEventListener('change',renderTasks);
 
-  const ms = duration || parseInt(getComputedStyle(document.documentElement).getPropertyValue('--toast-duration')) || 4200;
-  setTimeout(()=> {
-    t.style.opacity = '0';
-    t.style.transform = 'translateY(6px) scale(.98)';
-    setTimeout(()=> t.remove(), 320);
-  }, ms);
-}
-
-/* =========================
-   RENDER / UI HELPERS
-   ========================= */
-function taskMatchesSearch(task, term){
-  if(!term) return true;
-  const t = term.toLowerCase();
-  if (task.text && task.text.toLowerCase().includes(t)) return true;
-  if (task.notes && task.notes.toLowerCase().includes(t)) return true;
-  return false;
-}
-
-function sortTasks(list, mode){
-  const out = [...list];
-  switch(mode){
-    case 'created_desc':
-      out.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
-      break;
-    case 'created_asc':
-      out.sort((a,b)=> (a.createdAt||0) - (b.createdAt||0));
-      break;
-    case 'due_asc':
-      out.sort((a,b)=>{
-        if(!a.dueDate) return 1;
-        if(!b.dueDate) return -1;
-        return new Date(a.dueDate) - new Date(b.dueDate);
-      });
-      break;
-    case 'due_desc':
-      out.sort((a,b)=>{
-        if(!a.dueDate) return 1;
-        if(!b.dueDate) return -1;
-        return new Date(b.dueDate) - new Date(a.dueDate);
-      });
-      break;
-    case 'priority_desc':
-      const score = v => v === 'high' ? 3 : v === 'medium' ? 2 : 1;
-      out.sort((a,b)=> score(b.priority) - score(a.priority));
-      break;
-    case 'priority_asc':
-      const score2 = v => v === 'high' ? 3 : v === 'medium' ? 2 : 1;
-      out.sort((a,b)=> score2(a.priority) - score2(b.priority));
-      break;
-    default: break;
-  }
-  return out;
-}
-
-function buildTaskElement(task, index){
-  const li = document.createElement('div');
-  li.className = 'task fade-in';
-  if(task.completed) li.classList.add('completed');
-  li.dataset.id = task.id || '';
-
-  // Left: meta
-  const left = document.createElement('div');
-  left.className = 'left';
-  const meta = document.createElement('div');
-  meta.className = 'meta';
-
-  const title = document.createElement('div');
-  title.className = 'title';
-  title.textContent = task.text || '(sem texto)';
-
-  const subtitle = document.createElement('div');
-  subtitle.className = 'subtitle';
-  subtitle.textContent = task.notes ? task.notes : (task.createdAt ? `Criada: ${new Date(task.createdAt).toLocaleString()}` : '');
-
-  meta.appendChild(title);
-  meta.appendChild(subtitle);
-
-  const badges = document.createElement('div');
-  badges.className = 'badges';
-
-  // priority badge
-  const pr = document.createElement('span');
-  pr.className = 'badge priority-'+(task.priority||'low');
-  pr.textContent = (task.priority==='high'?'Prioridade: Alta':task.priority==='medium'?'Prioridade: Média':'Prioridade: Baixa');
-  badges.appendChild(pr);
-
-  // due badge if present
-  if(task.dueDate){
-    const due = document.createElement('span');
-    const dueISO = formatDateISO(task.dueDate);
-    due.className = 'badge due';
-    due.textContent = `Vence: ${dueISO}`;
-    // overdue highlight
-    const now = new Date();
-    const dd = new Date(task.dueDate);
-    if(dd < now && !task.completed){
-      due.classList.add('overdue');
-      pr.classList.add('overdue');
-    }
-    badges.appendChild(due);
-  }
-
-  meta.appendChild(badges);
-  left.appendChild(meta);
-
-  // Right: actions
-  const actions = document.createElement('div');
-  actions.className = 'actions';
-
-  // Complete / uncomplete
-  const completeBtn = document.createElement('button');
-  completeBtn.className = 'icon-btn positive';
-  completeBtn.title = task.completed ? 'Marcar como pendente' : 'Marcar como concluída';
-  completeBtn.innerHTML = `<i class="fa-solid ${task.completed ? 'fa-undo' : 'fa-check'}"></i>`;
-  completeBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    toggleCompleteById(task.id);
-  });
-
-  // Edit
-  const editBtn = document.createElement('button');
-  editBtn.className = 'icon-btn info';
-  editBtn.title = 'Editar tarefa';
-  editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i>`;
-  editBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    openEditDialog(task.id);
-  });
-
-  // Delete
-  const delBtn = document.createElement('button');
-  delBtn.className = 'icon-btn negative';
-  delBtn.title = 'Excluir tarefa';
-  delBtn.innerHTML = `<i class="fa-solid fa-trash"></i>`;
-  delBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    confirmDelete(task.id);
-  });
-
-  actions.appendChild(completeBtn);
-  actions.appendChild(editBtn);
-  actions.appendChild(delBtn);
-
-  li.appendChild(left);
-  li.appendChild(actions);
-  return li;
-}
-
-/* =========================
-   RENDER MAIN
-   ========================= */
-function render(){
-  loadState();
-  // filter, search, sort
-  let visible = tasks.filter(t=>{
-    if(currentFilter === 'pending' && t.completed) return false;
-    if(currentFilter === 'completed' && !t.completed) return false;
-    if(!taskMatchesSearch(t, searchTerm)) return false;
-    return true;
-  });
-
-  visible = sortTasks(visible, currentSort);
-
-  el.taskList.innerHTML = '';
-  if(visible.length === 0){
-    $('#emptyState').style.display = 'block';
-  } else {
-    $('#emptyState').style.display = 'none';
-  }
-
-  visible.forEach((t,i)=>{
-    const node = buildTaskElement(t, i);
-    el.taskList.appendChild(node);
-  });
-
-  el.taskCount.textContent = tasks.length;
-}
-
-/* =========================
-   CRUD helpers
-   ========================= */
-function addTask(){
-  const text = el.taskInput.value.trim();
-  if(!text){
-    showToast('Digite o texto da tarefa antes de adicionar', 'warn');
-    return;
-  }
-  const t = {
-    id: uid(12),
-    text,
-    notes: '',
-    dueDate: el.taskDate.value || null,
-    priority: el.taskPriority.value || 'low',
-    createdAt: Date.now(),
-    completed: false
-  };
-  tasks.push(t);
-  saveState();
-  render();
-  showToast('Tarefa adicionada ✅', 'success');
-  el.taskInput.value = '';
-  el.taskDate.value = '';
-  // call due check to possibly send notification
-  checkDueTasks([t]);
-}
-
-function toggleCompleteById(id){
-  const idx = tasks.findIndex(x=>x.id===id);
-  if(idx === -1) return;
-  tasks[idx].completed = !tasks[idx].completed;
-  // if completed, remove overdue flag conceptually (visual handled at render)
-  saveState();
-  render();
-  showToast(tasks[idx].completed ? 'Tarefa marcada como concluída' : 'Tarefa marcada como pendente','info');
-}
-
-function openEditDialog(id){
-  const t = tasks.find(x=>x.id===id);
-  if(!t) return;
-  // Inline edit modal - reuse existing modal
-  el.modalTitle.textContent = 'Editar tarefa';
-  el.modalMessage.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <input id="editTitle" class="input" value="${escapeHtml(t.text)}" />
-      <textarea id="editNotes" class="input" style="min-height:80px;resize:vertical" placeholder="Notas/descrição">${escapeHtml(t.notes || '')}</textarea>
-      <div style="display:flex;gap:8px">
-        <input id="editDate" type="date" class="input" value="${t.dueDate ? formatDateISO(t.dueDate) : ''}" />
-        <select id="editPriority" class="input">
-          <option ${t.priority==='low'?'selected':''} value="low">Baixa</option>
-          <option ${t.priority==='medium'?'selected':''} value="medium">Média</option>
-          <option ${t.priority==='high'?'selected':''} value="high">Alta</option>
-        </select>
-      </div>
-    </div>
-  `;
-  pendingDeleteTaskId = id; // repurpose to hold editing id until confirm
-  // set confirm button behavior to "save"
-  el.modalConfirm.textContent = 'Salvar';
-  el.modalConfirm.style.background = 'var(--primary)';
-  el.modalConfirm.onclick = ()=>{
-    const newTitle = $('#editTitle', el.modalBackdrop).value.trim();
-    const newNotes = $('#editNotes', el.modalBackdrop).value.trim();
-    const newDate = $('#editDate', el.modalBackdrop).value || null;
-    const newPriority = $('#editPriority', el.modalBackdrop).value;
-    if(!newTitle){
-      showToast('Título não pode ficar vazio', 'err');
-      return;
-    }
-    const idx = tasks.findIndex(x=>x.id===pendingDeleteTaskId);
-    if(idx === -1) return closeModal();
-    tasks[idx].text = newTitle;
-    tasks[idx].notes = newNotes;
-    tasks[idx].dueDate = newDate;
-    tasks[idx].priority = newPriority;
-    saveState();
-    render();
-    closeModal();
-    showToast('Tarefa atualizada', 'success');
-  };
-  el.modalCancel.onclick = ()=>{ closeModal(); };
-  openModal('Editar tarefa', '');
-}
-
-function deleteTaskById(id){
-  const idx = tasks.findIndex(x=>x.id===id);
-  if(idx === -1) return;
-  const removed = tasks.splice(idx,1);
-  saveState();
-  render();
-  showToast('Tarefa excluída', 'warn');
-}
-
-/* escape helper for innerHTML safety in small controlled uses */
-function escapeHtml(str=''){
-  return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-}
-
-/* =========================
-   DELETE confirmation modal
-   ========================= */
-function confirmDelete(id){
-  pendingDeleteTaskId = id;
-  el.modalTitle.textContent = 'Confirmar exclusão';
-  el.modalMessage.textContent = 'Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.';
-  el.modalConfirm.textContent = 'Excluir';
-  el.modalConfirm.style.background = 'var(--danger)';
-  el.modalConfirm.onclick = ()=>{
-    deleteTaskById(pendingDeleteTaskId);
-    pendingDeleteTaskId = null;
-    closeModal();
-  };
-  el.modalCancel.onclick = ()=>{ closeModal(); };
-  openModal('Confirmar exclusão', '');
-}
-
-function openModal(title,msg){
-  el.modalBackdrop.classList.add('show');
-  el.modalBackdrop.setAttribute('aria-hidden','false');
-  // focus first input inside modal if exists
-  setTimeout(()=> {
-    const firstInput = el.modalBackdrop.querySelector('input, textarea, button');
-    if(firstInput) firstInput.focus();
-  },80);
-}
-function closeModal(){
-  el.modalBackdrop.classList.remove('show');
-  el.modalBackdrop.setAttribute('aria-hidden','true');
-  // reset confirm onclick to noop (safety)
-  el.modalConfirm.onclick = ()=>{};
-}
-
-/* =========================
-   SEARCH / FILTER / SORT HANDLERS
-   ========================= */
-el.searchInput.addEventListener('input', (e)=>{
-  searchTerm = e.target.value.trim();
-  render();
-});
-el.sortSelect.addEventListener('change', (e)=>{
-  currentSort = e.target.value;
-  render();
-});
-el.filterBtns.forEach(btn => {
-  btn.addEventListener('click', (e)=>{
-    el.filterBtns.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
-    render();
-  });
-});
-
-/* =========================
-   EXPORT / IMPORT
-   ========================= */
-el.exportBtn.addEventListener('click', ()=>{
-  const data = JSON.stringify(tasks, null, 2);
-  const blob = new Blob([data], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `tasks_export_${(new Date()).toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Exportado JSON com sucesso', 'success');
-});
-
-el.importBtn.addEventListener('click', ()=> el.fileInput.click());
-el.fileInput.addEventListener('change', (e)=>{
-  const f = e.target.files[0];
-  if(!f) return;
-  const reader = new FileReader();
-  reader.onload = (ev)=>{
-    try{
-      const imported = JSON.parse(ev.target.result);
-      if(!Array.isArray(imported)) throw new Error('Formato inválido');
-      // basic validation
-      imported.forEach(it => {
-        if(!it.id) it.id = uid(12);
-        if(!it.createdAt) it.createdAt = Date.now();
-      });
-      tasks = tasks.concat(imported);
-      saveState();
-      render();
-      showToast('Importado com sucesso', 'success');
-    }catch(err){
-      showToast('Erro ao importar: arquivo inválido', 'err');
-    }
-  };
-  reader.readAsText(f);
-  e.target.value = '';
-});
-
-/* =========================
-   CLEAR ALL (with confirmation)
-   ========================= */
-el.clearAllBtn.addEventListener('click', ()=>{
-  pendingDeleteTaskId = 'CLEAR_ALL';
-  el.modalTitle.textContent = 'Limpar todas as tarefas?';
-  el.modalMessage.textContent = 'Isso irá remover todas as tarefas permanentemente. Tem certeza?';
-  el.modalConfirm.textContent = 'Sim, limpar tudo';
-  el.modalConfirm.style.background = 'var(--danger)';
-  el.modalConfirm.onclick = ()=>{
-    tasks = [];
-    saveState();
-    render();
-    closeModal();
-    showToast('Todas as tarefas foram removidas', 'warn');
-  };
-  el.modalCancel.onclick = ()=> closeModal();
-  openModal('Confirmar ação', '');
-});
-
-/* =========================
-   NOTIFICATIONS (Web Notification API)
-   ========================= */
-async function requestNotifPermission(){
-  if(!('Notification' in window)) return false;
-  if(Notification.permission === 'granted') return true;
-  const p = await Notification.requestPermission();
-  return p === 'granted';
-}
-
-function checkDueTasks(list){
-  // if notifications disabled in settings, skip
-  if(!settings.notifs) return;
-  if(!('Notification' in window)) return;
-  if(Notification.permission !== 'granted') return;
-  const now = new Date();
-  list.forEach(task=>{
-    if(!task.dueDate || task.completed) return;
-    const due = new Date(task.dueDate);
-    const ms = due.getTime() - now.getTime();
-    const days = ms / (1000 * 60 * 60 * 24);
-    if(due < now){ // overdue
-      new Notification('⚠️ Tarefa vencida', { body: `${task.text} já venceu.`, icon: '' });
-    } else if(days <= 1){
-      new Notification('⏳ Próximo vencimento', { body: `${task.text} vence em breve (${formatDateISO(task.dueDate)})`, icon: '' });
-    }
-  });
-}
-
-/* =========================
-   AUTO-CHECK interval (based on settings.autoCheckMinutes)
-   ========================= */
-function startAutoCheck(){
-  if(autoCheckIntervalId) clearInterval(autoCheckIntervalId);
-  if(!settings.notifs) return;
-  const minutes = parseInt(settings.autoCheckMinutes) || 15;
-  autoCheckIntervalId = setInterval(()=>{
-    // run check on all tasks
-    checkDueTasks(tasks);
-  }, Math.max(1,minutes) * 60 * 1000);
-}
-
-/* Toggle notification button */
-el.notifToggle.addEventListener('click', async ()=>{
-  if(!('Notification' in window)){
-    showToast('Notificações não suportadas neste navegador', 'err');
-    return;
-  }
-  if(settings.notifs){
-    settings.notifs = false;
-    el.notifToggle.textContent = 'Desativar';
-    showToast('Notificações desativadas', 'warn');
-    startAutoCheck();
-    saveState();
-    return;
-  }
-  const ok = await requestNotifPermission();
-  if(!ok){
-    showToast('Permissão de notificações negada', 'err');
-    return;
-  }
-  settings.notifs = true;
-  el.notifToggle.textContent = 'Ativar';
-  showToast('Notificações ativadas', 'success');
-  startAutoCheck();
-  saveState();
-});
-
-/* =========================
-   EDIT INLINE - code used via openEditDialog
-   (already implemented)
-   ========================= */
-
-/* =========================
-   EVENT BINDINGS
-   ========================= */
-el.addTaskBtn.addEventListener('click', ()=> addTask());
-el.taskInput.addEventListener('keydown', (e)=> { if(e.key === 'Enter'){ addTask(); } });
-
-/* modal backdrop click closes modal */
-el.modalBackdrop.addEventListener('click', (e)=>{
-  if(e.target === el.modalBackdrop) closeModal();
-});
-
-/* initial state / load */
-(function init(){
-  loadState();
-  // apply toggles UI
-  el.notifToggle.textContent = settings.notifs ? 'Ativar' : 'Desativar';
-  el.sortSelect.value = currentSort;
-  // ensure createdAt for older tasks
-  tasks.forEach(t=>{ if(!t.createdAt) t.createdAt = Date.now(); });
-  saveState();
-  render();
-  startAutoCheck();
-  // show a small welcome toast
-  showToast('Bem-vindo! Seu Task Manager está pronto.', 'info', 2600);
-})();
-
-/* =========================
-   UTILITY: escape HTML - declared earlier as escapeHtml but keep local scope safety
-   ========================= */
-function escapeHtmlLocal(s=''){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
-
-/* =========================
-   PWA / MANIFEST placeholders
-   - You can add manifest.json & service-worker.js and register worker below
-   - For InfinityFree you may host those files and then enable service worker to make PWA
-   ========================= */
-/*
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/service-worker.js').then(()=> console.log('SW registered'));
-}
-*/
-
-/* =========================
-   END OF SCRIPT
-   ========================= */
+/* ===========================
+   INICIALIZAÇÃO
+===========================*/
+renderTasks();
 </script>
 
 </body>
