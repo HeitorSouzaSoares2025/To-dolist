@@ -170,8 +170,15 @@ body.dark .stats-panel {
 }
 
 /* -------- BADGES -------- */
+/* -------- BADGES -------- */
 #badgeSection {
   padding: 1rem 2rem;
+}
+
+#badgeSection h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 .badge-grid {
@@ -190,7 +197,7 @@ body.dark .stats-panel {
   padding: 1rem;
   border-radius: 1rem;
   background: var(--card-bg-light);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
 }
 body.dark .badge {
   background: var(--card-bg-dark);
@@ -201,6 +208,7 @@ body.dark .badge {
   line-height: 1;
 }
 
+/* Conquistadas */
 .badge.earned {
   box-shadow: 0 0 8px var(--accent);
 }
@@ -209,11 +217,11 @@ body.dark .badge {
   box-shadow: 0 0 12px var(--accent);
 }
 
+/* Bloqueadas */
 .badge.locked {
   opacity: 0.5;
   filter: grayscale(100%);
 }
-
 
 /* -------- MODAL -------- */
 #trophyModal {
