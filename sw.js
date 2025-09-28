@@ -1,63 +1,65 @@
-// Nome do cache
+// service-worker.js
+
 const CACHE_NAME = 'taskmaster-v1';
 
-// Arquivos que serão armazenados no cache (offline)
+// ⚠️ No GitHub Pages use caminhos relativos
+// porque o site não está em / mas em /To-dolist/
 const ASSETS = [
-  '/',                // raiz
-  '/index.html',      // página principal
-  '/style.css',       // estilos
-  '/script.js',       // script principal
-  '/manifest.json',   // manifest do PWA
-  '/icon-192.png',    // ícone PWA
-  '/icon-512.png'     // ícone PWA
+  './',                // raiz do projeto
+  './index.html',
+  './style.css',
+  './script.js',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// -------------------- INSTALAÇÃO --------------------
-self.addEventListener('install', evt => {
-  // Adiciona os arquivos definidos em ASSETS ao cache
-  evt.waitUntil(
+// Instalação do Service Worker: pré-caching
+self.addEventListener('install', event => {
+  event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
-
-  // Força a ativação imediata do SW após a instalação
   self.skipWaiting();
 });
 
-// -------------------- ATIVAÇÃO --------------------
-self.addEventListener('activate', evt => {
-  // Remove caches antigos (quando a versão muda)
-  evt.waitUntil(
+// Ativação: remove caches antigos
+self.addEventListener('activate', event => {
+  event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.map(k => {
-          if (k !== CACHE_NAME) return caches.delete(k);
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
         })
       )
     )
   );
-
-  // Garante que o SW ative imediatamente nas abas abertas
   self.clients.claim();
 });
 
-// -------------------- INTERCEPTAÇÃO DE REQUISIÇÕES --------------------
-self.addEventListener('fetch', evt => {
-  // Apenas requisições GET são cacheadas
-  if (evt.request.method !== 'GET') return;
+// Intercepta requisições
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
 
-  evt.respondWith(
-    caches.match(evt.request) // procura no cache
-      .then(res => 
-        res || fetch(evt.request) // se não achar no cache, faz a requisição
-          .then(fres => {
-            // Armazena no cache para uso futuro
-            return caches.open(CACHE_NAME).then(cache => {
-              cache.put(evt.request, fres.clone());
-              return fres;
-            });
-          })
-          // Se não houver internet, retorna a página offline
-          .catch(() => caches.match('/index.html'))
-      )
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      // se houver no cache, retorna
+      if (cachedResponse) return cachedResponse;
+
+      // senão, busca na rede e armazena
+      return fetch(event.request)
+        .then(networkResponse => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, networkResponse.clone());
+            return networkResponse;
+          });
+        })
+        // se offline e recurso não encontrado, não tenta entregar index.html
+        .catch(() => {
+          // aqui você pode retornar uma página offline customizada
+          return caches.match('./index.html');
+        });
+    })
   );
 });
