@@ -4,86 +4,117 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>To-Do List</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root {
-  --main-bg: #ffffff;
-  --main-text: #000000;
-  --accent: #22c55e;      /* Verde claro Tailwind */
+  --accent: #22c55e;      /* Verde claro padrão */
+  --accent-dark: #16a34a;
   --border: #d1d5db;
-  --star: #facc15;
-}
-body.dark {
-  --main-bg: #121212;
-  --main-text: #e5e5e5;
-  --accent: #4ade80;      /* Verde suave para dark mode */
-  --border: #374151;
-  --star: #eab308;        /* Estrela com verde suave no dark */
+  --bg-light: #ffffff;
+  --text-light: #111827;
+  --bg-dark: #0f172a;
+  --text-dark: #e5e7eb;
+  --card-bg-light: rgba(255,255,255,0.7);
+  --card-bg-dark: rgba(30,41,59,0.6);
+  --star: #facc15;        /* Dourado */
 }
 body {
-  background: var(--main-bg);
-  color: var(--main-text);
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-light);
+  color: var(--text-light);
   transition: background .3s, color .3s;
 }
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
 .task-card {
-  background: var(--main-bg);
+  background: var(--card-bg-light);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  padding: .75rem;
-  border-radius: .5rem;
-  transition: background .3s, border .3s;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  box-shadow: 0 4px 12px rgba(34,197,94,0.15);
+  animation: fadeIn .4s ease-in;
+  transition: background .3s, border .3s, transform .2s;
+}
+body.dark .task-card {
+  background: var(--card-bg-dark);
+  border-color: #334155;
+}
+.task-card:hover {
+  transform: translateY(-2px);
 }
 .task-card.dragging { opacity: .5; }
 .priority-high { border-left: 4px solid #ef4444; }
 .priority-medium { border-left: 4px solid #f59e0b; }
-.priority-low { border-left: 4px solid #10b981; }
-.important { border: 2px solid var(--star); }
-.calendar input[type="date"] {
-  background: var(--main-bg);
-  color: var(--main-text);
-  border: 1px solid var(--border);
-  border-radius: .25rem;
-  padding: .25rem .5rem;
+.priority-low { border-left: 4px solid #22c55e; }
+.important {
+  border: 2px solid var(--star);
+  box-shadow: 0 0 8px rgba(250,204,21,0.6);
 }
+.calendar input[type="date"],
 input, select {
-  background: var(--main-bg);
-  color: var(--main-text);
+  background: transparent;
+  color: inherit;
   border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+body.dark input, body.dark select {
+  border-color: #475569;
 }
 button {
-  transition: background .3s;
+  transition: all .3s ease;
 }
-.star-btn { color: var(--star); }
+.btn-accent {
+  background: linear-gradient(to right, var(--accent), #06b6d4);
+  color: #fff;
+}
+.btn-accent:hover {
+  filter: brightness(1.1);
+  transform: scale(1.03);
+}
+.star-btn {
+  color: var(--star);
+  font-size: 1.2rem;
+  transition: transform .2s;
+}
+.star-btn:hover {
+  transform: scale(1.2);
+}
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(10px);}
+  to {opacity:1; transform: translateY(0);}
+}
 </style>
 </head>
-<body class="min-h-screen flex flex-col items-center">
+<body class="min-h-screen flex flex-col items-center px-2">
 
-<div id="loginSection" class="w-full max-w-sm p-4 mt-8 border rounded-lg">
+<!-- LOGIN -->
+<div id="loginSection" class="w-full max-w-sm p-6 mt-8 rounded-xl shadow-md bg-white/70 dark:bg-slate-800/70 backdrop-blur">
   <h1 class="text-2xl mb-4 text-center font-bold">Login</h1>
   <input id="usernameInput" type="text" placeholder="Digite seu usuário"
-         class="w-full p-2 mb-4 rounded border">
+         class="w-full p-2 mb-4 rounded border placeholder-gray-400">
   <button id="loginBtn"
-          class="w-full bg-[var(--accent)] text-white font-semibold py-2 rounded hover:opacity-90">
+          class="w-full btn-accent font-semibold py-2 rounded">
     Entrar
   </button>
 </div>
 
+<!-- APP -->
 <div id="appSection" class="hidden w-full max-w-2xl p-4">
-  <header class="flex justify-between items-center mb-4">
+  <header class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
     <h1 class="text-3xl font-bold">To-Do List</h1>
     <div class="flex gap-2">
-      <button id="toggleDarkMode"
-              class="px-3 py-1 rounded bg-[var(--accent)] text-white hover:opacity-90">
-        Mudar Tema
-      </button>
-      <button id="logoutBtn"
-              class="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-500">
-        Sair
-      </button>
+      <button id="toggleDarkMode" class="px-3 py-1 rounded btn-accent">Mudar Tema</button>
+      <button id="logoutBtn" class="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-500">Sair</button>
     </div>
   </header>
 
-  <form id="taskForm" class="flex flex-col gap-3 mb-6 p-4 rounded-lg border">
-    <input id="taskInput" type="text" placeholder="Nova tarefa" class="p-2 rounded border">
+  <form id="taskForm" class="flex flex-col gap-3 mb-6 p-4 rounded-lg border backdrop-blur">
+    <input id="taskInput" type="text" placeholder="Nova tarefa" class="p-2 rounded border placeholder-gray-400">
     <select id="priorityInput" class="p-2 rounded border">
       <option value="low">Baixa</option>
       <option value="medium">Média</option>
@@ -92,14 +123,12 @@ button {
     <div class="calendar">
       <input id="dueDateInput" type="date">
     </div>
-    <button class="bg-[var(--accent)] text-white font-semibold py-2 rounded hover:opacity-90">
-      Adicionar
-    </button>
+    <button class="btn-accent font-semibold py-2 rounded">Adicionar</button>
   </form>
 
-  <div class="flex justify-between items-center mb-4">
+  <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
     <input id="searchInput" type="text" placeholder="Buscar tarefas"
-           class="p-2 rounded border w-1/2">
+           class="p-2 rounded border flex-1 placeholder-gray-400">
     <select id="filterSelect" class="p-2 rounded border">
       <option value="all">Todas</option>
       <option value="pending">Pendentes</option>
@@ -146,11 +175,11 @@ function renderTasks(){
         <div>
           <input type="checkbox" class="mr-2" ${t.completed?'checked':''}>
           <span class="${t.completed?'line-through text-gray-500':''}">${t.title}</span>
-          ${t.dueDate?`<small class="ml-2 text-[var(--accent)]">[${t.dueDate}]</small>`:''}
+          ${t.dueDate?`<small class="ml-2 text-green-400">[${t.dueDate}]</small>`:''}
         </div>
         <div class="flex gap-2">
           <button class="toggle-important star-btn ${t.important?'':'opacity-50'}">⭐</button>
-          <button class="add-subtask text-[var(--accent)]">＋</button>
+          <button class="add-subtask text-green-500">＋</button>
           <button class="delete-task text-red-500">✕</button>
         </div>
       </div>
