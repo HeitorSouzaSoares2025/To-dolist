@@ -173,37 +173,43 @@ function checkBadges() {
   const completed = tasks.filter(t => t.completed).length;
   badgeGrid.innerHTML = '';
 
-  const badges = [];
-  if (completed >= 1) badges.push({ icon: '🥉', text: 'Primeira Tarefa' });
-  if (completed >= 5) badges.push({ icon: '🥈', text: '5 Tarefas' });
-  if (completed >= 10) badges.push({ icon: '🥇', text: '10 Tarefas' });
-  if (completed >= 20) badges.push({ icon: '🏆', text: '20 Tarefas Concluídas' });
+  const allBadges = [
+    { icon: '🥉', text: 'Primeira Tarefa', unlock: 1 },
+    { icon: '🥈', text: '5 Tarefas', unlock: 5 },
+    { icon: '🥇', text: '10 Tarefas', unlock: 10 },
+    { icon: '🏆', text: '20 Tarefas Concluídas', unlock: 20 }
+  ];
 
-  badges.forEach(b => {
+  let newlyUnlocked = null;
+
+  allBadges.forEach(b => {
     const badge = document.createElement('div');
-    badge.className = 'badge';
-    badge.innerHTML = `<div style="font-size:2rem;">${b.icon}</div><p>${b.text}</p>`;
+    badge.className = 'badge ' + (completed >= b.unlock ? 'earned' : 'locked');
+
+    badge.innerHTML = `
+      <div class="icon">${b.icon}</div>
+      <p>${b.text}</p>
+    `;
+
     badgeGrid.appendChild(badge);
+
+    // animação se desbloqueou agora
+    if (completed === b.unlock) {
+      newlyUnlocked = b;
+      badge.animate([
+        { transform: 'scale(0.8)', opacity: 0 },
+        { transform: 'scale(1.1)', opacity: 1 },
+        { transform: 'scale(1)', opacity: 1 }
+      ], { duration: 600, easing: 'ease-out' });
+    }
   });
 
-  if (badges.length) {
-    const lastBadge = badges[badges.length - 1];
-    trophyMessage.textContent = `Você desbloqueou: ${lastBadge.text}`;
+  // Mostrar modal para nova conquista
+  if (newlyUnlocked) {
+    trophyMessage.textContent = `Você desbloqueou: ${newlyUnlocked.text}`;
     trophyModal.style.display = 'flex';
   }
 }
-
-closeTrophy.addEventListener('click', () => {
-  trophyModal.style.display = 'none';
-});
-
-// ----------------- Logout -----------------
-const logoutBtn = document.getElementById('logoutBtn');
-
-logoutBtn.addEventListener('click', () => {
-  localStorage.removeItem('currentUser');
-  window.location.href = 'login.html';
-});
 
 // ----------------- Inicialização -----------------
 renderTasks();
