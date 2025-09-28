@@ -13,6 +13,7 @@ body.dark{background:#000;color:#0ff}
 .priority-high{border-left:4px solid #0ff}
 .priority-medium{border-left:4px solid #0f0}
 .priority-low{border-left:4px solid #555}
+.important{border:2px solid #ff0;box-shadow:0 0 10px #ff0}
 </style>
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col items-center">
@@ -80,12 +81,13 @@ function renderTasks(){
 taskList.innerHTML=''
 const search=searchInput.value.toLowerCase()
 const filter=filterSelect.value
-tasks.forEach((t,i)=>{
+const sortedTasks=[...tasks].sort((a,b)=>b.important-a.important)
+sortedTasks.forEach((t,i)=>{
 if(t.title.toLowerCase().includes(search)&&(filter==='all'||(filter==='pending'&&!t.completed)||(filter==='completed'&&t.completed))){
 const li=document.createElement('li')
 li.draggable=true
 li.dataset.index=i
-li.className=`task-card p-3 rounded bg-black neon-border ${t.priority==='high'?'priority-high':t.priority==='medium'?'priority-medium':'priority-low'}`
+li.className=`task-card p-3 rounded bg-black neon-border ${t.priority==='high'?'priority-high':t.priority==='medium'?'priority-medium':'priority-low'} ${t.important?'important':''}`
 li.innerHTML=`
 <div class="flex justify-between items-center">
 <div>
@@ -94,6 +96,7 @@ li.innerHTML=`
 ${t.dueDate?`<small class="ml-2 text-cyan-400">[${t.dueDate}]</small>`:''}
 </div>
 <div class="flex gap-2">
+<button class="toggle-important ${t.important?'text-yellow-400':'text-gray-400'}">⭐</button>
 <button class="add-subtask text-cyan-400">＋</button>
 <button class="delete-task text-red-400">✕</button>
 </div>
@@ -117,7 +120,8 @@ saveTasks()
 renderTasks()
 })
 li.querySelector('.delete-task').addEventListener('click',()=>{
-tasks.splice(i,1)
+const idx=tasks.findIndex(x=>x===t)
+tasks.splice(idx,1)
 saveTasks()
 renderTasks()
 })
@@ -128,6 +132,11 @@ t.subtasks.push({text:txt,done:false})
 saveTasks()
 renderTasks()
 }
+})
+li.querySelector('.toggle-important').addEventListener('click',()=>{
+t.important=!t.important
+saveTasks()
+renderTasks()
 })
 taskList.appendChild(li)
 }
@@ -151,7 +160,10 @@ taskList.insertBefore(dragging,next)
 }
 
 function reorderTasks(){
-const newOrder=[...taskList.querySelectorAll('.task-card')].map(it=>tasks[it.dataset.index])
+const newOrder=[...taskList.querySelectorAll('.task-card')].map(it=>{
+const idx=it.dataset.index
+return tasks[idx]
+})
 tasks=newOrder
 saveTasks()
 renderTasks()
@@ -161,7 +173,7 @@ taskForm.addEventListener('submit',e=>{
 e.preventDefault()
 const title=taskInput.value.trim()
 if(title){
-tasks.push({title,completed:false,priority:priorityInput.value,dueDate:dueDateInput.value,subtasks:[]})
+tasks.push({title,completed:false,priority:priorityInput.value,dueDate:dueDateInput.value,subtasks:[],important:false})
 saveTasks()
 renderTasks()
 taskForm.reset()
