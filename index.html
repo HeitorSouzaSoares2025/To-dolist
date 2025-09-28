@@ -1,419 +1,280 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>To-Do List</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { darkMode: 'class' }
-  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .dragging { opacity: 0.5; }
-    .fade-in { animation: fadeIn 0.4s ease-in-out; }
-    .fade-out { animation: fadeOut 0.4s ease-in-out forwards; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
-    @keyframes fadeOut { from {opacity:1;} to {opacity:0; transform: translateX(30px);} }
-
-    .priority-baixa { background: #dcfce7; color: #166534; }
-    .priority-media { background: #fef9c3; color: #854d0e; }
-    .priority-alta { background: #fee2e2; color: #991b1b; }
-
-    mark { background: #facc15; padding: 0 2px; border-radius: 3px; }
-
-    /* ===== NOVAS ESTILIZAÇÕES ===== */
-
-    /* Flash ao adicionar tarefa */
-    .flash-new {
-      animation: flashHighlight 1s ease-out;
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      transition: 0.3s;
     }
-    @keyframes flashHighlight {
-      0% { background-color: #bbf7d0; }
-      100% { background-color: transparent; }
+    body {
+      margin: 0;
+      background: #f5f5f5;
+      color: #222;
     }
-
-    /* Hover suave nas tarefas */
-    li:hover {
-      transform: scale(1.01);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    body.dark {
+      background: #121212;
+      color: #eee;
     }
-    li { transition: all 0.25s ease-in-out; }
-
-    /* Botões com gradiente */
-    .btn-gradient {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: #0077ff;
       color: white;
-      transition: all 0.3s;
     }
-    .btn-gradient:hover {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(79,70,229,0.4);
+    header button {
+      background: white;
+      color: #0077ff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    main {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    body.dark main {
+      background: #1e1e1e;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    input, select, button {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    body.dark input, body.dark select {
+      background: #2a2a2a;
+      color: white;
+      border-color: #555;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      background: #eee;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    body.dark li {
+      background: #2a2a2a;
+    }
+    li.high { border-left: 6px solid #e63946; }
+    li.medium { border-left: 6px solid #f1c40f; }
+    li.low { border-left: 6px solid #2ecc71; }
+
+    li.overdue {
+      background: #ffdddd;
+      border-left-color: red !important;
     }
 
-    /* Scrollbar estilizada */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+    button.delete {
+      background: #e63946;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #a1a1aa;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    html.dark ::-webkit-scrollbar-thumb {
-      background: #4b5563;
-    }
-
-    /* Glow em ícones */
-    button i, .lucide {
-      transition: all 0.3s;
-    }
-    button:hover i {
-      filter: drop-shadow(0 0 6px rgba(99,102,241,0.8));
+    button.complete {
+      background: #2ecc71;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
-    /* Header fixo */
-    .sticky-header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: inherit;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    /* === FILTROS NOVOS === */
+    #filters {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+    #filters button {
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #ccc;
+    }
+    #filters button.active {
+      background: #0077ff;
+      color: white;
+    }
+    body.dark #filters button {
+      background: #444;
+      color: #eee;
+    }
+    body.dark #filters button.active {
+      background: #0077ff;
+      color: white;
+    }
+    li.completed span {
+      text-decoration: line-through;
+      opacity: 0.7;
     }
   </style>
-  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center min-h-screen px-4 transition-colors">
-  <div class="w-full max-w-lg bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-6 border border-gray-200 dark:border-gray-700 fade-in">
-    
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-6 sticky-header">
-      <h1 class="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
-        <i data-lucide="check-square" class="w-8 h-8"></i> To-Do List
-      </h1>
-      <button id="toggleDark" class="px-3 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition flex items-center gap-1">
-        <i data-lucide="moon" class="w-5 h-5"></i>
-      </button>
+<body>
+  <header>
+    <h1>Task Manager</h1>
+    <button id="darkToggle">🌙 Modo Escuro</button>
+  </header>
+  <main>
+    <form id="taskForm">
+      <input type="text" id="taskTitle" placeholder="Nome da tarefa" required>
+      <select id="taskPriority">
+        <option value="high">Alta Prioridade</option>
+        <option value="medium">Média Prioridade</option>
+        <option value="low" selected>Baixa Prioridade</option>
+      </select>
+      <input type="date" id="taskDueDate" required>
+      <button type="submit">Adicionar Tarefa</button>
+    </form>
+
+    <!-- === FILTROS NOVOS === -->
+    <div id="filters">
+      <button data-filter="all" class="active">Todas</button>
+      <button data-filter="pending">Pendentes</button>
+      <button data-filter="completed">Concluídas</button>
     </div>
 
-    <!-- Entrada -->
-    <div class="flex flex-col space-y-2 mb-4">
-      <div class="flex space-x-2">
-        <input id="taskInput" type="text" placeholder="Digite uma tarefa..." 
-               class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none dark:bg-gray-700 dark:text-white shadow-sm" />
-        <select id="priorityInput" 
-                class="border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-2 focus:ring-2 focus:ring-indigo-400 dark:bg-gray-700 dark:text-white shadow-sm">
-          <option value="baixa">⬇️ Baixa</option>
-          <option value="media">⏺️ Média</option>
-          <option value="alta">⬆️ Alta</option>
-        </select>
-      </div>
-      <div class="flex space-x-2">
-        <input id="dateInput" type="date" 
-               class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none dark:bg-gray-700 dark:text-white shadow-sm" />
-        <button onclick="addTask()" 
-                class="btn-gradient px-4 py-2 rounded-lg flex items-center gap-1 shadow-md">
-          <i data-lucide="plus" class="w-5 h-5"></i> Adicionar
-        </button>
-      </div>
-    </div>
-
-    <!-- Filtros -->
-    <div class="flex flex-wrap gap-2 mb-4">
-      <button onclick="filterTasks('todas')" class="px-3 py-1 rounded-full text-sm bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 hover:from-gray-300 hover:to-gray-400 dark:hover:from-gray-600 dark:hover:to-gray-500 transition">Todas</button>
-      <button onclick="filterTasks('alta')" class="px-3 py-1 rounded-full text-sm bg-gradient-to-r from-red-300 to-red-400 text-red-900 dark:from-red-700 dark:to-red-600 dark:text-red-100 hover:from-red-400 hover:to-red-500">Alta</button>
-      <button onclick="filterTasks('media')" class="px-3 py-1 rounded-full text-sm bg-gradient-to-r from-yellow-200 to-yellow-300 text-yellow-900 dark:from-yellow-600 dark:to-yellow-500 dark:text-yellow-100 hover:from-yellow-300 hover:to-yellow-400">Média</button>
-      <button onclick="filterTasks('baixa')" class="px-3 py-1 rounded-full text-sm bg-gradient-to-r from-green-200 to-green-300 text-green-900 dark:from-green-700 dark:to-green-600 dark:text-green-100 hover:from-green-300 hover:to-green-400">Baixa</button>
-    </div>
-
-    <!-- Pesquisa -->
-    <div class="flex items-center gap-2 mb-4">
-      <i data-lucide="search" class="w-5 h-5 text-gray-500 dark:text-gray-300"></i>
-      <input id="searchInput" type="text" placeholder="Pesquisar tarefa..." 
-             class="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:outline-none dark:bg-gray-700 dark:text-white shadow-sm" />
-    </div>
-
-    <!-- Lista -->
-    <ul id="taskList" class="space-y-3 mb-4 max-h-80 overflow-y-auto pr-1"></ul>
-
-    <!-- Rodapé -->
-    <div class="flex justify-between items-center">
-      <p id="taskStats" class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-1">
-        <i data-lucide="list" class="w-4 h-4"></i> 0 pendentes • 0 concluídas
-      </p>
-      <button id="clearBtn" onclick="clearCompleted()" 
-              class="hidden text-sm text-red-500 hover:text-red-700 flex items-center gap-1">
-        <i data-lucide="trash-2" class="w-4 h-4"></i> Limpar concluídas
-      </button>
-    </div>
-  </div>
+    <ul id="taskList"></ul>
+  </main>
 
   <script>
-    lucide.createIcons();
-
-    const taskInput = document.getElementById('taskInput');
-    const priorityInput = document.getElementById('priorityInput');
-    const dateInput = document.getElementById('dateInput');
+    const darkToggle = document.getElementById('darkToggle');
+    const body = document.body;
+    const form = document.getElementById('taskForm');
     const taskList = document.getElementById('taskList');
-    const taskStats = document.getElementById('taskStats');
-    const clearBtn = document.getElementById('clearBtn');
-    const toggleDark = document.getElementById('toggleDark');
-    const searchInput = document.getElementById('searchInput');
 
-    let currentFilter = 'todas';
+    // Dark mode
+    darkToggle.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      localStorage.setItem('darkMode', body.classList.contains('dark'));
+    });
 
-    // ===== DARK MODE =====
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.documentElement.classList.add('dark');
-    }
-    toggleDark.onclick = () => {
-      document.documentElement.classList.toggle('dark');
-      localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
-    };
+    if (localStorage.getItem('darkMode') === 'true') body.classList.add('dark');
 
-    // ===== NOTIFICAÇÕES =====
-    function askNotificationPermission() {
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
-    }
-    function scheduleNotification(taskText, dateStr) {
-      if (!("Notification" in window) || Notification.permission !== "granted" || !dateStr) return;
-      const today = new Date().toISOString().split("T")[0];
-      if (dateStr < today) return;
-      const now = new Date();
-      const target = new Date(dateStr + "T09:00:00");
-      const delay = target.getTime() - now.getTime();
-      if (delay > 0) {
-        setTimeout(() => {
-          new Notification("Lembrete de tarefa", {
-            body: `📌 ${taskText} vence hoje!`,
-            icon: "https://cdn-icons-png.flaticon.com/512/4436/4436481.png"
-          });
-        }, delay);
-      }
-    }
+    // === FILTROS NOVOS ===
+    let currentFilter = 'all';
 
-    // ===== CONTADOR =====
-    function updateCount() {
-      const pending = taskList.querySelectorAll('li:not(.done)').length;
-      const completed = taskList.querySelectorAll('li.done').length;
-      taskStats.textContent = `${pending} pendente${pending !== 1 ? 's' : ''} • ${completed} concluída${completed !== 1 ? 's' : ''}`;
-      clearBtn.classList.toggle("hidden", completed === 0);
-    }
+    // Carregar tarefas
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-    // ===== LOCAL STORAGE =====
     function saveTasks() {
-      const tasks = [];
-      taskList.querySelectorAll('li').forEach(li => {
-        const span = li.querySelector('span');
-        const date = li.querySelector('.date')?.dataset.date || null;
-        tasks.push({
-          text: span.textContent,
-          priority: span.dataset.priority,
-          date,
-          done: li.classList.contains('done')
-        });
-      });
       localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
-    function loadTasks() {
-      const tasks = JSON.parse(localStorage.getItem('tasks') || "[]");
-      taskList.innerHTML = "";
-      tasks.forEach(task => createTask(task.text, task.priority, task.date, task.done));
-      updateCount();
-    }
-
-    // ===== FILTROS =====
-    function filterTasks(priority) {
-      currentFilter = priority;
-      renderTasks();
-    }
-
-    // ===== PESQUISA COM DESTAQUE =====
-    function highlightText(text, keyword) {
-      if (!keyword) return text;
-      const regex = new RegExp(`(${keyword})`, "gi");
-      return text.replace(regex, `<mark>$1</mark>`);
-    }
-
-    searchInput.addEventListener("input", renderTasks);
-
-    // ===== TAREFA =====
-    function getDateLabel(dateStr) {
-      if (!dateStr) return "";
-      const today = new Date().toISOString().split("T")[0];
-      if (dateStr < today) return `<span class="text-red-500 date" data-date="${dateStr}">❗ Venceu em ${dateStr}</span>`;
-      if (dateStr === today) return `<span class="text-yellow-500 date" data-date="${dateStr}">⚠️ Vence hoje</span>`;
-      return `<span class="text-gray-500 dark:text-gray-400 date" data-date="${dateStr}">📅 ${dateStr}</span>`;
-    }
-
-    function createTask(text, priority, date = null, done = false) {
-      const li = document.createElement('li');
-      li.className = "flex flex-col bg-gray-50 dark:bg-gray-700 p-3 rounded-lg shadow hover:shadow-lg transition cursor-move fade-in flash-new";
-      li.draggable = true;
-      if (done) li.classList.add("done");
-
-      const row = document.createElement('div');
-      row.className = "flex items-center justify-between gap-2";
-
-      const badge = document.createElement('span');
-      badge.className = `px-2 py-1 text-xs font-bold rounded-full priority-${priority}`;
-      badge.textContent = priority.charAt(0).toUpperCase() + priority.slice(1);
-
-      const span = document.createElement('span');
-      span.textContent = text;
-      span.className = "flex-1 cursor-pointer px-2";
-      span.dataset.priority = priority;
-
-      span.onclick = () => {
-        li.classList.toggle("done");
-        span.classList.toggle("line-through");
-        span.classList.toggle("text-gray-400");
-        updateCount();
-        saveTasks();
-      };
-
-      span.ondblclick = () => {
-        const novoTexto = prompt("Editar tarefa:", span.textContent);
-        if (novoTexto) {
-          span.textContent = novoTexto;
-          saveTasks();
-        }
-      };
-
-      const delBtn = document.createElement('button');
-      delBtn.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5"></i>`;
-      delBtn.className = "ml-2 text-red-500 hover:text-red-700";
-      delBtn.onclick = () => { 
-        li.classList.add("fade-out");
-        setTimeout(() => { li.remove(); updateCount(); saveTasks(); }, 400);
-      };
-
-      row.appendChild(badge);
-      row.appendChild(span);
-      row.appendChild(delBtn);
-
-      const dateLabel = document.createElement('div');
-      dateLabel.innerHTML = getDateLabel(date);
-
-      li.appendChild(row);
-      if (date) li.appendChild(dateLabel);
-      taskList.appendChild(li);
-
-      lucide.createIcons();
-
-      li.addEventListener('dragstart', () => li.classList.add('dragging'));
-      li.addEventListener('dragend', () => {
-        li.classList.remove('dragging');
-        saveTasks();
-      });
-
-      if (date) scheduleNotification(text, date);
     }
 
     function renderTasks() {
-      const tasks = JSON.parse(localStorage.getItem('tasks') || "[]");
-      taskList.innerHTML = "";
-      const keyword = searchInput.value.trim();
+      taskList.innerHTML = '';
+      const today = new Date();
 
-      tasks
-        .filter(task => currentFilter === "todas" || task.priority === currentFilter)
-        .filter(task => !keyword || task.text.toLowerCase().includes(keyword.toLowerCase()))
-        .forEach(task => {
-          const li = document.createElement("li");
-          li.className = "flex flex-col bg-gray-50 dark:bg-gray-700 p-3 rounded-lg shadow hover:shadow-lg transition cursor-move fade-in";
-          if (task.done) li.classList.add("done");
+      tasks.forEach((task, index) => {
+        // === FILTROS NOVOS ===
+        if (currentFilter === 'completed' && !task.completed) return;
+        if (currentFilter === 'pending' && task.completed) return;
 
-          const row = document.createElement("div");
-          row.className = "flex items-center justify-between gap-2";
+        const li = document.createElement('li');
+        li.classList.add(task.priority);
 
-          const badge = document.createElement("span");
-          badge.className = `px-2 py-1 text-xs font-bold rounded-full priority-${task.priority}`;
-          badge.textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+        const dueDate = new Date(task.dueDate);
+        if (dueDate < today && !task.completed) {
+          li.classList.add('overdue');
+        }
 
-          const span = document.createElement("span");
-          span.innerHTML = highlightText(task.text, keyword);
-          span.className = "flex-1 cursor-pointer px-2";
-          span.dataset.priority = task.priority;
+        if (task.completed) li.classList.add('completed');
 
-          span.onclick = () => {
-            li.classList.toggle("done");
-            span.classList.toggle("line-through");
-            span.classList.toggle("text-gray-400");
-            updateCount();
-            saveTasks();
-          };
+        li.innerHTML = `
+          <span>${task.title} - ${task.dueDate}</span>
+          <button class="complete">${task.completed ? "Desfazer" : "Concluir"}</button>
+          <button class="delete">Excluir</button>
+        `;
 
-          const delBtn = document.createElement("button");
-          delBtn.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5"></i>`;
-          delBtn.className = "ml-2 text-red-500 hover:text-red-700";
-          delBtn.onclick = () => { 
-            li.classList.add("fade-out");
-            setTimeout(() => { li.remove(); updateCount(); saveTasks(); }, 400);
-          };
-
-          row.appendChild(badge);
-          row.appendChild(span);
-          row.appendChild(delBtn);
-
-          const dateLabel = document.createElement("div");
-          dateLabel.innerHTML = getDateLabel(task.date);
-
-          li.appendChild(row);
-          if (task.date) li.appendChild(dateLabel);
-          taskList.appendChild(li);
-
-          lucide.createIcons();
+        li.querySelector('.complete').addEventListener('click', () => {
+          task.completed = !task.completed;
+          saveTasks();
+          renderTasks();
         });
 
-      updateCount();
-    }
+        li.querySelector('.delete').addEventListener('click', () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        });
 
-    function addTask() {
-      const text = taskInput.value.trim();
-      const priority = priorityInput.value;
-      const date = dateInput.value;
-      if (text === '') return;
-
-      createTask(text, priority, date, false);
-      taskInput.value = "";
-      dateInput.value = "";
-      updateCount();
-      saveTasks();
-    }
-
-    function clearCompleted() {
-      taskList.querySelectorAll('li.done').forEach(li => {
-        li.classList.add("fade-out");
-        setTimeout(() => li.remove(), 400);
+        taskList.appendChild(li);
       });
-      updateCount();
-      saveTasks();
     }
 
-    // ===== DRAG ORDER =====
-    taskList.addEventListener('dragover', e => {
-      e.preventDefault();
-      const dragging = document.querySelector('.dragging');
-      const siblings = [...taskList.querySelectorAll('li:not(.dragging)')];
-      const next = siblings.find(sib => e.clientY <= sib.offsetTop + sib.offsetHeight / 2);
-      if (next) {
-        taskList.insertBefore(dragging, next);
-      } else {
-        taskList.appendChild(dragging);
-      }
+    // === FILTROS NOVOS ===
+    document.querySelectorAll('#filters button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#filters button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderTasks();
+      });
     });
 
-    askNotificationPermission();
-    loadTasks();
+    // Notificações
+    function checkDueTasks() {
+      if (Notification.permission !== 'granted') {
+        Notification.requestPermission();
+      }
+
+      const now = new Date();
+      tasks.forEach(task => {
+        const due = new Date(task.dueDate);
+        const diff = due - now;
+
+        if (!task.completed && diff > 0 && diff < 24 * 60 * 60 * 1000) {
+          new Notification('⚠️ Tarefa próxima do vencimento', {
+            body: `${task.title} vence em breve!`
+          });
+        }
+      });
+    }
+
+    setInterval(checkDueTasks, 60 * 60 * 1000);
+
+    // Adicionar tarefa
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('taskTitle').value;
+      const priority = document.getElementById('taskPriority').value;
+      const dueDate = document.getElementById('taskDueDate').value;
+
+      // === NOVO: Flag de concluída
+      tasks.push({ title, priority, dueDate, completed: false });
+      saveTasks();
+      renderTasks();
+      form.reset();
+    });
+
+    renderTasks();
   </script>
 </body>
 </html>
