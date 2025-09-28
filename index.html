@@ -6,6 +6,7 @@
 <title>To-Do List</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
   --accent: #22c55e;
@@ -19,24 +20,48 @@
   --card-bg-dark: rgba(30,41,59,0.6);
   --star: #facc15;
 }
-body {font-family:'Inter',sans-serif;background:var(--bg-light);color:var(--text-light);transition:background .3s,color .3s}
-body.dark{background:var(--bg-dark);color:var(--text-dark)}
-.task-card{background:var(--card-bg-light);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:.75rem;padding:.75rem;box-shadow:0 4px 12px rgba(34,197,94,0.15);animation:fadeIn .4s ease-in;transition:background .3s,border .3s,transform .2s}
-body.dark .task-card{background:var(--card-bg-dark);border-color:#334155}
-.task-card:hover{transform:translateY(-2px)}
-.task-card.dragging{opacity:.5}
-.priority-high{border-left:4px solid #ef4444}
-.priority-medium{border-left:4px solid #f59e0b}
-.priority-low{border-left:4px solid #22c55e}
-.important{border:2px solid var(--star);box-shadow:0 0 8px rgba(250,204,21,0.6)}
-.calendar input[type="date"],input,select{background:transparent;color:inherit;border:1px solid var(--border);border-radius:.5rem;padding:.5rem}
-body.dark input,body.dark select{border-color:#475569}
-button{transition:all .3s ease}
-.btn-accent{background:linear-gradient(to right,var(--accent),#06b6d4);color:#fff}
-.btn-accent:hover{filter:brightness(1.1);transform:scale(1.03)}
-.star-btn{color:var(--star);font-size:1.2rem;transition:transform .2s}
-.star-btn:hover{transform:scale(1.2)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-light);
+  color: var(--text-light);
+  transition: background .3s, color .3s;
+}
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+/* Cards */
+.task-card {
+  background: var(--card-bg-light);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  transition: background .3s, transform .2s;
+}
+body.dark .task-card {background: var(--card-bg-dark);border-color:#334155;}
+.task-card:hover {transform: translateY(-2px);}
+.task-card.dragging {opacity:.5;}
+.priority-high {border-left:4px solid #ef4444;}
+.priority-medium {border-left:4px solid #f59e0b;}
+.priority-low {border-left:4px solid #22c55e;}
+.important {border:2px solid var(--star);box-shadow:0 0 8px rgba(250,204,21,0.6);}
+.star-btn {color: var(--star);font-size:1.2rem;transition:transform .2s;}
+.star-btn:hover {transform:scale(1.2);}
+input, select {
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: .5rem;
+}
+body.dark input,body.dark select {border-color:#475569;}
+.btn-accent {
+  background: linear-gradient(to right,var(--accent),#06b6d4);
+  color:#fff;
+  padding:.5rem 1rem;
+  border-radius:.5rem;
+  transition:transform .2s;
+}
+.btn-accent:hover {transform:scale(1.05);}
 </style>
 </head>
 <body class="min-h-screen flex flex-col items-center px-2">
@@ -45,7 +70,7 @@ button{transition:all .3s ease}
 <div id="loginSection" class="w-full max-w-sm p-6 mt-8 rounded-xl shadow-md bg-white/70 dark:bg-slate-800/70 backdrop-blur">
   <h1 class="text-2xl mb-4 text-center font-bold">Login</h1>
   <input id="usernameInput" type="text" placeholder="Digite seu usuário"
-         class="w-full p-2 mb-4 rounded border placeholder-gray-400">
+         class="w-full p-2 mb-4 rounded border">
   <button id="loginBtn" class="w-full btn-accent font-semibold py-2 rounded">Entrar</button>
 </div>
 
@@ -54,33 +79,36 @@ button{transition:all .3s ease}
   <header class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
     <h1 class="text-3xl font-bold">To-Do List</h1>
     <div class="flex gap-2">
-      <button id="toggleDarkMode" class="px-3 py-1 rounded btn-accent">Mudar Tema</button>
+      <button id="toggleDarkMode" class="btn-accent">Mudar Tema</button>
       <button id="logoutBtn" class="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-500">Sair</button>
     </div>
   </header>
 
+  <!-- FORM TAREFA -->
   <form id="taskForm" class="flex flex-col gap-3 mb-6 p-4 rounded-lg border backdrop-blur">
-    <input id="taskInput" type="text" placeholder="Nova tarefa" class="p-2 rounded border placeholder-gray-400">
+    <input id="taskInput" type="text" placeholder="Nova tarefa" class="p-2 rounded border">
     <select id="priorityInput" class="p-2 rounded border">
       <option value="low">Baixa</option>
       <option value="medium">Média</option>
       <option value="high">Alta</option>
     </select>
-    <div class="calendar">
-      <input id="dueDateInput" type="date">
-    </div>
+    <input id="dueDateInput" type="date" class="p-2 rounded border">
     <button class="btn-accent font-semibold py-2 rounded">Adicionar</button>
   </form>
 
-  <!-- Área de busca + filtro integrado -->
-  <div class="flex gap-2 mb-4">
-    <input id="searchInput" type="text" placeholder="Buscar tarefas" class="flex-1 p-2 rounded border placeholder-gray-400">
-    <select id="filterDropdown" class="p-2 rounded border">
+  <!-- BUSCA + FILTRO -->
+  <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
+    <input id="searchInput" type="text" placeholder="Buscar tarefas" class="p-2 rounded border flex-1">
+    <select id="filterSelect" class="p-2 rounded border">
       <option value="all">Todas</option>
       <option value="pending">Pendentes</option>
       <option value="completed">Concluídas</option>
-      <option value="important">Importantes</option>
     </select>
+  </div>
+
+  <!-- GRÁFICO DE PROGRESSO -->
+  <div class="mb-6">
+    <canvas id="progressChart" height="120"></canvas>
   </div>
 
   <ul id="taskList" class="flex flex-col gap-3"></ul>
@@ -99,131 +127,118 @@ const priorityInput=document.getElementById('priorityInput')
 const dueDateInput=document.getElementById('dueDateInput')
 const taskList=document.getElementById('taskList')
 const searchInput=document.getElementById('searchInput')
-const filterDropdown=document.getElementById('filterDropdown')
+const filterSelect=document.getElementById('filterSelect')
 
 let currentUser=null
 let tasks=[]
+let chart=null
 
 function saveTasks(){localStorage.setItem(`tasks_${currentUser}`,JSON.stringify(tasks))}
 function loadTasks(){tasks=JSON.parse(localStorage.getItem(`tasks_${currentUser}`)||'[]')}
 
 function renderTasks(){
- taskList.innerHTML=''
- const search=searchInput.value.toLowerCase()
- const filter=filterDropdown.value
- const sortedTasks=[...tasks].sort((a,b)=>b.important-a.important)
- sortedTasks.forEach((t,i)=>{
-  if(t.title.toLowerCase().includes(search) &&
-     (filter==='all' ||
-      (filter==='pending'&&!t.completed) ||
-      (filter==='completed'&&t.completed) ||
-      (filter==='important'&&t.important))){
-    const li=document.createElement('li')
-    li.draggable=true
-    li.dataset.index=i
-    li.className=`task-card ${t.priority==='high'?'priority-high':t.priority==='medium'?'priority-medium':'priority-low'} ${t.important?'important':''}`
-    li.innerHTML=`
-      <div class="flex justify-between items-center">
-        <div>
-          <input type="checkbox" class="mr-2" ${t.completed?'checked':''}>
-          <span class="${t.completed?'line-through text-gray-500':''}">${t.title}</span>
-          ${t.dueDate?`<small class="ml-2 text-green-400">[${t.dueDate}]</small>`:''}
+  taskList.innerHTML=''
+  const search=searchInput.value.toLowerCase()
+  const filter=filterSelect.value
+  const sorted=[...tasks].sort((a,b)=>b.important-a.important)
+  sorted.forEach((t,i)=>{
+    if(t.title.toLowerCase().includes(search)&&(filter==='all'||(filter==='pending'&&!t.completed)||(filter==='completed'&&t.completed))){
+      const li=document.createElement('li')
+      li.draggable=true
+      li.dataset.index=i
+      li.className=`task-card ${t.priority==='high'?'priority-high':t.priority==='medium'?'priority-medium':'priority-low'} ${t.important?'important':''}`
+      li.innerHTML=`
+        <div class="flex justify-between items-center">
+          <div>
+            <input type="checkbox" ${t.completed?'checked':''}>
+            <span class="${t.completed?'line-through text-gray-500':''}">${t.title}</span>
+            ${t.dueDate?`<small class="ml-2 text-green-400">[${t.dueDate}]</small>`:''}
+          </div>
+          <div class="flex gap-2">
+            <button class="toggle-important star-btn ${t.important?'':'opacity-50'}">⭐</button>
+            <button class="add-subtask text-green-500">＋</button>
+            <button class="delete-task text-red-500">✕</button>
+          </div>
         </div>
-        <div class="flex gap-2">
-          <button class="toggle-important star-btn ${t.important?'':'opacity-50'}">⭐</button>
-          <button class="add-subtask text-green-500">＋</button>
-          <button class="delete-task text-red-500">✕</button>
-        </div>
-      </div>
-      <ul class="subtasks mt-2 pl-6"></ul>`
-    const subtasksUl=li.querySelector('.subtasks')
-    t.subtasks.forEach((s)=>{
-      const sLi=document.createElement('li')
-      sLi.innerHTML=`<input type="checkbox" class="mr-2" ${s.done?'checked':''}>
-                     <span class="${s.done?'line-through text-gray-500':''}">${s.text}</span>`
-      subtasksUl.appendChild(sLi)
-      sLi.querySelector('input').addEventListener('change',()=>{
-        s.done=!s.done
-        saveTasks();renderTasks()
+        <ul class="subtasks mt-2 pl-6"></ul>`
+      const subtasksUl=li.querySelector('.subtasks')
+      t.subtasks.forEach(s=>{
+        const sLi=document.createElement('li')
+        sLi.innerHTML=`<input type="checkbox" ${s.done?'checked':''}> <span class="${s.done?'line-through text-gray-500':''}">${s.text}</span>`
+        subtasksUl.appendChild(sLi)
+        sLi.querySelector('input').addEventListener('change',()=>{
+          s.done=!s.done;saveTasks();renderTasks()
+        })
       })
-    })
-    li.querySelector('input[type="checkbox"]').addEventListener('change',()=>{
-      t.completed=!t.completed
-      saveTasks();renderTasks()
-    })
-    li.querySelector('.delete-task').addEventListener('click',()=>{
-      tasks.splice(tasks.indexOf(t),1)
-      saveTasks();renderTasks()
-    })
-    li.querySelector('.add-subtask').addEventListener('click',()=>{
-      const txt=prompt('Digite a subtarefa:')
-      if(txt){t.subtasks.push({text:txt,done:false});saveTasks();renderTasks()}
-    })
-    li.querySelector('.toggle-important').addEventListener('click',()=>{
-      t.important=!t.important
-      saveTasks();renderTasks()
-    })
-    taskList.appendChild(li)
-  }
- })
- enableDragDrop()
+      li.querySelector('input[type="checkbox"]').addEventListener('change',()=>{t.completed=!t.completed;saveTasks();renderTasks()})
+      li.querySelector('.delete-task').addEventListener('click',()=>{tasks.splice(tasks.indexOf(t),1);saveTasks();renderTasks()})
+      li.querySelector('.add-subtask').addEventListener('click',()=>{
+        const txt=prompt('Digite a subtarefa:')
+        if(txt){t.subtasks.push({text:txt,done:false});saveTasks();renderTasks()}
+      })
+      li.querySelector('.toggle-important').addEventListener('click',()=>{t.important=!t.important;saveTasks();renderTasks()})
+      taskList.appendChild(li)
+    }
+  })
+  enableDragDrop()
+  updateChart()
 }
 
 function enableDragDrop(){
- const items=document.querySelectorAll('#taskList .task-card')
- items.forEach(it=>{
-  it.addEventListener('dragstart',()=>it.classList.add('dragging'))
-  it.addEventListener('dragend',()=>{it.classList.remove('dragging');reorderTasks()})
- })
- taskList.addEventListener('dragover',e=>{
-  e.preventDefault()
-  const dragging=document.querySelector('.dragging')
-  const siblings=[...taskList.querySelectorAll('.task-card:not(.dragging)')]
-  const next=siblings.find(s=>e.clientY<=s.offsetTop+s.offsetHeight/2)
-  taskList.insertBefore(dragging,next)
- })
+  const items=document.querySelectorAll('#taskList .task-card')
+  items.forEach(it=>{
+    it.addEventListener('dragstart',()=>it.classList.add('dragging'))
+    it.addEventListener('dragend',()=>{it.classList.remove('dragging');reorderTasks()})
+  })
+  taskList.addEventListener('dragover',e=>{
+    e.preventDefault()
+    const dragging=document.querySelector('.dragging')
+    const siblings=[...taskList.querySelectorAll('.task-card:not(.dragging)')]
+    const next=siblings.find(s=>e.clientY<=s.offsetTop+s.offsetHeight/2)
+    taskList.insertBefore(dragging,next)
+  })
 }
-function reorderTasks(){
- tasks=[...taskList.querySelectorAll('.task-card')].map(it=>tasks[it.dataset.index])
- saveTasks();renderTasks()
+function reorderTasks(){tasks=[...taskList.querySelectorAll('.task-card')].map(it=>tasks[it.dataset.index]);saveTasks();renderTasks()}
+
+function updateChart(){
+  const completed=tasks.filter(t=>t.completed).length
+  const pending=tasks.length-completed
+  const ctx=document.getElementById('progressChart').getContext('2d')
+  if(chart)chart.destroy()
+  chart=new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['Concluídas','Pendentes'],
+      datasets:[{data:[completed,pending],backgroundColor:['#22c55e','#ef4444']}]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:true,labels:{color:document.body.classList.contains('dark')?'#e5e7eb':'#111827'}}}
+    }
+  })
 }
 
 taskForm.addEventListener('submit',e=>{
- e.preventDefault()
- const title=taskInput.value.trim()
- if(title){
-  tasks.push({title,completed:false,priority:priorityInput.value,dueDate:dueDateInput.value,subtasks:[],important:false})
-  saveTasks();renderTasks();taskForm.reset()
- }
+  e.preventDefault()
+  const title=taskInput.value.trim()
+  if(title){
+    tasks.push({title,completed:false,priority:priorityInput.value,dueDate:dueDateInput.value,subtasks:[],important:false})
+    saveTasks();renderTasks();taskForm.reset()
+  }
 })
-
 searchInput.addEventListener('input',renderTasks)
-filterDropdown.addEventListener('change',renderTasks)
-
-toggleDarkMode.addEventListener('click',()=>document.body.classList.toggle('dark'))
+filterSelect.addEventListener('change',renderTasks)
+toggleDarkMode.addEventListener('click',()=>{document.body.classList.toggle('dark');updateChart()})
 
 loginBtn.addEventListener('click',()=>{
- const u=usernameInput.value.trim()
- if(u){
-  currentUser=u
-  loginSection.classList.add('hidden')
-  appSection.classList.remove('hidden')
-  loadTasks();renderTasks()
- }
+  const u=usernameInput.value.trim()
+  if(u){currentUser=u;loginSection.classList.add('hidden');appSection.classList.remove('hidden');loadTasks();renderTasks()}
 })
-logoutBtn.addEventListener('click',()=>{
- currentUser=null;tasks=[]
- appSection.classList.add('hidden')
- loginSection.classList.remove('hidden')
-})
+logoutBtn.addEventListener('click',()=>{currentUser=null;tasks=[];appSection.classList.add('hidden');loginSection.classList.remove('hidden')})
 
 function checkDueDates(){
- const today=new Date().toISOString().split('T')[0]
- tasks.forEach(t=>{
-  if(t.dueDate===today&&!t.completed){
-   new Notification('Tarefa pendente',{body:t.title})
-  }
- })
+  const today=new Date().toISOString().split('T')[0]
+  tasks.forEach(t=>{if(t.dueDate===today&&!t.completed){new Notification('Tarefa pendente',{body:t.title})}})
 }
 if('Notification'in window&&Notification.permission!=='granted'){Notification.requestPermission()}
 setInterval(checkDueDates,60000)
