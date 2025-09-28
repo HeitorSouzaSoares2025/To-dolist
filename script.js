@@ -1,4 +1,4 @@
-// Seletores
+// ----------------- Seletores -----------------
 const taskForm = document.getElementById('taskForm');
 const taskList = document.getElementById('taskList');
 const themeToggle = document.getElementById('themeToggle');
@@ -10,6 +10,12 @@ const trophyModal = document.getElementById('trophyModal');
 const trophyMessage = document.getElementById('trophyMessage');
 const closeTrophy = document.getElementById('closeTrophy');
 
+const taskInput = document.getElementById('taskInput');
+const priorityInput = document.getElementById('priorityInput');
+const dueDateInput = document.getElementById('dueDateInput');
+const categorySelect = document.getElementById('categorySelect');
+const customCategoryInput = document.getElementById('customCategoryInput');
+
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let chart;
 
@@ -18,29 +24,47 @@ themeToggle.addEventListener('click', () => {
   document.body.classList.toggle('dark');
 });
 
+// ----------------- Mostrar campo de categoria personalizada -----------------
+categorySelect.addEventListener('change', () => {
+  if (categorySelect.value === 'custom') {
+    customCategoryInput.classList.remove('hidden');
+  } else {
+    customCategoryInput.classList.add('hidden');
+    customCategoryInput.value = '';
+  }
+});
+
 // ----------------- Adicionar Tarefa -----------------
 taskForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  const title = document.getElementById('taskTitle').value.trim();
-  const desc = document.getElementById('taskDesc').value.trim();
-  const priority = document.getElementById('taskPriority').value;
-  const due = document.getElementById('taskDue').value;
+
+  const title = taskInput.value.trim();
+  const priority = priorityInput.value;
+  const due = dueDateInput.value;
+  const category = categorySelect.value === 'custom' && customCategoryInput.value.trim()
+    ? customCategoryInput.value.trim()
+    : categorySelect.value;
+
+  if (!title) return;
 
   const newTask = {
     id: Date.now(),
     title,
-    desc,
     priority,
     due,
+    category,
     completed: false,
     important: false
   };
 
   tasks.push(newTask);
   localStorage.setItem('tasks', JSON.stringify(tasks));
+
   renderTasks();
   updateChart();
+  checkBadges();
   taskForm.reset();
+  customCategoryInput.classList.add('hidden');
 });
 
 // ----------------- Renderização -----------------
@@ -51,12 +75,13 @@ function renderTasks() {
   taskList.innerHTML = '';
 
   tasks
-    .filter(task => 
-      (task.title.toLowerCase().includes(search) || task.desc.toLowerCase().includes(search)) &&
+    .filter(task =>
+      (task.title.toLowerCase().includes(search)) &&
       (filter === 'all' ||
        (filter === 'pending' && !task.completed) ||
        (filter === 'completed' && task.completed) ||
-       (filter === 'important' && task.important))
+       (filter === 'important' && task.important) ||
+       (filter === task.category))
     )
     .forEach(task => {
       const card = document.createElement('div');
@@ -65,7 +90,7 @@ function renderTasks() {
       card.innerHTML = `
         <div>
           <h3>${task.title}</h3>
-          <p>${task.desc || ''}</p>
+          <small>Categoria: ${task.category}</small><br>
           <small>Prazo: ${task.due || '—'}</small>
         </div>
         <div>
