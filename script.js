@@ -113,6 +113,8 @@ function renderTasks() {
       const card = document.createElement('div');
       card.className = `task-card priority-${task.priority} ${task.important ? 'important' : ''}`;
 
+      card.classList.toggle('completed', task.completed);
+      
       card.innerHTML = `
         <div>
           <h3>${task.title}</h3>
