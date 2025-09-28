@@ -119,9 +119,15 @@ function renderTasks() {
           <small>Categoria: ${task.category}</small><br>
           <small>Prazo: ${task.due || '—'}</small>
         </div>
-        <div>
-          <button class="star-btn" onclick="toggleImportant(${task.id})">⭐</button>
-          <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${task.id})">
+        <div class="flex gap-2">
+          <button class="star-btn" onclick="toggleImportant(${task.id})">
+            ${task.important ? '⭐' : '☆'}
+          </button>
+          <button class="btn-complete" onclick="toggleComplete(${task.id})">
+            ${task.completed ? '✅' : '⬜'}
+          </button>
+          <button class="btn-edit" onclick="editTask(${task.id})">✏️</button>
+          <button class="btn-delete" onclick="deleteTask(${task.id})">🗑️</button>
         </div>
       `;
 
@@ -146,6 +152,29 @@ function toggleImportant(id) {
   if (task) task.important = !task.important;
   saveTasks();
   renderTasks();
+}
+
+// Editar
+function editTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  const newTitle = prompt('Editar título da tarefa:', task.title);
+  if (newTitle === null) return; // cancelou
+  task.title = newTitle.trim() || task.title;
+
+  saveTasks();
+  renderTasks();
+}
+
+// Remover
+function deleteTask(id) {
+  if (!confirm('Tem certeza que deseja remover esta tarefa?')) return;
+  tasks = tasks.filter(t => t.id !== id);
+  saveTasks();
+  renderTasks();
+  updateChart();
+  checkBadges();
 }
 
 searchInput.addEventListener('input', renderTasks);
