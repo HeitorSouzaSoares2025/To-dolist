@@ -1,57 +1,94 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>TaskMaster</title>
 
-  <link rel="manifest" href="manifest.json">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body class="light">
+  <!-- PWA / Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
 
-  <header class="header">
-    <h1>TaskMaster</h1>
-    <div class="actions">
-      <button id="themeToggle">🌞/🌙</button>
-      <button id="logoutBtn">Sair</button>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="appHeader">
+    <div class="left">
+      <h1 id="appTitle">TaskMaster</h1>
+      <div class="small-note" id="userLabel"></div>
+    </div>
+
+    <div class="controls">
+      <button id="compactToggle" class="btn-accent">📐 Compacto</button>
+      <button id="themeToggle" class="btn-accent">🌙 Tema</button>
+      <button id="logoutBtn" class="btn-accent">Sair</button>
     </div>
   </header>
 
-  <main class="container">
-    <div class="top-bar">
-      <input type="text" id="searchInput" placeholder="Buscar tarefas...">
-      <select id="filterSelect">
-        <option value="all">Todas</option>
-        <option value="low">Baixa</option>
-        <option value="medium">Média</option>
-        <option value="high">Alta</option>
-        <option value="work">Trabalho</option>
-        <option value="personal">Pessoal</option>
-      </select>
+  <!-- Search / Filters -->
+  <section class="search-section">
+    <input type="text" id="searchInput" placeholder="Buscar tarefas...">
+    <select id="filterSelect">
+      <option value="all">Todas</option>
+      <option value="pending">Pendentes</option>
+      <option value="completed">Concluídas</option>
+      <option value="important">Importantes</option>
+      <option value="trabalho">Trabalho</option>
+      <option value="pessoal">Pessoal</option>
+      <option value="estudo">Estudo</option>
+    </select>
+  </section>
+
+  <!-- Form -->
+  <form id="taskForm" class="task-form">
+    <input id="taskInput" type="text" placeholder="Nova tarefa" autocomplete="off">
+    <select id="priorityInput">
+      <option value="low">Baixa</option>
+      <option value="medium">Média</option>
+      <option value="high">Alta</option>
+    </select>
+    <input id="dueDateInput" type="date">
+    <select id="categorySelect">
+      <option value="trabalho">Trabalho</option>
+      <option value="pessoal">Pessoal</option>
+      <option value="estudo">Estudo</option>
+      <option value="custom">Outra...</option>
+    </select>
+    <input id="customCategoryInput" type="text" placeholder="Digite a categoria" class="hidden">
+    <button class="btn-accent">Adicionar</button>
+  </form>
+
+  <!-- Stats & Chart -->
+  <section class="stats-panel">
+    <canvas id="tasksChart"></canvas>
+  </section>
+
+  <!-- Tasks -->
+  <section id="taskList" class="task-list" aria-live="polite"></section>
+
+  <!-- Badges / Progress -->
+  <section id="badgeSection" class="badge-section">
+    <h2>🏆 Minhas Conquistas</h2>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+      <span id="progressText">0% concluído</span>
     </div>
+    <div id="badgeGrid" class="badge-grid"></div>
+  </section>
 
-    <form id="taskForm" class="task-form">
-      <input type="text" id="taskInput" placeholder="Nova tarefa" required>
-      <select id="prioritySelect">
-        <option value="low">Baixa</option>
-        <option value="medium">Média</option>
-        <option value="high">Alta</option>
-      </select>
-      <input type="date" id="dateInput">
-      <select id="categorySelect">
-        <option value="work">Trabalho</option>
-        <option value="personal">Pessoal</option>
-      </select>
-      <button type="submit" class="btn-accent">Adicionar</button>
-    </form>
+  <!-- Trophy modal -->
+  <div id="trophyModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <h2>🏅 Nova Conquista!</h2>
+      <p id="trophyMessage"></p>
+      <button id="closeTrophy" class="btn-accent">Fechar</button>
+    </div>
+  </div>
 
-    <ul id="taskList" class="task-list"></ul>
-
-    <canvas id="chartCanvas" width="400" height="200"></canvas>
-  </main>
-
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
