@@ -1,216 +1,147 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Task Manager Responsivo</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://kit.fontawesome.com/a2e0f6a53d.js" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do List Neon</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --neon-blue: #00d4ff;
+  --neon-green: #00ff6a;
+  --bg-dark: #05080c;
+  --bg-panel: rgba(10,14,18,0.85);
+}
+body {
+  background: var(--bg-dark);
+  font-family: 'Segoe UI', sans-serif;
+}
+.glow-title {
+  text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-green);
+}
+.panel {
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 15px rgba(0,212,255,0.4), 0 0 30px rgba(0,255,106,0.2);
+}
+.neon-btn {
+  transition: all 0.25s ease;
+}
+.neon-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 10px var(--neon-blue),0 0 18px var(--neon-green);
+}
+.task-item {
+  transition: all 0.3s ease;
+}
+.task-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px rgba(0,212,255,0.3);
+}
+.fade-in {
+  animation: fade 0.4s ease forwards;
+}
+@keyframes fade {
+  from {opacity:0; transform: translateY(6px);}
+  to {opacity:1; transform: translateY(0);}
+}
+</style>
 </head>
+<body class="text-gray-100 flex items-center justify-center min-h-screen p-4">
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+<div class="w-full max-w-xl rounded-2xl panel bg-[var(--bg-panel)] p-6 sm:p-8 space-y-6">
+  <h1 class="text-4xl font-bold text-center glow-title">To-Do List</h1>
 
-  <!-- Container Principal -->
-  <div class="min-h-screen flex flex-col items-center p-4">
-
-    <!-- Título e Controles -->
-    <div class="w-full max-w-3xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-      <h1 class="text-3xl font-bold text-center sm:text-left">📋 Gerenciador de Tarefas</h1>
-      <div class="flex justify-center gap-3">
-        <button id="toggle-dark" class="px-4 py-2 rounded bg-gray-800 text-white dark:bg-yellow-500 dark:text-black hover:opacity-90 transition">
-          Dark/Light
-        </button>
-        <select id="filter" class="px-3 py-2 rounded border dark:bg-gray-800">
-          <option value="all">Todas</option>
-          <option value="pending">Pendentes</option>
-          <option value="completed">Concluídas</option>
-        </select>
-        <select id="sort" class="px-3 py-2 rounded border dark:bg-gray-800">
-          <option value="date">Ordenar por Data</option>
-          <option value="priority">Ordenar por Prioridade</option>
-          <option value="status">Ordenar por Status</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Formulário de Nova Tarefa -->
-    <form id="task-form" class="w-full max-w-3xl bg-white dark:bg-gray-800 rounded shadow-md p-4 flex flex-col sm:flex-row gap-3">
-      <input id="task-input" type="text" placeholder="Nova tarefa..." class="flex-1 px-3 py-2 rounded border dark:bg-gray-700" required>
-      <select id="priority" class="px-3 py-2 rounded border dark:bg-gray-700">
-        <option value="low">Baixa</option>
-        <option value="medium">Média</option>
-        <option value="high">Alta</option>
-      </select>
-      <input id="due-date" type="date" class="px-3 py-2 rounded border dark:bg-gray-700">
-      <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-        Adicionar
-      </button>
-    </form>
-
-    <!-- Barra de Pesquisa -->
-    <div class="w-full max-w-3xl mt-4">
-      <input id="search" type="text" placeholder="🔎 Pesquisar tarefas..." class="w-full px-3 py-2 rounded border dark:bg-gray-700">
-    </div>
-
-    <!-- Lista de Tarefas -->
-    <ul id="task-list" class="w-full max-w-3xl mt-6 flex flex-col gap-3"></ul>
-
+  <div class="flex flex-col sm:flex-row gap-3">
+    <input id="taskInput" type="text" placeholder="Digite uma tarefa..."
+      class="flex-1 px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 focus:ring-2 focus:ring-[var(--neon-blue)] text-white outline-none">
+    <button id="addTaskBtn"
+      class="neon-btn px-5 py-3 rounded-lg font-semibold bg-[var(--neon-blue)] text-black hover:bg-[var(--neon-green)]">
+      Adicionar
+    </button>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" class="fixed bottom-5 right-5 bg-green-600 text-white px-4 py-2 rounded shadow-md hidden"></div>
-
-  <!-- Modal -->
-  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-white dark:bg-gray-800 rounded p-6 w-11/12 sm:w-96">
-      <p class="text-lg font-semibold mb-4">Deseja realmente excluir esta tarefa?</p>
-      <div class="flex justify-end gap-3">
-        <button id="cancel-delete" class="px-4 py-2 bg-gray-400 rounded hover:bg-gray-500">Cancelar</button>
-        <button id="confirm-delete" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Excluir</button>
-      </div>
+  <div class="flex flex-col sm:flex-row justify-between gap-3 items-center">
+    <div class="flex gap-2">
+      <button class="filter-btn px-4 py-2 rounded-lg bg-[var(--neon-blue)] text-black font-medium" data-filter="all">Todas</button>
+      <button class="filter-btn px-4 py-2 rounded-lg bg-gray-800 text-white font-medium" data-filter="pending">Pendentes</button>
+      <button class="filter-btn px-4 py-2 rounded-lg bg-gray-800 text-white font-medium" data-filter="completed">Concluídas</button>
     </div>
+    <button id="darkToggle"
+      class="neon-btn px-4 py-2 rounded-lg font-medium bg-[var(--neon-green)] text-black">🌙</button>
   </div>
 
-  <script>
-    // ----------------------------
-    // Estado e Elementos
-    // ----------------------------
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    let darkMode = localStorage.getItem("darkMode") === "true";
-    let taskToDelete = null;
+  <ul id="taskList" class="space-y-3"></ul>
+</div>
 
-    const taskForm = document.getElementById("task-form");
-    const taskInput = document.getElementById("task-input");
-    const taskList = document.getElementById("task-list");
-    const priorityInput = document.getElementById("priority");
-    const dueDateInput = document.getElementById("due-date");
-    const filterSelect = document.getElementById("filter");
-    const sortSelect = document.getElementById("sort");
-    const searchInput = document.getElementById("search");
-    const toggleDarkBtn = document.getElementById("toggle-dark");
-    const toast = document.getElementById("toast");
-    const modal = document.getElementById("modal");
-    const cancelDeleteBtn = document.getElementById("cancel-delete");
-    const confirmDeleteBtn = document.getElementById("confirm-delete");
+<script>
+const taskInput = document.getElementById('taskInput')
+const addTaskBtn = document.getElementById('addTaskBtn')
+const taskList = document.getElementById('taskList')
+const filterBtns = document.querySelectorAll('.filter-btn')
+const darkToggle = document.getElementById('darkToggle')
 
-    // ----------------------------
-    // Funções Auxiliares
-    // ----------------------------
-    function saveTasks() {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    }
+let tasks = []
+let currentFilter = 'all'
 
-    function showToast(msg, color = "bg-green-600") {
-      toast.textContent = msg;
-      toast.className = `fixed bottom-5 right-5 ${color} text-white px-4 py-2 rounded shadow-md animate-bounce`;
-      toast.style.display = "block";
-      setTimeout(() => toast.style.display = "none", 3000);
-    }
+function renderTasks() {
+  taskList.innerHTML = ''
+  tasks.forEach((task, index) => {
+    if (currentFilter === 'pending' && task.completed) return
+    if (currentFilter === 'completed' && !task.completed) return
+    const li = document.createElement('li')
+    li.className = `fade-in task-item flex justify-between items-center px-4 py-3 rounded-lg border ${task.completed
+      ? 'bg-[var(--neon-green)]/20 border-[var(--neon-green)] line-through text-[var(--neon-green)]'
+      : 'bg-gray-900 border-gray-700 text-white'}`
+    li.innerHTML = `
+      <span>${task.text}</span>
+      <div class="flex gap-4 text-xl">
+        <button onclick="toggleComplete(${index})" class="hover:scale-110 text-[var(--neon-green)]">✓</button>
+        <button onclick="deleteTask(${index})" class="hover:scale-110 text-red-500">🗑️</button>
+      </div>
+    `
+    taskList.appendChild(li)
+  })
+}
 
-    function toggleDarkMode() {
-      darkMode = !darkMode;
-      document.body.classList.toggle("dark", darkMode);
-      localStorage.setItem("darkMode", darkMode);
-    }
+function addTask() {
+  const text = taskInput.value.trim()
+  if (!text) return
+  tasks.push({ text, completed: false })
+  taskInput.value = ''
+  renderTasks()
+}
 
-    function renderTasks() {
-      taskList.innerHTML = "";
+function toggleComplete(index) {
+  tasks[index].completed = !tasks[index].completed
+  renderTasks()
+}
 
-      const filter = filterSelect.value;
-      const sort = sortSelect.value;
-      const search = searchInput.value.toLowerCase();
+function deleteTask(index) {
+  tasks.splice(index, 1)
+  renderTasks()
+}
 
-      let filteredTasks = tasks.filter(t => {
-        if (filter === "completed" && !t.completed) return false;
-        if (filter === "pending" && t.completed) return false;
-        if (search && !t.text.toLowerCase().includes(search)) return false;
-        return true;
-      });
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => {
+      b.classList.remove('bg-[var(--neon-blue)]','text-black')
+      b.classList.add('bg-gray-800','text-white')
+    })
+    btn.classList.add('bg-[var(--neon-blue)]','text-black')
+    btn.classList.remove('bg-gray-800','text-white')
+    currentFilter = btn.dataset.filter
+    renderTasks()
+  })
+})
 
-      if (sort === "priority") {
-        const order = { high: 1, medium: 2, low: 3 };
-        filteredTasks.sort((a, b) => order[a.priority] - order[b.priority]);
-      } else if (sort === "status") {
-        filteredTasks.sort((a, b) => a.completed - b.completed);
-      } else if (sort === "date") {
-        filteredTasks.sort((a, b) => new Date(a.dueDate || 0) - new Date(b.dueDate || 0));
-      }
+addTaskBtn.addEventListener('click', addTask)
 
-      filteredTasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.className = `flex flex-col sm:flex-row sm:items-center justify-between bg-white dark:bg-gray-800 rounded shadow p-3 gap-2 transition transform hover:scale-[1.01]`;
-        li.innerHTML = `
-          <div class="flex items-center gap-3 flex-1">
-            <input type="checkbox" ${task.completed ? "checked" : ""} class="toggle-complete accent-blue-600">
-            <div class="flex flex-col">
-              <span class="font-medium ${task.completed ? "line-through text-gray-500" : ""}">
-                ${task.text}
-              </span>
-              <span class="text-sm text-gray-500">
-                Prioridade: <strong>${task.priority}</strong> ${task.dueDate ? "| Vencimento: " + task.dueDate : ""}
-              </span>
-            </div>
-          </div>
-          <button class="delete-task text-red-600 hover:text-red-800">
-            <i class="fas fa-trash-alt"></i>
-          </button>
-        `;
+darkToggle.addEventListener('click', () => {
+  document.body.classList.toggle('bg-gray-950')
+})
 
-        li.querySelector(".toggle-complete").addEventListener("change", () => {
-          task.completed = !task.completed;
-          saveTasks();
-          renderTasks();
-        });
+renderTasks()
+</script>
 
-        li.querySelector(".delete-task").addEventListener("click", () => {
-          taskToDelete = index;
-          modal.classList.remove("hidden");
-          modal.classList.add("flex");
-        });
-
-        taskList.appendChild(li);
-      });
-    }
-
-    // ----------------------------
-    // Eventos
-    // ----------------------------
-    taskForm.addEventListener("submit", e => {
-      e.preventDefault();
-      tasks.push({
-        text: taskInput.value,
-        priority: priorityInput.value,
-        dueDate: dueDateInput.value,
-        completed: false
-      });
-      saveTasks();
-      renderTasks();
-      showToast("Tarefa adicionada!");
-      taskForm.reset();
-    });
-
-    filterSelect.addEventListener("change", renderTasks);
-    sortSelect.addEventListener("change", renderTasks);
-    searchInput.addEventListener("input", renderTasks);
-    toggleDarkBtn.addEventListener("click", toggleDarkMode);
-
-    cancelDeleteBtn.addEventListener("click", () => {
-      modal.classList.add("hidden");
-    });
-
-    confirmDeleteBtn.addEventListener("click", () => {
-      tasks.splice(taskToDelete, 1);
-      saveTasks();
-      renderTasks();
-      showToast("Tarefa excluída!", "bg-red-600");
-      modal.classList.add("hidden");
-    });
-
-    // ----------------------------
-    // Inicialização
-    // ----------------------------
-    if (darkMode) document.body.classList.add("dark");
-    renderTasks();
-  </script>
 </body>
 </html>
