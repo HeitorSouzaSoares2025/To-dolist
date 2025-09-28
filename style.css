@@ -6,8 +6,8 @@
   --text-light: #111827;
   --bg-dark: #0f172a;
   --text-dark: #e5e7eb;
-  --card-bg-light: rgba(255, 255, 255, 0.7);
-  --card-bg-dark: rgba(30, 41, 59, 0.7);
+  --card-bg-light: rgba(255, 255, 255, 0.8);
+  --card-bg-dark: rgba(30, 41, 59, 0.8);
   --star: #facc15;
 }
 
@@ -26,6 +26,7 @@ body.dark {
 
 h1, h2 { margin: 0; }
 
+/* -------- HEADER -------- */
 .appHeader {
   display: flex;
   justify-content: space-between;
@@ -33,33 +34,42 @@ h1, h2 { margin: 0; }
   background: var(--card-bg-light);
   backdrop-filter: blur(10px);
   align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 body.dark .appHeader {
   background: var(--card-bg-dark);
 }
 
 #appTitle {
-  font-size: 2rem;
+  font-size: 2.4rem;
   font-weight: 800;
+  background: linear-gradient(to right, var(--accent), #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
 }
 
 .appSection button {
   margin-left: 0.5rem;
 }
 
+/* -------- SEARCH & FILTER -------- */
 .search-section {
   display: flex;
   gap: 0.5rem;
   padding: 1rem 2rem;
 }
 
+/* -------- FORM -------- */
 #taskForm {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   padding: 1rem 2rem;
   background: var(--card-bg-light);
   backdrop-filter: blur(8px);
   border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 body.dark #taskForm {
   background: var(--card-bg-dark);
@@ -69,10 +79,12 @@ input, select {
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   padding: 0.5rem;
+  min-width: 150px;
 }
-body.dark input, body.dark select {
+body.dark input, 
+body.dark select {
   background: #1e293b;
-  color: #e5e7eb;
+  color: var(--text-dark);
   border-color: #475569;
 }
 
@@ -82,11 +94,13 @@ body.dark input, body.dark select {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
+  transition: transform 0.2s ease-in-out;
 }
 .btn-accent:hover {
   transform: scale(1.05);
 }
 
+/* -------- TASK LIST -------- */
 .task-list {
   padding: 1rem 2rem;
   display: grid;
@@ -95,21 +109,26 @@ body.dark input, body.dark select {
 
 .task-card {
   background: var(--card-bg-light);
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border-radius: 0.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.2s;
+}
+.task-card:hover {
+  transform: translateY(-2px);
 }
 body.dark .task-card {
   background: var(--card-bg-dark);
 }
 
+/* Prioridades */
 .priority-high { border-left: 4px solid #ef4444; }
 .priority-medium { border-left: 4px solid #f59e0b; }
 .priority-low { border-left: 4px solid #22c55e; }
 
+/* Destaque tarefas importantes */
 .important {
   border: 2px solid var(--star);
   box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
@@ -119,13 +138,24 @@ body.dark .task-card {
   color: var(--star);
   font-size: 1.2rem;
   cursor: pointer;
+  background: transparent;
+  border: none;
 }
 
+/* -------- CHART -------- */
 .stats-panel {
-  max-width: 600px;
+  max-width: 450px;
   margin: 1rem auto;
+  padding: 1rem;
+  background: var(--card-bg-light);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(6px);
+}
+body.dark .stats-panel {
+  background: var(--card-bg-dark);
 }
 
+/* -------- BADGES -------- */
 #badgeSection {
   padding: 1rem 2rem;
 }
@@ -144,6 +174,7 @@ body.dark .badge {
   background: var(--card-bg-dark);
 }
 
+/* -------- MODAL -------- */
 #trophyModal {
   display: none;
   position: fixed;
@@ -157,6 +188,8 @@ body.dark .badge {
   background: var(--card-bg-light);
   padding: 1.5rem;
   border-radius: 1rem;
+  max-width: 300px;
+  text-align: center;
 }
 body.dark #trophyModal .modal-content {
   background: var(--card-bg-dark);
