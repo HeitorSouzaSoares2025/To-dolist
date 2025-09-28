@@ -9,7 +9,11 @@
   --text-dark: #e5e7eb;
 }
 
-/* Reset */
+/* Reset + base */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -19,8 +23,9 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  transition: background 0.3s, color 0.3s;
+  transition: background 0.3s ease, color 0.3s ease;
 }
+
 body.dark {
   background: var(--bg-dark);
   color: var(--text-dark);
@@ -31,11 +36,18 @@ body.dark {
   background: var(--card-light);
   padding: 2rem;
   border-radius: 1rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
   width: 100%;
   max-width: 350px;
   text-align: center;
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
+
+.login-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
 body.dark .login-container {
   background: var(--card-dark);
 }
@@ -53,9 +65,10 @@ body.dark .login-container {
 .subtitle {
   font-size: 1rem;
   margin-bottom: 1.5rem;
+  opacity: 0.85;
 }
 
-/* Formulário */
+/* Inputs e select */
 .login-form input,
 .login-form select {
   width: 100%;
@@ -64,7 +77,9 @@ body.dark .login-container {
   border-radius: 0.5rem;
   border: 1px solid #d1d5db;
   font-size: 1rem;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
 }
+
 body.dark .login-form input,
 body.dark .login-form select {
   background: #1e293b;
@@ -76,7 +91,7 @@ body.dark .login-form select {
 .login-form select:focus {
   border-color: var(--accent);
   outline: none;
-  box-shadow: 0 0 5px var(--accent);
+  box-shadow: 0 0 6px var(--accent);
 }
 
 /* Botão */
@@ -90,9 +105,14 @@ body.dark .login-form select {
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 .btn-accent:hover {
   transform: scale(1.05);
   box-shadow: 0 0 8px rgba(34,197,94,0.6), 0 0 12px rgba(6,182,212,0.5);
+}
+
+.btn-accent:active {
+  transform: scale(0.98);
 }
