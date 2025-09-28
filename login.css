@@ -1,0 +1,98 @@
+:root {
+  --accent: #22c55e;
+  --accent-dark: #16a34a;
+  --bg-light: #f1f5f9;
+  --bg-dark: #0f172a;
+  --card-light: #ffffff;
+  --card-dark: #1e293b;
+  --text-light: #111827;
+  --text-dark: #e5e7eb;
+}
+
+/* Reset */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-light);
+  color: var(--text-light);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+body.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* Container */
+.login-container {
+  background: var(--card-light);
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 350px;
+  text-align: center;
+}
+body.dark .login-container {
+  background: var(--card-dark);
+}
+
+/* Título */
+.app-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(to right, var(--accent), #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Formulário */
+.login-form input,
+.login-form select {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+}
+body.dark .login-form input,
+body.dark .login-form select {
+  background: #1e293b;
+  border-color: #475569;
+  color: var(--text-dark);
+}
+
+.login-form input:focus,
+.login-form select:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 5px var(--accent);
+}
+
+/* Botão */
+.btn-accent {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(to right, var(--accent), #06b6d4);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.btn-accent:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 8px rgba(34,197,94,0.6), 0 0 12px rgba(6,182,212,0.5);
+}
