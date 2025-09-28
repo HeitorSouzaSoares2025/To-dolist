@@ -1,381 +1,92 @@
-:root {
-  --accent: #22c55e;
-  --accent-dark: #16a34a;
-  --border: #d1d5db;
-  --bg-light: #ffffff;
-  --text-light: #111827;
-  --bg-dark: #0f172a;
-  --text-dark: #e5e7eb;
-  --card-bg-light: rgba(255, 255, 255, 0.8);
-  --card-bg-dark: rgba(30, 41, 59, 0.8);
-  --star: #facc15;
+:root{
+  --accent:#22c55e; --accent2:#06b6d4; --bg:#ffffff; --bg-dark:#0f172a; --text:#111827; --text-dark:#e5e7eb;
+  --card: rgba(255,255,255,0.85); --card-dark: rgba(30,41,59,0.8); --star:#facc15;
 }
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Arial;margin:0;background:var(--bg);color:var(--text);transition:background .25s,color .25s}
+body.dark{background:var(--bg-dark);color:var(--text-dark)}
 
-/* Reset */
-body {
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  background: var(--bg-light);
-  color: var(--text-light);
-  transition: background 0.3s, color 0.3s;
-}
-body.dark {
-  background: var(--bg-dark);
-  color: var(--text-dark);
-}
+.appHeader{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;background:var(--card);backdrop-filter:blur(6px)}
+body.dark .appHeader{background:var(--card-dark)}
+#appTitle{font-weight:800;font-size:1.6rem;margin:0}
+.small-note{font-size:.85rem;color:rgba(0,0,0,.6)}
+body.dark .small-note{color:rgba(255,255,255,.7)}
 
-h1, h2 { margin: 0; }
+.controls button{margin-left:.5rem}
+.btn-accent{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;padding:.5rem .75rem;border-radius:.5rem;border:0;cursor:pointer}
 
-/* -------- HEADER -------- */
-.appHeader {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 2rem;
-  background: var(--card-bg-light);
-  backdrop-filter: blur(10px);
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-body.dark .appHeader {
-  background: var(--card-bg-dark);
-}
+/* Search */
+.search-section{display:flex;gap:.5rem;padding:1rem 1.25rem}
+.search-section input,.search-section select,
+.task-form input,.task-form select{padding:.5rem;border-radius:.5rem;border:1px solid #d1d5db;background:transparent}
 
-#appTitle {
-  font-size: 2.8rem; /* maior */
-  font-weight: 800;
-  background: linear-gradient(to right, var(--accent), #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 1.5px;
-  text-shadow: 0 0 6px rgba(34, 197, 94, 0.6),
-               0 0 12px rgba(6, 182, 212, 0.5);
-}
+/* Form */
+.task-form{display:flex;flex-wrap:wrap;padding:0.75rem 1.25rem;gap:.5rem;background:var(--card)}
+body.dark .task-form{background:var(--card-dark)}
+.hidden{display:none}
 
-.appSection button {
-  margin-left: 0.5rem;
-}
+/* Stats */
+.stats-panel{max-width:420px;margin:1rem auto;padding:0.5rem;background:var(--card);border-radius:.75rem}
+body.dark .stats-panel{background:var(--card-dark)}
 
-/* -------- SEARCH & FILTER -------- */
-.search-section {
-  display: flex;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
-}
+/* Task list */
+.task-list{padding:1rem 1.25rem;display:grid;gap:.6rem}
+.task-card{display:flex;justify-content:space-between;align-items:center;padding:.7rem 1rem;border-radius:.75rem;background:var(--card);transition:transform .18s ease,box-shadow .18s;border:1px solid rgba(0,0,0,0.04)}
+body.dark .task-card{background:var(--card-dark);border-color:rgba(255,255,255,0.03)}
+.task-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(2,6,23,0.06)}
+.task-card .left{max-width:66%}
+.task-card h3{margin:0;font-size:1rem}
+.task-card small{display:block;color:rgba(0,0,0,.5);font-size:.8rem}
+body.dark .task-card small{color:rgba(255,255,255,.65)}
 
-/* -------- FORM -------- */
-#taskForm {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
-  background: var(--card-bg-light);
-  backdrop-filter: blur(8px);
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-body.dark #taskForm {
-  background: rgba(36, 52, 80, 0.9); /* destaque melhor */
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
+.task-card.completed h3{text-decoration:line-through;opacity:.6}
+.priority-high{border-left:4px solid #ef4444}
+.priority-medium{border-left:4px solid #f59e0b}
+.priority-low{border-left:4px solid #22c55e}
 
-input, select {
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  min-width: 150px;
-}
-body.dark input, 
-body.dark select {
-  background: rgba(15,23,42,0.85);
-  color: var(--text-dark);
-  border: 1px solid rgba(255,255,255,0.2);
-}
+/* buttons area */
+.task-card .actions{display:flex;gap:.5rem;align-items:center}
 
-body.dark input:focus,
-body.dark select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 4px var(--accent);
-}
+/* Buttons styling tweaks */
+.task-card button{background:transparent;border:0;cursor:pointer;font-size:1.2rem;padding:.2rem;transition:transform .12s}
+.task-card button:hover{transform:scale(1.2)}
 
-.btn-accent {
-  background: linear-gradient(to right, var(--accent), #06b6d4);
-  color: #fff;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-.btn-accent:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 8px rgba(34,197,94,0.6),
-              0 0 12px rgba(6,182,212,0.5);
-}
+/* Compact mode */
+body.compact .task-card{padding:.45rem .6rem}
+body.compact .task-card h3{font-size:.95rem}
+body.compact .task-form input{min-width:120px}
 
-/* -------- TASK LIST -------- */
-.task-list {
-  padding: 1rem 2rem;
-  display: grid;
-  gap: 0.75rem;
-}
+/* Subtasks */
+.subtasks{margin-top:.5rem;padding-left:1rem}
+.subtask{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;font-size:.95rem}
+.subtask .subtext{flex:1}
+.subtask.completed .subtext{text-decoration:line-through;color:rgba(0,0,0,.5)}
+body.dark .subtask.completed .subtext{color:rgba(255,255,255,.6)}
 
-.task-card {
-  background: var(--card-bg-light);
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background 0.3s, transform 0.2s;
-}
-.task-card:hover {
-  transform: translateY(-2px);
-}
-body.dark .task-card {
-  background: var(--card-bg-dark);
-}
+/* Badges */
+.badge-section{padding:1rem 1.25rem}
+.progress-container{position:relative;background:rgba(0,0,0,.06);height:18px;border-radius:999px;overflow:hidden;margin-bottom:.6rem}
+body.dark .progress-container{background:rgba(255,255,255,.04)}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
+#progressText{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem;color:inherit}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:.6rem}
+.badge{padding:.6rem;border-radius:.8rem;background:var(--card);text-align:center}
+.badge .icon{font-size:1.6rem}
+.badge.locked{filter:grayscale(1);opacity:.55}
+.badge.earned{box-shadow:0 6px 18px rgba(34,197,94,.12);transform-origin:center}
 
-/* Prioridades */
-.priority-high { border-left: 4px solid #ef4444; }
-.priority-medium { border-left: 4px solid #f59e0b; }
-.priority-low { border-left: 4px solid #22c55e; }
+/* Modal */
+.modal{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,.45)}
+.modal.show{display:flex}
+.modal-content{background:var(--card);padding:1rem;border-radius:1rem;max-width:340px;text-align:center}
+body.dark .modal-content{background:var(--card-dark)}
 
-/* Destaque tarefas importantes */
-.important {
-  border: 2px solid var(--star);
-  box-shadow: 0 0 8px rgba(250, 204, 21, 0.6);
-}
+/* animations */
+.fade-in{animation:fadeIn .28s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.star-btn {
-  color: var(--star);
-  font-size: 1.2rem;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-}
-
-/* -------- CHART -------- */
-.stats-panel {
-  max-width: 450px;
-  margin: 1rem auto;
-  padding: 1rem;
-  background: var(--card-bg-light);
-  border-radius: 0.75rem;
-  backdrop-filter: blur(6px);
-}
-body.dark .stats-panel {
-  background: var(--card-bg-dark);
-}
-
-/* -------- BADGES -------- */
-#badgeSection {
-  padding: 1rem 2rem;
-}
-
-#badgeSection h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.badge-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.badge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 1rem;
-  border-radius: 1rem;
-  background: var(--card-bg-light);
-  transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
-}
-body.dark .badge {
-  background: var(--card-bg-dark);
-}
-
-.badge .icon {
-  font-size: 2rem;
-  line-height: 1;
-}
-
-/* Conquistadas */
-.badge.earned {
-  box-shadow: 0 0 8px var(--accent);
-}
-.badge.earned:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 12px var(--accent);
-}
-
-/* Bloqueadas */
-.badge.locked {
-  opacity: 0.5;
-  filter: grayscale(100%);
-}
-
-/* -------- MODAL -------- */
-#trophyModal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 50;
-}
-#trophyModal .modal-content {
-  background: var(--card-bg-light);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  max-width: 300px;
-  text-align: center;
-}
-body.dark #trophyModal .modal-content {
-  background: var(--card-bg-dark);
-}
-
-/* -------- PROGRESS BAR -------- */
-.progress-container {
-  position: relative;
-  background: rgba(0,0,0,0.1);
-  border-radius: 1rem;
-  height: 18px;
-  margin-bottom: 1rem;
-  overflow: hidden;
-}
-body.dark .progress-container {
-  background: rgba(255,255,255,0.1);
-}
-
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(to right, var(--accent), #06b6d4);
-  border-radius: inherit;
-  transition: width 0.5s ease-in-out;
-}
-
-#progressText {
-  position: absolute;
-  width: 100%;
-  top: 0;
-  left: 0;
-  text-align: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-light);
-  line-height: 18px;
-}
-body.dark #progressText {
-  color: var(--text-dark);
-}
-
-/* -------- TOOLTIP -------- */
-.badge {
-  position: relative;
-}
-.badge[title] {
-  cursor: help;
-}
-
-/* -------- MODAL ANIMATION -------- */
-#trophyModal {
-  opacity: 0;
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-  justify-content: center;
-  align-items: center;
-  z-index: 50;
-  transition: opacity 0.3s ease;
-}
-#trophyModal.show {
-  display: flex;
-  opacity: 1;
-}
-
-#trophyModal .modal-content {
-  background: var(--card-bg-light);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  max-width: 300px;
-  text-align: center;
-  transform: scale(0.9);
-  transition: transform 0.3s ease;
-}
-#trophyModal.show .modal-content {
-  transform: scale(1);
-}
-body.dark #trophyModal .modal-content {
-  background: var(--card-bg-dark);
-}
-
-/* -------- RESPONSIVIDADE BADGES -------- */
-@media (max-width: 600px) {
-  .badge-grid {
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  }
-}
-
-/* -------- BOTÕES DAS TAREFAS -------- */
-.task-card button {
-  background: transparent;
-  border: none;
-  font-size: 1.3rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.task-card button:hover {
-  transform: scale(1.2);
-  opacity: 0.85;
-}
-
-.task-card.completed h3 {
-  text-decoration: line-through;
-  opacity: 0.6;
-}
-
-/* Favoritar */
-.star-btn {
-  color: var(--star);
-}
-
-/* Concluir (emoji) */
-.btn-complete {
-  font-size: 1.4rem;
-  color: var(--accent);
-}
-
-/* Editar */
-.btn-edit {
-  font-size: 1.2rem;
-  color: #3b82f6; /* azul */
-}
-
-/* Remover */
-.btn-delete {
-  font-size: 1.2rem;
-  color: #ef4444; /* vermelho */
-}
-
-/* -------- DARK MODE PARA BOTÕES -------- */
-body.dark .btn-edit {
-  color: #60a5fa;
-}
-body.dark .btn-delete {
-  color: #f87171;
-}
-body.dark .btn-complete {
-  color: #4ade80;
+/* responsive */
+@media (max-width:700px){
+  .search-section{flex-direction:column}
+  .controls{display:flex;gap:.5rem}
 }
