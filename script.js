@@ -144,6 +144,11 @@ function toggleImportant(id) {
 searchInput.addEventListener('input', renderTasks);
 filterSelect.addEventListener('change', renderTasks);
 
+
+/.display = 'flex';
+  }
+}
+
 // ----------------- Gráfico -----------------
 function updateChart() {
   const completed = tasks.filter(t => t.completed).length;
