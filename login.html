@@ -1,45 +1,30 @@
-<!DOCTYPE html> <!-- Declara que este é um documento HTML5 -->
-<html lang="pt-BR"> <!-- Define o idioma da página como português do Brasil -->
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"> <!-- Define a codificação de caracteres para suportar acentos -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Garante que a página é responsiva em dispositivos móveis -->
-  <title>Login - TaskMaster</title> <!-- Título que aparece na aba do navegador -->
-
-  <!-- Importa o arquivo de estilos local para a página de login -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - TaskMaster</title>
   <link rel="stylesheet" href="login.css">
-
-  <!-- Importa o Tailwind CSS diretamente da CDN (facilita estilização moderna e responsiva) -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body>
 
-<body> <!-- Início do corpo da página -->
-
-  <!-- Container principal do login -->
   <div class="login-container">
-    <!-- Título do aplicativo -->
     <h1 class="app-title">TaskMaster</h1>
-
-    <!-- Subtítulo explicativo -->
     <p class="subtitle">Entre para acessar suas tarefas</p>
 
-    <!-- Formulário de login -->
     <form id="loginForm" class="login-form">
-      <!-- Campo de texto para inserir o nome do usuário -->
       <input type="text" id="username" placeholder="Digite seu nome..." required>
 
-      <!-- Select para escolher o tema preferido -->
       <select id="themeSelect" required>
         <option value="light">Tema Claro 🌞</option>
         <option value="dark">Tema Escuro 🌙</option>
       </select>
 
-      <!-- Botão de envio do formulário -->
       <button type="submit" class="btn-accent">Entrar</button>
     </form>
   </div>
 
-  <!-- Script que controla a lógica do login e troca de tema -->
   <script src="login.js"></script>
-
 </body>
 </html>
