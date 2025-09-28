@@ -268,6 +268,16 @@ closeTrophy.addEventListener('click', () => {
   setTimeout(() => { trophyModal.style.display = 'none'; }, 300);
 });
 
+// ----------------- LOGOUT -----------------
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  // Remove o usuário atual
+  localStorage.removeItem('currentUser');
+
+  // Redireciona para a tela de login
+  window.location.href = 'login.html';
+});
+
+
 // ----------------- Inicialização -----------------
 renderTasks();
 updateChart();
