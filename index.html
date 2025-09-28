@@ -20,68 +20,40 @@
   --card-bg-dark:rgba(30,41,59,0.6);
   --star:#facc15;
 }
-body{font-family:'Inter',sans-serif;background:var(--bg-light);color:var(--text-light);transition:background .3s,color .3s;}
-body.dark{background:var(--bg-dark);color:var(--text-dark);}
-
-/* Cards */
-.task-card{
-  position:relative;
-  background:var(--card-bg-light);
-  backdrop-filter:blur(8px);
-  border:1px solid var(--border);
-  border-radius:.75rem;
-  padding:.75rem;
-  transition:background .3s,transform .2s;
-}
-body.dark .task-card{background:var(--card-bg-dark);border-color:#334155;}
+body {font-family:'Inter',sans-serif;background:var(--bg-light);color:var(--text-light);transition:background .3s,color .3s;}
+body.dark {background:var(--bg-dark);color:var(--text-dark);}
+.task-card {background:var(--card-bg-light);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:.75rem;padding:.75rem;transition:background .3s,transform .2s;}
+body.dark .task-card {background:var(--card-bg-dark);border-color:#334155;}
 .task-card:hover{transform:translateY(-2px);}
 .task-card.dragging{opacity:.5;}
-/* Barras de prioridade */
-.task-card[data-priority="high"]{border-left:6px solid #ef4444;}
-.task-card[data-priority="medium"]{border-left:6px solid #f59e0b;}
-.task-card[data-priority="low"]{border-left:6px solid #22c55e;}
-body.dark .task-card[data-priority="high"]{border-left-color:#f87171;}
-body.dark .task-card[data-priority="medium"]{border-left-color:#facc15;}
-body.dark .task-card[data-priority="low"]{border-left-color:#4ade80;}
-
+.priority-high{border-left:4px solid #ef4444;}
+.priority-medium{border-left:4px solid #f59e0b;}
+.priority-low{border-left:4px solid #22c55e;}
 .important{border:2px solid var(--star);box-shadow:0 0 8px rgba(250,204,21,0.6);}
 .star-btn{color:var(--star);font-size:1.2rem;transition:transform .2s;}
 .star-btn:hover{transform:scale(1.2);}
-
-input,select{
-  border:1px solid var(--border);
-  border-radius:.5rem;
-  padding:.5rem;
-}
+input,select{border:1px solid var(--border);border-radius:.5rem;padding:.5rem;}
 body.dark input,body.dark select{border-color:#475569;}
-select option[value="low"]{color:#22c55e;}
-select option[value="medium"]{color:#f59e0b;}
-select option[value="high"]{color:#ef4444;}
-body.dark select option[value="low"]{color:#4ade80;}
-body.dark select option[value="medium"]{color:#facc15;}
-body.dark select option[value="high"]{color:#f87171;}
-
-.btn-accent{
-  background:linear-gradient(to right,var(--accent),#06b6d4);
-  color:#fff;
-  padding:.5rem 1rem;
-  border-radius:.5rem;
-  transition:transform .2s;
-}
+.btn-accent{background:linear-gradient(to right,var(--accent),#06b6d4);color:#fff;padding:.5rem 1rem;border-radius:.5rem;transition:transform .2s;}
 .btn-accent:hover{transform:scale(1.05);}
+#trophyModal {position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);display:none;justify-content:center;align-items:center;z-index:50;}
+#trophyModal .modal-content{background:var(--card-bg-light);padding:1rem 2rem;border-radius:1rem;max-width:500px;width:90%;backdrop-filter:blur(8px);}
+body.dark #trophyModal .modal-content{background:var(--card-bg-dark);}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:1rem;}
+.badge{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:.5rem;padding:.5rem;min-height:100px;text-align:center;background:rgba(255,255,255,0.1);border:1px solid var(--border);}
+body.dark .badge{border-color:#334155;}
+.badge.locked{opacity:.3;}
+.toast{position:fixed;top:1rem;right:1rem;background:#22c55e;color:#fff;padding:.5rem 1rem;border-radius:.5rem;animation:fadein .5s,fadeout .5s 3s;z-index:100;}
+@keyframes fadein{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeout{from{opacity:1;}to{opacity:0;}}
 </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center">
+<body class="min-h-screen flex flex-col items-center px-2">
 
 <!-- LOGIN -->
-<div id="loginSection" class="w-full max-w-sm p-6 rounded-xl shadow-md bg-white/70 dark:bg-slate-800/70 backdrop-blur text-center">
-  <h1 class="text-3xl mb-4 font-bold">Bem-vindo!</h1>
-  <input id="usernameInput" type="text" placeholder="Digite seu usuário"
-         class="w-full p-2 mb-4 rounded border">
-  <select id="themeSelect" class="w-full p-2 mb-4 rounded border">
-    <option value="light">Tema Claro</option>
-    <option value="dark">Tema Escuro</option>
-  </select>
+<div id="loginSection" class="w-full max-w-sm p-6 mt-8 rounded-xl shadow-md bg-white/70 dark:bg-slate-800/70 backdrop-blur">
+  <h1 class="text-2xl mb-4 text-center font-bold">Login</h1>
+  <input id="usernameInput" type="text" placeholder="Digite seu usuário" class="w-full p-2 mb-4 rounded border">
   <button id="loginBtn" class="w-full btn-accent font-semibold py-2 rounded">Entrar</button>
 </div>
 
@@ -90,6 +62,7 @@ body.dark select option[value="high"]{color:#f87171;}
   <header class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
     <h1 class="text-3xl font-bold">To-Do List</h1>
     <div class="flex gap-2">
+      <button id="trophyBtn" class="btn-accent">🏆 Conquistas</button>
       <button id="toggleDarkMode" class="btn-accent">Mudar Tema</button>
       <button id="logoutBtn" class="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-500">Sair</button>
     </div>
@@ -117,21 +90,29 @@ body.dark select option[value="high"]{color:#f87171;}
     </select>
   </div>
 
-  <!-- GRÁFICO DE PROGRESSO -->
-  <div class="mb-6 flex justify-center">
-    <div class="w-64 h-64">
-      <canvas id="progressChart"></canvas>
-    </div>
+  <!-- GRÁFICO -->
+  <div class="mb-6">
+    <canvas id="progressChart" height="120"></canvas>
   </div>
 
   <ul id="taskList" class="flex flex-col gap-3"></ul>
+</div>
+
+<!-- TROFÉUS MODAL -->
+<div id="trophyModal" class="flex">
+  <div class="modal-content">
+    <h2 class="text-xl font-bold mb-4">Suas Conquistas 🏆</h2>
+    <div id="badgeGrid" class="badge-grid"></div>
+    <div class="text-right mt-4">
+      <button id="closeTrophy" class="btn-accent">Fechar</button>
+    </div>
+  </div>
 </div>
 
 <script>
 const loginSection=document.getElementById('loginSection')
 const appSection=document.getElementById('appSection')
 const usernameInput=document.getElementById('usernameInput')
-const themeSelect=document.getElementById('themeSelect')
 const loginBtn=document.getElementById('loginBtn')
 const logoutBtn=document.getElementById('logoutBtn')
 const toggleDarkMode=document.getElementById('toggleDarkMode')
@@ -143,129 +124,161 @@ const taskList=document.getElementById('taskList')
 const searchInput=document.getElementById('searchInput')
 const filterSelect=document.getElementById('filterSelect')
 
+const trophyBtn=document.getElementById('trophyBtn')
+const trophyModal=document.getElementById('trophyModal')
+const closeTrophy=document.getElementById('closeTrophy')
+const badgeGrid=document.getElementById('badgeGrid')
+
 let currentUser=null
 let tasks=[]
 let chart=null
+let achievements={}
 
-function saveTasks(){localStorage.setItem(`tasks_${currentUser}`,JSON.stringify(tasks))}
-function loadTasks(){tasks=JSON.parse(localStorage.getItem(`tasks_${currentUser}`)||'[]')}
+const badges=[
+ {id:'first5',name:'Primeiras 5!',desc:'Complete 5 tarefas',condition:()=>tasks.filter(t=>t.completed).length>=5},
+ {id:'first10',name:'Foco Iniciante',desc:'Complete 10 tarefas',condition:()=>tasks.filter(t=>t.completed).length>=10},
+ {id:'hundred',name:'Produtividade Máxima',desc:'100 tarefas concluídas!',condition:()=>tasks.filter(t=>t.completed).length>=100},
+ {id:'usePriorities',name:'Estrategista',desc:'Use todas as prioridades pelo menos 1 vez',condition:()=>{
+   return ['low','medium','high'].every(p=>tasks.some(t=>t.priority===p))
+ }},
+ {id:'subtaskMaster',name:'Organizador',desc:'Adicione 10 subtarefas',condition:()=>{
+   return tasks.reduce((a,t)=>a+t.subtasks.length,0)>=10
+ }},
+]
+
+function saveData(){
+ localStorage.setItem(`tasks_${currentUser}`,JSON.stringify(tasks))
+ localStorage.setItem(`achievements_${currentUser}`,JSON.stringify(achievements))
+}
+function loadData(){
+ tasks=JSON.parse(localStorage.getItem(`tasks_${currentUser}`)||'[]')
+ achievements=JSON.parse(localStorage.getItem(`achievements_${currentUser}`)||'{}')
+}
 
 function renderTasks(){
-  taskList.innerHTML=''
-  const search=searchInput.value.toLowerCase()
-  const filter=filterSelect.value
-  const sorted=[...tasks].sort((a,b)=>b.important-a.important)
-  sorted.forEach((t,i)=>{
-    if(t.title.toLowerCase().includes(search)&&(filter==='all'||(filter==='pending'&&!t.completed)||(filter==='completed'&&t.completed))){
-      const li=document.createElement('li')
-      li.draggable=true
-      li.dataset.index=i
-      li.className=`task-card ${t.important?'important':''}`
-      li.setAttribute('data-priority',t.priority)
-      li.innerHTML=`
-        <div class="flex justify-between items-center">
-          <div>
-            <input type="checkbox" ${t.completed?'checked':''}>
-            <span class="${t.completed?'line-through text-gray-500':''}">${t.title}</span>
-            ${t.dueDate?`<small class="ml-2 text-green-400">[${t.dueDate}]</small>`:''}
-          </div>
-          <div class="flex gap-2">
-            <button class="toggle-important star-btn ${t.important?'':'opacity-50'}">⭐</button>
-            <button class="add-subtask text-green-500">＋</button>
-            <button class="delete-task text-red-500">✕</button>
-          </div>
-        </div>
-        <ul class="subtasks mt-2 pl-6"></ul>`
-      const subtasksUl=li.querySelector('.subtasks')
-      t.subtasks.forEach(s=>{
-        const sLi=document.createElement('li')
-        sLi.innerHTML=`<input type="checkbox" ${s.done?'checked':''}> <span class="${s.done?'line-through text-gray-500':''}">${s.text}</span>`
-        subtasksUl.appendChild(sLi)
-        sLi.querySelector('input').addEventListener('change',()=>{
-          s.done=!s.done;saveTasks();renderTasks()
-        })
-      })
-      li.querySelector('input[type="checkbox"]').addEventListener('change',()=>{t.completed=!t.completed;saveTasks();renderTasks()})
-      li.querySelector('.delete-task').addEventListener('click',()=>{tasks.splice(tasks.indexOf(t),1);saveTasks();renderTasks()})
-      li.querySelector('.add-subtask').addEventListener('click',()=>{
-        const txt=prompt('Digite a subtarefa:')
-        if(txt){t.subtasks.push({text:txt,done:false});saveTasks();renderTasks()}
-      })
-      li.querySelector('.toggle-important').addEventListener('click',()=>{t.important=!t.important;saveTasks();renderTasks()})
-      taskList.appendChild(li)
-    }
-  })
-  enableDragDrop()
-  updateChart()
+ taskList.innerHTML=''
+ const search=searchInput.value.toLowerCase()
+ const filter=filterSelect.value
+ const sorted=[...tasks].sort((a,b)=>b.important-a.important)
+ sorted.forEach((t,i)=>{
+   if(t.title.toLowerCase().includes(search)&&(filter==='all'||(filter==='pending'&&!t.completed)||(filter==='completed'&&t.completed))){
+     const li=document.createElement('li')
+     li.draggable=true
+     li.dataset.index=i
+     li.className=`task-card ${t.priority==='high'?'priority-high':t.priority==='medium'?'priority-medium':'priority-low'} ${t.important?'important':''}`
+     li.innerHTML=`
+       <div class="flex justify-between items-center">
+         <div>
+           <input type="checkbox" ${t.completed?'checked':''}>
+           <span class="${t.completed?'line-through text-gray-500':''}">${t.title}</span>
+           ${t.dueDate?`<small class="ml-2 text-green-400">[${t.dueDate}]</small>`:''}
+         </div>
+         <div class="flex gap-2">
+           <button class="toggle-important star-btn ${t.important?'':'opacity-50'}">⭐</button>
+           <button class="add-subtask text-green-500">＋</button>
+           <button class="delete-task text-red-500">✕</button>
+         </div>
+       </div>
+       <ul class="subtasks mt-2 pl-6"></ul>`
+     const subtasksUl=li.querySelector('.subtasks')
+     t.subtasks.forEach(s=>{
+       const sLi=document.createElement('li')
+       sLi.innerHTML=`<input type="checkbox" ${s.done?'checked':''}> <span class="${s.done?'line-through text-gray-500':''}">${s.text}</span>`
+       subtasksUl.appendChild(sLi)
+       sLi.querySelector('input').addEventListener('change',()=>{s.done=!s.done;saveData();renderTasks();checkAchievements()})
+     })
+     li.querySelector('input[type="checkbox"]').addEventListener('change',()=>{t.completed=!t.completed;saveData();renderTasks();checkAchievements()})
+     li.querySelector('.delete-task').addEventListener('click',()=>{tasks.splice(tasks.indexOf(t),1);saveData();renderTasks();checkAchievements()})
+     li.querySelector('.add-subtask').addEventListener('click',()=>{
+       const txt=prompt('Digite a subtarefa:')
+       if(txt){t.subtasks.push({text:txt,done:false});saveData();renderTasks();checkAchievements()}
+     })
+     li.querySelector('.toggle-important').addEventListener('click',()=>{t.important=!t.important;saveData();renderTasks()})
+     taskList.appendChild(li)
+   }
+ })
+ enableDragDrop()
+ updateChart()
 }
 
 function enableDragDrop(){
-  const items=document.querySelectorAll('#taskList .task-card')
-  items.forEach(it=>{
-    it.addEventListener('dragstart',()=>it.classList.add('dragging'))
-    it.addEventListener('dragend',()=>{it.classList.remove('dragging');reorderTasks()})
-  })
-  taskList.addEventListener('dragover',e=>{
-    e.preventDefault()
-    const dragging=document.querySelector('.dragging')
-    const siblings=[...taskList.querySelectorAll('.task-card:not(.dragging)')]
-    const next=siblings.find(s=>e.clientY<=s.offsetTop+s.offsetHeight/2)
-    taskList.insertBefore(dragging,next)
-  })
+ const items=document.querySelectorAll('#taskList .task-card')
+ items.forEach(it=>{
+   it.addEventListener('dragstart',()=>it.classList.add('dragging'))
+   it.addEventListener('dragend',()=>{it.classList.remove('dragging');reorderTasks()})
+ })
+ taskList.addEventListener('dragover',e=>{
+   e.preventDefault()
+   const dragging=document.querySelector('.dragging')
+   const siblings=[...taskList.querySelectorAll('.task-card:not(.dragging)')]
+   const next=siblings.find(s=>e.clientY<=s.offsetTop+s.offsetHeight/2)
+   taskList.insertBefore(dragging,next)
+ })
 }
-function reorderTasks(){tasks=[...taskList.querySelectorAll('.task-card')].map(it=>tasks[it.dataset.index]);saveTasks();renderTasks()}
+function reorderTasks(){tasks=[...taskList.querySelectorAll('.task-card')].map(it=>tasks[it.dataset.index]);saveData();renderTasks()}
 
 function updateChart(){
-  const completed=tasks.filter(t=>t.completed).length
-  const pending=tasks.length-completed
-  const ctx=document.getElementById('progressChart').getContext('2d')
-  if(chart)chart.destroy()
-  chart=new Chart(ctx,{
-    type:'doughnut',
-    data:{
-      labels:['Concluídas','Pendentes'],
-      datasets:[{data:[completed,pending],backgroundColor:['#22c55e','#ef4444']}]
-    },
-    options:{
-      responsive:true,
-      cutout:'65%',
-      plugins:{
-        legend:{display:true,labels:{color:document.body.classList.contains('dark')?'#e5e7eb':'#111827'}}
-      }
-    }
-  })
+ const completed=tasks.filter(t=>t.completed).length
+ const pending=tasks.length-completed
+ const ctx=document.getElementById('progressChart').getContext('2d')
+ if(chart)chart.destroy()
+ chart=new Chart(ctx,{
+   type:'doughnut',
+   data:{labels:['Concluídas','Pendentes'],datasets:[{data:[completed,pending],backgroundColor:['#22c55e','#ef4444']}]},
+   options:{plugins:{legend:{labels:{color:document.body.classList.contains('dark')?'#e5e7eb':'#111827'}}}}
+ })
 }
 
+function checkAchievements(){
+ badges.forEach(b=>{
+   if(b.condition()&&!achievements[b.id]){
+     achievements[b.id]=true
+     saveData()
+     showToast(`🏆 Nova conquista: ${b.name}`)
+   }
+ })
+}
+
+function renderBadges(){
+ badgeGrid.innerHTML=''
+ badges.forEach(b=>{
+   const div=document.createElement('div')
+   div.className='badge '+(achievements[b.id]?'':'locked')
+   div.innerHTML=`<div class="text-2xl mb-2">${achievements[b.id]?'🏆':'🔒'}</div><div class="font-semibold">${b.name}</div><small>${b.desc}</small>`
+   badgeGrid.appendChild(div)
+ })
+}
+
+function showToast(msg){
+ const t=document.createElement('div')
+ t.className='toast'
+ t.textContent=msg
+ document.body.appendChild(t)
+ setTimeout(()=>t.remove(),4000)
+}
+
+// EVENTOS
 taskForm.addEventListener('submit',e=>{
-  e.preventDefault()
-  const title=taskInput.value.trim()
-  if(title){
-    tasks.push({title,completed:false,priority:priorityInput.value,dueDate:dueDateInput.value,subtasks:[],important:false})
-    saveTasks();renderTasks();taskForm.reset()
-  }
+ e.preventDefault()
+ const title=taskInput.value.trim()
+ if(title){
+   tasks.push({title,completed:false,priority:priorityInput.value,dueDate:dueDateInput.value,subtasks:[],important:false})
+   saveData();renderTasks();checkAchievements();taskForm.reset()
+ }
 })
 searchInput.addEventListener('input',renderTasks)
 filterSelect.addEventListener('change',renderTasks)
 toggleDarkMode.addEventListener('click',()=>{document.body.classList.toggle('dark');updateChart()})
 
 loginBtn.addEventListener('click',()=>{
-  const u=usernameInput.value.trim()
-  if(u){
-    currentUser=u
-    document.body.classList.toggle('dark',themeSelect.value==='dark')
-    loginSection.classList.add('hidden')
-    appSection.classList.remove('hidden')
-    loadTasks();renderTasks()
-  }
+ const u=usernameInput.value.trim()
+ if(u){currentUser=u;loginSection.classList.add('hidden');appSection.classList.remove('hidden');loadData();renderTasks();renderBadges()}
 })
 logoutBtn.addEventListener('click',()=>{currentUser=null;tasks=[];appSection.classList.add('hidden');loginSection.classList.remove('hidden')})
 
-function checkDueDates(){
-  const today=new Date().toISOString().split('T')[0]
-  tasks.forEach(t=>{if(t.dueDate===today&&!t.completed){new Notification('Tarefa pendente',{body:t.title})}})
-}
-if('Notification'in window&&Notification.permission!=='granted'){Notification.requestPermission()}
-setInterval(checkDueDates,60000)
+trophyBtn.addEventListener('click',()=>{renderBadges();trophyModal.style.display='flex'})
+closeTrophy.addEventListener('click',()=>{trophyModal.style.display='none'})
+
 </script>
 </body>
 </html>
