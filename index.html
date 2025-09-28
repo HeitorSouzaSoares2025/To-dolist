@@ -7,6 +7,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
+  /* Melhor contraste no select e nas opções */
+select, option {
+  background: var(--bg-light);
+  color: var(--text-light);
+}
+
+body.dark select, 
+body.dark option {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+/* Cores visuais para prioridades */
+option[value="low"]    { color: #22c55e; }  /* Verde */
+option[value="medium"] { color: #f59e0b; }  /* Amarelo */
+option[value="high"]   { color: #ef4444; }  /* Vermelho */
+
 :root {
   --accent: #22c55e;      /* Verde claro padrão */
   --accent-dark: #16a34a;
